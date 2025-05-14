@@ -1,3 +1,18 @@
+# storage of results: 
+energy_data/*.json
+examples/video/energy_data/*.json
+# 1) Allow the profiling folder (so Git will descend into it)
+!examples/ml/profiling/
+
+# 2) Still ignore *everything* under profiling by default…
+examples/ml/profiling/*
+
+# 3) Except whitelist the machine_learning sub‐dir itself:
+!examples/ml/profiling/machine_learning*/
+
+# 4) And finally whitelist all .json in that subdir:
+!examples/ml/profiling/machine_learning*/*.json
+
 # Byte-compiled / optimized / DLL files
 **/__pycache__/
 *.py[cod]
@@ -94,6 +109,8 @@ celerybeat-schedule.*
 # dotenv
 .env
 .venv
+venv-flexecutor
+
 
 # virtualenv
 venv/
@@ -129,8 +146,6 @@ examples/*/models/
 # images (maybe provisinal)
 examples/*/images/
 
-examples/*/profiling/
-!examples/*/profiling/mocks
 
 # vscode, formatting...
 .vscode/

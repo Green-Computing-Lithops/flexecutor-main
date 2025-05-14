@@ -52,5 +52,24 @@ class StageFuture:
             if r.energy_consumption is not None:
                 print(f"Energy consumption for {self.__stage_id}: {r.energy_consumption} Joules")
             
+            ##~~ENERGY~~##
+            # Extract CPU usage and calculate energy_lithops
+            # energy_lithops = execution_time * cpu_percent
+            if "worker_exec_time" in s and "worker_cpu_percent" in s:
+                exec_time = s["worker_exec_time"]
+                cpu_percent = s["worker_cpu_percent"]
+                r.energy_lithops = exec_time * (cpu_percent / 100.0)
+                print(f"Lithops energy for {self.__stage_id}: {r.energy_lithops} (time: {exec_time}s, CPU: {cpu_percent}%)")
+            elif r.total is not None and "worker_cpu_percent" in s:
+                # Use total time if worker_exec_time is not available
+                cpu_percent = s["worker_cpu_percent"]
+                r.energy_lithops = r.total * (cpu_percent / 100.0)
+                print(f"Lithops energy for {self.__stage_id}: {r.energy_lithops} (time: {r.total}s, CPU: {cpu_percent}%)")
+            elif r.total is not None:
+                # If CPU percent is not available, use a default value of 50%
+                r.energy_lithops = r.total * 0.5
+                print(f"Lithops energy for {self.__stage_id}: {r.energy_lithops} (time: {r.total}s, CPU: 50% [default])")
+            ##~~ENERGY~~##
+            
             timings_list.append(r)
         return timings_list

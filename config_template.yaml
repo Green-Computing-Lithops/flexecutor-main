@@ -1,0 +1,20 @@
+lithops:
+    backend: localhost 
+    storage: minio  
+
+ 
+
+
+minio:
+    # storage_bucket: lithops-test
+    storage_bucket: test-bucket
+    endpoint: http://192.168.1.168:9000 # dentro de docker s3 / minio: self deployed accesible desde ambos entornos : 172.17.0.1 --> r
+    access_key_id: minioadmin
+    secret_access_key: minioadmin
+# 
+# (venv-flexecutor) bigrobbin@bigrobbin:~/Desktop/TFG/flexecutor-main$ telnet 172.17.0.1 9000
+# Trying 172.17.0.1...
+# Connected to 172.17.0.1.
+# Escape character is '^]'.
+
+# sudo entorno de docker --> $ 

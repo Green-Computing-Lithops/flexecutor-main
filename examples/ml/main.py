@@ -1,3 +1,8 @@
+import sys
+import os
+
+# Add the lithops_fork directory to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../lithops_fork')))
 from lithops import FunctionExecutor
 
 from examples.ml.functions import pca, train_with_multiprocessing, aggregate, test
@@ -6,8 +11,8 @@ from flexecutor.utils.utils import flexorchestrator
 from flexecutor.workflow.dag import DAG
 from flexecutor.workflow.executor import DAGExecutor
 from flexecutor.workflow.stage import Stage
-from scheduling.jolteon import Jolteon
-from utils.dataclass import StageConfig
+from flexecutor.scheduling.jolteon import Jolteon
+from flexecutor.utils.dataclass import StageConfig
 
 if __name__ == "__main__":
 
@@ -75,7 +80,7 @@ if __name__ == "__main__":
 
         executor = DAGExecutor(
             dag,
-            executor=FunctionExecutor(log_level="INFO"),
+            executor=FunctionExecutor(log_level="INFO", runtime_memory=1024),
             scheduler=Jolteon(
                 dag,
                 bound=40,
@@ -83,10 +88,14 @@ if __name__ == "__main__":
                 cpu_search_space=[0.6, 1, 1.5, 2, 2.5, 3, 4],
                 entry_point=entry_point,
                 x_bounds=x_bounds,
+
             ),
+
         )
 
         executor.optimize()
+        print("\nExecuting DAG...")
+        executor.execute()
         executor.shutdown()
 
     main()

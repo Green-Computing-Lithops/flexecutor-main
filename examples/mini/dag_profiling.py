@@ -4,7 +4,7 @@ import logging
 
 from lithops import FunctionExecutor
 
-from functions.word_count import (
+from examples.mini.functions.word_count import (
     word_count,
     sum_counts,
     flex_data_txt,
@@ -13,7 +13,8 @@ from functions.word_count import (
 )
 from flexecutor.utils.utils import flexorchestrator
 from flexecutor.workflow.dag import DAG
-from flexecutor.workflow.executor import DAGExecutor, StageConfig
+from flexecutor.workflow.executor import DAGExecutor
+from flexecutor.utils.dataclass import StageConfig
 from flexecutor.workflow.stage import Stage
 from flexecutor.utils import setup_logging
 

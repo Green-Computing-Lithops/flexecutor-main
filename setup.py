@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from itertools import chain
 
 install_requires = [
-    #"cloud-dataplug @ git+https://github.com/CLOUDLAB-URV/dataplug",
+    "cloud-dataplug @ git+https://github.com/CLOUDLAB-URV/dataplug", # this was commented
     "lithops",
     "boto3",
     "cloudpickle",
@@ -11,7 +11,18 @@ install_requires = [
     "scipy",
     "numpy",
     "pandas",
-    "black"
+    "black", 
+    # video: 
+    "opencv-python",
+    "Pillow",
+    "torch",
+    "torchvision", 
+    "imageai", 
+    "moviepy",
+    # ml
+    "lightgbm",
+    "joblib",
+    "scikit-learn"
 ]
 
 extras_require = {
