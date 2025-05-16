@@ -11,8 +11,8 @@ from flexecutor.utils.utils import flexorchestrator
 from flexecutor.workflow.dag import DAG
 from flexecutor.workflow.executor import DAGExecutor
 from flexecutor.workflow.stage import Stage
-from scheduling.jolteon import Jolteon
-from utils.dataclass import StageConfig
+from flexecutor.scheduling.jolteon import Jolteon
+from flexecutor.utils.dataclass import StageConfig
 
 if __name__ == "__main__":
 
@@ -76,7 +76,8 @@ if __name__ == "__main__":
             ),
         )
 
-        executor.optimize()
+        # executor.optimize()
+        executor.execute()
         executor.shutdown()
 
     main()

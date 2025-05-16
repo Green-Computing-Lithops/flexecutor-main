@@ -264,6 +264,42 @@ class DAGExecutor:
                         self._dependence_free_stages.add(child)
 
         return self._futures
+        
+    def execute_with_profiling(self, num_workers=None) -> Dict[str, StageFuture]:
+        """
+        Execute the DAG and save profiling data to JSON files.
+        
+        This method combines the functionality of execute() and profile() by executing
+        the DAG and then saving the profiling data for each stage.
+        
+        @param num_workers: **DEV** parameter to set the number of workers to use in the stages in the DAG.
+         If defined, overrides the number of workers defined in the resource configuration of the stages.
+        @return A dictionary with the output data of the DAG stages with the stage ID as key
+        """
+        # Execute the DAG
+        futures = self.execute(num_workers)
+        
+        # Process and save profiling data for each stage
+        for stage in self._dag.stages:
+            future = futures.get(stage.stage_id)
+            if future and not future.error():
+                # Get profiling data
+                timings = future.get_timings()
+                
+                # Load existing profiling data
+                profiling_file = self._get_asset_path(stage, AssetType.PROFILE)
+                profile_data = load_profiling_results(profiling_file)
+                
+                # Store new profiling data
+                self._store_profiling(profile_data, timings, stage.resource_config)
+                
+                # Save profiling data
+                save_profiling_results(profiling_file, profile_data)
+                logger.info(f"Profiling data for {stage.stage_id} saved in {profiling_file}")
+            elif future and future.error():
+                logger.error(f"Error processing stage {stage.stage_id}: {future.error()}")
+        
+        return futures
 
     def optimize(self):
         """

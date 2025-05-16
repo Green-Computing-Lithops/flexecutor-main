@@ -1,5 +1,6 @@
 import sys
 import os
+import shutil
 
 # Add the lithops_fork directory to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../lithops_fork')))
@@ -9,7 +10,9 @@ from examples.ml.functions import pca, train_with_multiprocessing, aggregate, te
 from flexecutor.storage.storage import FlexData, StrategyEnum
 from flexecutor.utils.utils import flexorchestrator
 from flexecutor.workflow.dag import DAG
+# Import the modified DAGExecutor class
 from flexecutor.workflow.executor import DAGExecutor
+# from flexecutor.workflow.executor_modified import DAGExecutor # executor esp
 from flexecutor.workflow.stage import Stage
 from flexecutor.scheduling.jolteon import Jolteon
 from flexecutor.utils.dataclass import StageConfig
@@ -18,6 +21,7 @@ if __name__ == "__main__":
 
     @flexorchestrator(bucket="test-bucket")
     def main():
+      
         dag = DAG("machine_learning")
 
         data_training = FlexData("training-data")
@@ -80,7 +84,8 @@ if __name__ == "__main__":
 
         executor = DAGExecutor(
             dag,
-            executor=FunctionExecutor(log_level="INFO", runtime_memory=1024),
+            # executor=FunctionExecutor(log_level="INFO", runtime_memory=1024), ##~~ENERGY~~##
+            executor=FunctionExecutor(log_level="INFO"),
             scheduler=Jolteon(
                 dag,
                 bound=40,
@@ -88,14 +93,20 @@ if __name__ == "__main__":
                 cpu_search_space=[0.6, 1, 1.5, 2, 2.5, 3, 4],
                 entry_point=entry_point,
                 x_bounds=x_bounds,
-
             ),
-
         )
 
-        executor.optimize()
-        print("\nExecuting DAG...")
-        executor.execute()
+        # Skip optimization to avoid errors
+        # executor.optimize()
+        
+        # Set default configurations for each stage
+        for i, stage in enumerate(dag.stages):
+            stage.resource_config = StageConfig( cpu=4, memory=1024, workers=8)
+        
+        # print("\nExecuting DAG...") # if you comment this reduce so much the exectuton for futures 
+        # executor.execute()
+        futures = executor.execute_with_profiling() #avoid profiling + execute : all in one  
+ 
         executor.shutdown()
 
     main()

@@ -1,3 +1,6 @@
+# pip install git+https://github.com/CLOUDLAB-URV/dataplug
+# venv-flexecutor/bin/pip install git+https://github.com/CLOUDLAB-URV/dataplug
+# ZeroDivisionError: division by zero
 from dataplug.formats.generic.csv import CSV
 from dataplug.formats.generic.csv import partition_num_chunks as chunking_dynamic_csv
 from lithops import FunctionExecutor
@@ -12,7 +15,7 @@ from flexecutor.workflow.dag import DAG
 from flexecutor.workflow.executor import DAGExecutor
 from flexecutor.workflow.stage import Stage
 
-CHUNKER_TYPE = "DYNAMIC"
+CHUNKER_TYPE = "DYNAMIC" # DYNAMIC
 
 
 if __name__ == "__main__":
