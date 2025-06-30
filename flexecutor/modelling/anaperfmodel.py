@@ -88,7 +88,7 @@ class AnaPerfModel(PerfModel):
                     size2points_write,
                     size2points_energy,
                 ],
-                ["cold_start", "read", "compute", "write", "energy_consumption"],
+                ["cold_start", "read", "compute", "write", "RAPL"],
             ):
                 if config_key not in size2points:
                     size2points[config_key] = []
@@ -181,7 +181,7 @@ class AnaPerfModel(PerfModel):
         predicted_comp_time = comp_func(key, *self._comp_params)
         predicted_write_time = io_func(key, *self._write_params)
         predicted_cold_time = coldstart_func(key, *self._cold_params)
-        predicted_energy_consumption = phase_func(key, *self._energy_params) if self._energy_params else None
+        predicted_RAPL = phase_func(key, *self._energy_params) if self._energy_params else None
         
         total_predicted_time = (
             predicted_read_time
@@ -195,14 +195,14 @@ class AnaPerfModel(PerfModel):
             f"Predicted time: {a} / {key} + {b} = {total_predicted_time} = {(a / key) + b}"
         )
         
-        if predicted_energy_consumption:
-            print(f"Predicted energy consumption: {predicted_energy_consumption} Joules")
+        if predicted_RAPL:
+            print(f"Predicted RAPL: {predicted_RAPL} Joules")
         else:
             # If energy consumption parameters are not available, estimate based on CPU usage and execution time
             # This is a simple model: energy = k * num_vcpu * num_workers * execution_time
             # where k is a constant factor (can be calibrated based on real measurements)
-            predicted_energy_consumption = 0.1 * config.cpu * config.workers * total_predicted_time
-            print(f"Estimated energy consumption (based on CPU and time): {predicted_energy_consumption} Joules")
+            predicted_RAPL = 0.1 * config.cpu * config.workers * total_predicted_time
+            print(f"Estimated RAPL (based on CPU and time): {predicted_RAPL} Joules")
 
         return FunctionTimes(
             total=total_predicted_time,
@@ -210,5 +210,5 @@ class AnaPerfModel(PerfModel):
             compute=predicted_comp_time,
             write=predicted_write_time,
             cold_start=predicted_cold_time,
-            energy_consumption=predicted_energy_consumption,
+            RAPL=predicted_RAPL,
         )

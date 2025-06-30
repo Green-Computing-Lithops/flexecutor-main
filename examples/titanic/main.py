@@ -25,7 +25,7 @@ if __name__ == "__main__":
             chunker_type=ChunkerTypeEnum.STATIC,
             chunking_strategy=chunking_static_csv,
         )
-
+# poner en practica csv fraccionado 
     elif CHUNKER_TYPE == "DYNAMIC":
         chunker = Chunker(
             chunker_type=ChunkerTypeEnum.DYNAMIC,
@@ -54,7 +54,15 @@ if __name__ == "__main__":
 
         dag.add_stage(stage)
         executor = DAGExecutor(dag, executor=FunctionExecutor())
-        results = executor.execute(num_workers=7)
+
+        # results = executor.execute(num_workers=7)
+        results = executor.execute_with_profiling(num_workers=8) #avoid profiling + execute : all in one  
+ 
+        executor.shutdown()
         print(results["stage"].get_timings())
 
     main()
+'''
+monostage --> diff configuraciones 
+cd /home/users/iarriazu/flexecutor-main && .venv/bin/pip install git+https://github.com/CLOUDLAB-URV/dataplug
+'''

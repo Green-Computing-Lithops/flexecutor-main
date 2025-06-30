@@ -100,7 +100,7 @@ def run_experiment(matrix_size=500, iterations=3, num_workers=2, cpu_per_worker=
             'compute': [timing.compute for timing in timings],
             'write': [timing.write for timing in timings],
             'cold_start': [timing.cold_start for timing in timings],
-            'energy_consumption': [timing.energy_consumption for timing in timings]
+            'RAPL': [timing.RAPL for timing in timings]
         }
         
         print("\nResults:")
@@ -201,7 +201,7 @@ def compare_optimization_objectives():
             # Extract metrics
             metrics = {
                 'latency': [timing.total for timing in timings],
-                'energy_consumption': [timing.energy_consumption for timing in timings],
+                'RAPL': [timing.RAPL for timing in timings],
                 'workers': config.workers,
                 'cpu': config.cpu
             }
@@ -213,7 +213,7 @@ def compare_optimization_objectives():
             results[objective] = metrics
             
             print(f"  Latency: {sum(metrics['latency']) / len(metrics['latency']):.4f}")
-            print(f"  Energy: {sum(metrics['energy_consumption']) / len(metrics['energy_consumption']):.4f}")
+            print(f"  Energy: {sum(metrics['RAPL']) / len(metrics['RAPL']):.4f}")
             print(f"  Cost: {cost:.4f}")
         
         return results
@@ -223,7 +223,7 @@ def plot_comparison(results):
     Plot the comparison of different optimization objectives.
     """
     objectives = list(results.keys())
-    metrics = ['latency', 'energy_consumption', 'cost']
+    metrics = ['latency', 'RAPL', 'cost']
     
     # Normalize the metrics for fair comparison
     normalized_results = {}
@@ -263,7 +263,7 @@ def main():
     metrics = run_experiment(matrix_size=200, iterations=2, num_workers=2, cpu_per_worker=1)
     
     # Check if energy consumption is available
-    if all(e is not None for e in metrics['energy_consumption']):
+    if all(e is not None for e in metrics['RAPL']):
         print("\n✅ Energy consumption is stored properly!")
     else:
         print("\n❌ Energy consumption is not stored properly.")
@@ -283,7 +283,7 @@ def main():
         config_name = f"workers={workers}, cpu={cpu}"
         results[config_name] = {
             'latency': sum(metrics['latency']) / len(metrics['latency']),
-            'energy': sum(metrics['energy_consumption']) / len(metrics['energy_consumption']) if all(e is not None for e in metrics['energy_consumption']) else None
+            'energy': sum(metrics['RAPL']) / len(metrics['RAPL']) if all(e is not None for e in metrics['RAPL']) else None
         }
     
     print("\nConfiguration Comparison:")

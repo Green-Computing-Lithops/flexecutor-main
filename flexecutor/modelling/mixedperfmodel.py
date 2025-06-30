@@ -502,7 +502,7 @@ class MixedPerfModel(PerfModel, GetAndSet):
         # Energy consumption is proportional to CPU usage and execution time
         # We use a simple model: energy = k * num_vcpu * num_workers * total_time
         # where k is a constant factor (can be calibrated based on real measurements)
-        energy_consumption = 0.1 * num_vcpu * num_workers * total_time
+        RAPL = 0.1 * num_vcpu * num_workers * total_time
         
         return FunctionTimes(
             total=total_time,
@@ -510,7 +510,7 @@ class MixedPerfModel(PerfModel, GetAndSet):
             compute=compute_time,
             write=write_time,
             cold_start=cold_time,
-            energy_consumption=energy_consumption
+            RAPL=RAPL
         )
 
     @overrides

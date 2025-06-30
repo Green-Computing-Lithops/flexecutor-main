@@ -41,8 +41,8 @@ def create_empty_profiling_file(stage_name):
             "compute": [[]],
             "write": [[]],
             "cold_start": [[]],
-            "energy_consumption": [[]],
-            "energy_lithops": [[]],
+            "RAPL": [[]],
+            "TDP": [[]],
             "energy_custom": [[]]
         }
     }

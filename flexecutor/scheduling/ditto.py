@@ -165,9 +165,9 @@ class Ditto(Scheduler):
             standard_config = StageConfig(cpu=1, memory=1024, workers=1)
             predicted_times = stage.perf_model.predict_time(standard_config)
             
-            # If energy_consumption is available, use it; otherwise, estimate based on execution time
-            if predicted_times.energy_consumption is not None:
-                energy = predicted_times.energy_consumption
+            # If RAPL is available, use it; otherwise, estimate based on execution time
+            if predicted_times.RAPL is not None:
+                energy = predicted_times.RAPL
             else:
                 # Fallback: estimate energy based on execution time (higher time = higher energy)
                 energy = predicted_times.total

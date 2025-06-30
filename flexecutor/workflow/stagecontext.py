@@ -110,3 +110,13 @@ class StageContext:
     
     def is_dynamic_chunker(self, input_id: str) -> bool:
         return self._context.inputs[input_id].has_chunker_type(ChunkerTypeEnum.DYNAMIC)
+    # ADDED to ##PI_ESTIMATION_BATCH_EXECUTION## 
+    @property
+    def worker_id(self) -> int:
+        """Get the current worker ID (0-based index)."""
+        return self._context.worker_id
+    
+    @property
+    def num_workers(self) -> int:
+        """Get the total number of workers."""
+        return self._context.num_workers

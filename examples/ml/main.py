@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
         stage2 = Stage(
             stage_id="stage2",
-            func=aggregate,
+            func=aggregate,# cantidad incluye el numero en funcion de la agg --> mas workers mas agg  mas consume
             inputs=[data_training_transform, data_models],
             outputs=[data_forests, data_predictions],
         )
@@ -84,8 +84,8 @@ if __name__ == "__main__":
 
         executor = DAGExecutor(
             dag,
-            # executor=FunctionExecutor(log_level="INFO", runtime_memory=1024), ##~~ENERGY~~##
-            executor=FunctionExecutor(log_level="INFO"),
+            # Explicitly set runtime_memory to ensure enough memory is allocated
+            executor=FunctionExecutor(log_level="INFO", runtime_memory=2048, runtime="iarriazu/inigo_runtime_ml:latest"),
             scheduler=Jolteon(
                 dag,
                 bound=40,
@@ -99,9 +99,15 @@ if __name__ == "__main__":
         # Skip optimization to avoid errors
         # executor.optimize()
         
-        # Set default configurations for each stage
+        # Set default configurations for each stage with increased memory
         for i, stage in enumerate(dag.stages):
-            stage.resource_config = StageConfig( cpu=4, memory=1024, workers=8)
+            # Increase memory allocation to prevent OOM errors
+            # First stage (PCA) needs more memory
+            if stage.stage_id == "stage0":
+                # number of workers 
+                stage.resource_config = StageConfig(cpu=4, memory=2048, workers=1) # 1, 4,  8,  x,   16, 123, 322,
+            else:
+                stage.resource_config = StageConfig(cpu=4, memory=2048, workers=1) # 4, 8, 32, 64,  128, 196, 256
         
         # print("\nExecuting DAG...") # if you comment this reduce so much the exectuton for futures 
         # executor.execute()

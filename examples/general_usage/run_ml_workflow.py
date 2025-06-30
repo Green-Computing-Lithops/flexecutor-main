@@ -84,10 +84,10 @@ def verify_energy_measurements():
             with open(file_path, 'r') as f:
                 data = json.load(f)
                 
-            # Check if any configuration has energy_consumption data
+            # Check if any configuration has RAPL data
             has_energy = False
             for config, metrics in data.items():
-                if "energy_consumption" in metrics and any(metrics["energy_consumption"]):
+                if "RAPL" in metrics and any(metrics["RAPL"]):
                     has_energy = True
                     break
             

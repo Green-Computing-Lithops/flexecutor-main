@@ -55,11 +55,11 @@ def extract_energy_measurements():
     # Extract energy measurements from each file
     for file_path in energy_files:
         data = load_json_file(file_path)
-        if not data or "energy_consumption" not in data:
+        if not data or "RAPL" not in data:
             continue
         
         # Extract function name and energy measurements
-        function_name = data["energy_consumption"].get("function_name")
+        function_name = data["RAPL"].get("function_name")
         if not function_name:
             continue
         
@@ -83,9 +83,9 @@ def extract_energy_measurements():
             continue
         
         # Extract energy measurements
-        energy_pkg = data["energy_consumption"].get("energy_pkg", 0)
-        energy_cores = data["energy_consumption"].get("energy_cores", 0)
-        energy_total = data["energy_consumption"].get("energy_total", 0)
+        energy_pkg = data["RAPL"].get("energy_pkg", 0)
+        energy_cores = data["RAPL"].get("energy_cores", 0)
+        energy_total = data["RAPL"].get("energy_total", 0)
         
         # Store energy measurements
         energy_measurements[stage_name].append({
@@ -126,8 +126,8 @@ def update_profiling_files(energy_measurements):
         
         # Update the profiling data with energy measurements
         for key in profiling_data:
-            if "energy_consumption" not in profiling_data[key]:
-                profiling_data[key]["energy_consumption"] = []
+            if "RAPL" not in profiling_data[key]:
+                profiling_data[key]["RAPL"] = []
             
             # Add new energy measurements
             new_measurements = []
@@ -139,10 +139,10 @@ def update_profiling_files(energy_measurements):
                 ])
             
             # If there are existing measurements, append the new ones
-            if profiling_data[key]["energy_consumption"]:
-                profiling_data[key]["energy_consumption"].append(new_measurements)
+            if profiling_data[key]["RAPL"]:
+                profiling_data[key]["RAPL"].append(new_measurements)
             else:
-                profiling_data[key]["energy_consumption"] = [new_measurements]
+                profiling_data[key]["RAPL"] = [new_measurements]
         
         # Save the updated profiling file
         save_json_file(file_path, profiling_data)

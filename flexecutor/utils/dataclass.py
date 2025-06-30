@@ -40,13 +40,16 @@ class FunctionTimes:
     compute: Optional[float] = None
     write: Optional[float] = None
     cold_start: Optional[float] = None
-    energy_consumption: Optional[float] = None
-    energy_lithops: Optional[float] = None ##~~ENERGY~~##
+    RAPL: Optional[float] = None
+    TDP: Optional[float] = None ##~~ENERGY~~##
+    time_consumption: Optional[float] = None
+    worker_time_execution: Optional[float] = None
+    measurement_energy: Optional[str] = None ##~~ENERGY~~##
     total: Optional[float] = None
 
     @classmethod
     def profile_keys(cls) -> list[str]:
-        return ["read", "compute", "write", "cold_start", "energy_consumption", "energy_lithops"] ##~~ENERGY~~##
+        return ["read", "compute", "write", "cold_start", "RAPL", "TDP", "time_consumption", "worker_time_execution", "measurement_energy"] ##~~ENERGY~~##
 
     def __lt__(self, other):
         return self.total < other.total

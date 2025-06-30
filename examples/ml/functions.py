@@ -35,16 +35,31 @@ class MergedLGBMClassifier(BaseEstimator):
 
 
 def pca(ctx: StageContext):
+    import logging
+    logging.info("Starting PCA function")
+    
     [training_data_path] = ctx.get_input_paths("training-data")
+    logging.info(f"Training data path: {training_data_path}")
 
+    logging.info("Loading training data")
     train_data = np.genfromtxt(training_data_path, delimiter="\t")
+    logging.info(f"Training data shape: {train_data.shape}")
+    
     train_labels = train_data[:, 0]
     a = train_data[:, 1 : train_data.shape[1]]
+    logging.info(f"Feature matrix shape: {a.shape}")
+    
+    logging.info("Computing mean")
     ma = np.mean(a.T, axis=1)
+    logging.info("Computing centered matrix")
     ca = a - ma
+    logging.info("Computing covariance matrix")
     va = np.cov(ca.T)
+    logging.info("Computing eigenvalues and eigenvectors")
     values, vectors = eig(va)
+    logging.info("Computing principal components")
     pa = vectors.T.dot(ca.T)
+    logging.info(f"Principal components shape: {pa.shape}")
 
     vectors_pca_path = ctx.next_output_path("vectors-pca")
     training_data_transform = ctx.next_output_path("training-data-transform")
@@ -65,11 +80,19 @@ def train(
     chance,
     training_path,
 ):
+    import logging
+    logging.info(f"Starting train function for process {process_id}")
+    
+    logging.info(f"Loading training data from {training_path}")
     train_data = np.genfromtxt(training_path, delimiter="\t")
+    logging.info(f"Training data shape: {train_data.shape}")
+    
     y_train = train_data[0:5000, 0]
     x_train = train_data[0:5000, 1 : train_data.shape[1]]
+    logging.info(f"X_train shape: {x_train.shape}, y_train shape: {y_train.shape}")
 
     _id = str(task_id) + "_" + str(process_id)
+    logging.info(f"Training model with ID: {_id}")
     params = {
         "boosting_type": "gbdt",
         "objective": "multiclass",
@@ -101,33 +124,37 @@ def train(
 
 
 def train_with_multiprocessing(ctx: StageContext):
-    # TODO: make that number of processes launched in training can be defined by user
+    import logging
+    logging.info("Starting train_with_multiprocessing function")
+    
+    # Use sequential processing instead of multiprocessing to avoid container issues
     task_id = 0
-    num_process = 12
+    num_models = 4  # Number of models to train sequentially
+    logging.info(f"Training {num_models} models sequentially")
+    
     param = {"feature_fraction": 1, "max_depth": 8, "num_of_trees": 30, "chance": 1}
+    logging.info(f"Training parameters: {param}")
 
-    [training_data_path] = ctx.get_input_paths("training-data-transform")
+    training_data_paths = ctx.get_input_paths("training-data-transform")
+    training_data_path = training_data_paths[0]
+    logging.info(f"Training data path: {training_data_path}")
 
-    with mp.Pool(processes=num_process) as pool:
-        results = pool.starmap(
-            train,
-            [
-                (
-                    ctx,
-                    task_id,
-                    i,
-                    param["feature_fraction"],
-                    param["max_depth"],
-                    param["num_of_trees"],
-                    param["chance"],
-                    training_data_path,
-                )
-                for i in range(num_process)
-            ],
+    logging.info("Training models sequentially")
+    for i in range(num_models):
+        logging.info(f"Training model {i+1}/{num_models}")
+        result = train(
+            ctx,
+            task_id,
+            i,
+            param["feature_fraction"],
+            param["max_depth"],
+            param["num_of_trees"],
+            param["chance"],
+            training_data_path,
         )
-        for result in results:
-            model_path = ctx.next_output_path("models")
-            result.save_model(model_path)
+        model_path = ctx.next_output_path("models")
+        result.save_model(model_path)
+        logging.info(f"Model {i+1} saved to {model_path}")
 
 
 def calc_accuracy(y_pred, y_train):
@@ -142,7 +169,8 @@ def calc_accuracy(y_pred, y_train):
 
 
 def aggregate(ctx: StageContext):
-    [training_data_path] = ctx.get_input_paths("training-data-transform")
+    training_data_paths = ctx.get_input_paths("training-data-transform")
+    training_data_path = training_data_paths[0]
     model_paths = ctx.get_input_paths("models")
 
     test_data = np.genfromtxt(training_data_path, delimiter="\t")
@@ -174,7 +202,8 @@ def test(ctx: StageContext):
         np.genfromtxt(prediction_path, delimiter="\t")
         for prediction_path in predictions_paths
     ]
-    [test_path] = ctx.get_input_paths("training-data-transform")
+    test_paths = ctx.get_input_paths("training-data-transform")
+    test_path = test_paths[0]
     test_data = np.genfromtxt(test_path, delimiter="\t")
 
     y_test = test_data[5000:, 0]

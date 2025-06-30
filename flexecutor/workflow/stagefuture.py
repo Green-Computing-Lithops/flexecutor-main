@@ -40,36 +40,27 @@ class StageFuture:
             worker_start_tstamp = s["worker_start_tstamp"]
             r.cold_start = worker_start_tstamp - host_submit_tstamp
             
-            # Extract energy consumption if available
-            if "worker_func_energy_consumption" in s:
-                r.energy_consumption = s["worker_func_energy_consumption"]
-            elif "worker_func_perf_energy" in s and isinstance(s["worker_func_perf_energy"], dict) and "total" in s["worker_func_perf_energy"]:
-                r.energy_consumption = s["worker_func_perf_energy"]["total"]
-            elif "worker_func_perf_energy_pkg" in s:
-                r.energy_consumption = s["worker_func_perf_energy_pkg"]
-            
-            # Log the energy consumption for debugging
-            if r.energy_consumption is not None:
-                print(f"Energy consumption for {self.__stage_id}: {r.energy_consumption} Joules")
+            ##~~TIME~~##
+            r.time_consumption = s["worker_exec_time"]
+            worker_end_tstamp = s["worker_end_tstamp"]
+            r.worker_time_execution = worker_end_tstamp - worker_start_tstamp
+            # r.worker_time_execution = s["worker_func_cpu_user_time"] # not used now --> keep as check   # REVIEW: worker_func_cpu_user_time --> USED IN MANY PLACES 
+
             
             ##~~ENERGY~~##
-            # Extract CPU usage and calculate energy_lithops
-            # energy_lithops = execution_time * cpu_percent
-            if "worker_exec_time" in s and "worker_cpu_percent" in s:
-                exec_time = s["worker_exec_time"]
-                cpu_percent = s["worker_cpu_percent"]
-                r.energy_lithops = exec_time * (cpu_percent / 100.0)
-                print(f"Lithops energy for {self.__stage_id}: {r.energy_lithops} (time: {exec_time}s, CPU: {cpu_percent}%)")
-            elif r.total is not None and "worker_cpu_percent" in s:
-                # Use total time if worker_exec_time is not available
-                cpu_percent = s["worker_cpu_percent"]
-                r.energy_lithops = r.total * (cpu_percent / 100.0)
-                print(f"Lithops energy for {self.__stage_id}: {r.energy_lithops} (time: {r.total}s, CPU: {cpu_percent}%)")
-            elif r.total is not None:
-                # If CPU percent is not available, use a default value of 50%
-                r.energy_lithops = r.total * 0.5
-                print(f"Lithops energy for {self.__stage_id}: {r.energy_lithops} (time: {r.total}s, CPU: 50% [default])")
-            ##~~ENERGY~~##
+            # Extract CPU usage and calculate TDP = execution_time * cpu_percent
+            exec_time = s["worker_exec_time"]
+            #cpu_percent = s["worker_cpu_percent"] # ERROR
+            cpu_percent = s.get("worker_func_avg_cpu_usage", 0)  # Use avg CPU usage, default to 0 if not available
+            r.TDP = exec_time * (cpu_percent / 100.0)
+            
+            # r.RAPL = s["worker_func_energy_consumption"]
+            # r.RAPL = s["worker_func_perf_energy"]["total"]
+            r.RAPL = s["worker_func_perf_energy_pkg"]
+            
+            # Extract energy measurement method used
+            r.measurement_energy = s.get("worker_func_energy_method_used", "unknown")
+            
             
             timings_list.append(r)
         return timings_list

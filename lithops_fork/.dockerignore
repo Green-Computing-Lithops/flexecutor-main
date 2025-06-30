@@ -1,0 +1,26 @@
+# Large directories
+inigo_test/
+.venv/
+.git/
+docs/
+examples/
+runtime/
+lithops.egg-info/
+.github/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Other files
+*.log
+*.tar*
+.DS_Store
+.pytest_cache/
+.coverage
+*.swp
+*.swo
+*~

@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 from itertools import chain
 
 install_requires = [
-    "cloud-dataplug @ git+https://github.com/CLOUDLAB-URV/dataplug", # this was commented
-    "lithops",
+    # "cloud-dataplug @ git+https://github.com/CLOUDLAB-URV/dataplug", # this was commented
+    # "lithops",
     "boto3",
     "cloudpickle",
     "overrides",
