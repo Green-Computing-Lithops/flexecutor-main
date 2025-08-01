@@ -40,7 +40,7 @@ from flexecutor.workflow.stage import Stage
 MINIO_ENDPOINT    = "192.168.5.24:9000"  # Based on the logs from execution
 MINIO_ACCESS_KEY  = "lab144"
 MINIO_SECRET_KEY  = "astl1a4b4"
-MINIO_BUCKET      = "test-bucket"
+MINIO_BUCKET      = "lithops-us-east-1-45dk"
 KUBERNETES_NAMESPACE = "lithops-jobs"
 
 # Worker configurations to test (each runs for 5 minutes)

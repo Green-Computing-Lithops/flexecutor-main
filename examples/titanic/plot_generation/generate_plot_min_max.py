@@ -1,8 +1,12 @@
 import json
 import matplotlib.pyplot as plt
+import os
+ 
+# json_path = '/home/users/iarriazu/flexecutor-main/examples/titanic/plot_generation/analysis_results.json'
+json_path = '/home/bigrobbin/Desktop/green_computing/flexecutor-main/examples/titanic/plot_generation/analysis_results.json'
 
 # Load the analysis results
-with open('/home/users/iarriazu/flexecutor-main/examples/titanic/plot_generation/analysis_results.json') as f:
+with open(json_path) as f:
     data = json.load(f)
 
 # Extract worker counts
@@ -37,5 +41,9 @@ for i, (title, min_field, max_field) in enumerate(metrics):
     ax.grid(True)
 
 plt.tight_layout()
-plt.savefig('/home/users/iarriazu/flexecutor-main/examples/titanic/plot_generation/plot_min_max_metrics.png')
-print("Plot saved as min_max_metrics.png")
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+output_path = os.path.join(script_dir, 'plot_min_max_metrics.png')
+
+plt.savefig(output_path)
+print("Plot saved as min_max_metrics.png: " + output_path)
