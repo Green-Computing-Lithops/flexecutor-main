@@ -1,0 +1,62 @@
+# FlexExecutor Configuration for AWS Deployment
+# This configuration uses AWS Lambda backend with S3 storage
+
+lithops: 
+    backend: aws_lambda
+    storage: aws_s3
+    data_cleaner: True
+    monitoring: storage
+    monitoring_interval: 2
+    data_limit: 4  # in MiB
+    execution_timeout: 1800
+    log_level: DEBUG
+    log_format: "%(asctime)s [%(levelname)s] %(name)s -- %(message)s"
+    
+    # Energy monitoring settings
+    energy_monitoring: True
+    energy_measurement_interval: 1  # seconds
+    energy_output_prefix: "flexecutor-energy-metrics"
+    cost_simulation: True
+    performance_tracking: True
+
+aws:
+    access_key_id: ASIA4MTWMECOAMAB2IJR
+    secret_access_key: PB6cicz11n+b0G1P74JZ1Y5+SMVj5V79dP9y5ZRS
+    session_token: IQoJb3JpZ2luX2VjEG8aCXVzLWVhc3QtMSJHMEUCIEhnz6PeRMh77PxXeUyHElud2xySo6xnvupilZbHwhhkAiEAsl4+/hFGLke+4IKTBK7DdQiy5QOr9xTy7ujbayfZnVoq/wIIiP//////////ARAAGgw4NTE3MjU1MjUxNDgiDEzll0YvUkPRSrfy+CrTArhPpUcyoNe8pmAOxndkOCMrNuBINvrI50Py1BIeRM8gqR5YxgFT1LozOpqUs0JY8U13bDvz7GDU5Ca07Fv6iLSJP9LeWCMkJvAx6xIzoJp5XWaWV6D0DP44EqPRQ1cKOp8SxabOwquIpjtA0Dka9SQVE7+TKOPbIiamvpMCDW00zfza4mFLzYoblXKjOKdd45J8evuWlpTwu29UUI61nYAGpP2EqtE7giFKwSQSBLTK4x8LMXnH6a1X7Ie/ziIRui4/ofp8yfhCV0z+JBx3S0hBA7R4g92G/T7r/jyK99uzASlA6+2ZrqewSovsvx7YJRuQTZz9/MnNTjtBFJFbtPOMpQBH8q7a4NC5a2BCNcyt/dQ9ijfsROn2MU1muRmY08B3n/bKMouNTeHncPRKhkMfMUd7hXxzKSCQu7A/GG1oXIZbZfoGECGktSEIpujUVUha3zCd1efDBjqnAQxHi5wdMwLW/EL6xLmo77j4zJCTe1mJMQp3hjPnBb0twgrAmZIrl0KkbHKGooorr8K8LMg0kPJC1K2cwl+CZI474jeUiFTMVcWl3fp/lcriHGJCR3UyhF5a71Kc5d8nWpXtU4JQ0YH5YvA5tLQgPoLjl8fGxEJg8KsgRSQVQA+0M3yUmdkm0a2t7tLHu0dOkAvlAIaCXYzpKsuwwedHocFBkjGoPkGq
+    region: us-east-1
+
+aws_lambda:
+    execution_role: arn:aws:iam::851725525148:role/lambdaLithopsExecutionRole
+    runtime_timeout: 300
+    runtime_memory: 1024
+    runtime: default-runtime-v312
+    max_workers: 1000
+    worker_processes: 1
+    invoke_pool_threads: 64
+    architecture: x86_64
+    ephemeral_storage: 1024
+    
+    # Environment variables for energy monitoring
+    environment:
+        ENERGY_MONITORING_ENABLED: "true"
+        COST_SIMULATION_ENABLED: "true"
+        WORKLOAD_TYPE: "flexecutor_ml"
+        MEASUREMENT_FUNCTIONS: "prime_function,sleep_function"
+
+aws_s3:
+    storage_bucket: lithops-us-east-1-45dk
+    region: us-east-1
+    
+    # Energy metrics storage configuration
+    energy_metrics:
+        bucket: lithops-us-east-1-45dk
+        prefix: "energy-metrics/flexecutor/"
+        retention_days: 30
+
+# Cost simulation settings
+cost_simulation:
+    enabled: True
+    aws_lambda_cost_per_gb_second: 0.0000166667
+    aws_s3_storage_cost_per_gb_month: 0.023
+    aws_s3_request_cost_per_1000: 0.0004
+    measurement_output_prefix: "cost-analysis/flexecutor/"

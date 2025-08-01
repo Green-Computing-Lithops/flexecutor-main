@@ -24,7 +24,7 @@ from flexecutor.workflow.stage import Stage
 
 def save_single_execution_profiling(results, execution_time, num_workers):
     """Save profiling data for single execution to JSON file."""
-    profiling_file = "/home/users/iarriazu/flexecutor-main/examples/montecarlo_pi_estimation/montecarlo_single_execution_profiling.json"
+    profiling_file = "examples/montecarlo_pi_estimation/montecarlo_single_execution_profiling.json"
     
     try:
         # Load existing data or create new structure
@@ -83,7 +83,7 @@ def save_single_execution_profiling(results, execution_time, num_workers):
 
 if __name__ == "__main__":
 
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
         print("🎲 MONTE CARLO PI ESTIMATION - SINGLE EXECUTION")
         print("="*60)

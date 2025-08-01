@@ -56,10 +56,15 @@ class StageFuture:
             
             # r.RAPL = s["worker_func_energy_consumption"]
             # r.RAPL = s["worker_func_perf_energy"]["total"]
-            r.RAPL = s["worker_func_perf_energy_pkg"]
+            # revisar elemnetos se sestan dupllicando 
+            # ERROR AWS: s["worker_func_perf_energy_pkg"] not found
+            # r.RAPL = s["worker_func_perf_energy_pkg"]
+            # r.RAPL = s["worker_func_perf_energy_pkg"]
+            r.RAPL = s.get("worker_func_energy_consumption", 0)  # Use the actual energy consumption key
+     
             
             # Extract energy measurement method used
-            r.measurement_energy = s.get("worker_func_energy_method_used", "unknown")
+            r.measurement_energy = s.get("worker_func_energy_method_used", "n/a")
             
             
             timings_list.append(r)

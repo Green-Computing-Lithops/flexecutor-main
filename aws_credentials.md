@@ -1,0 +1,47 @@
+Get credentials for cloudlab-permission-set
+
+Create access for the account internship-sandbox (851725525148) with cloudlab-permission-set.
+Use any of the following options to access AWS resources programmatically or from the AWS CLI. You can retrieve credentials as often as needed.
+
+
+macOS and Linux
+
+Windows
+
+PowerShell
+AWS IAM Identity Center credentials (Recommended)
+To extend the duration of your credentials, we recommend you configure the AWS CLI to retrieve them automatically using the aws configure sso  command. Learn more 
+SSO start URL
+
+https://cloudlab-urv.awsapps.com/start/#
+
+SSO Region
+
+us-east-1
+
+Option 1: Set AWS environment variables
+Run the following commands in your terminal to set the AWS environment variables. Learn more 
+export AWS_ACCESS_KEY_ID="ASIA4MTWMECOBX4PSIPG"
+export AWS_SECRET_ACCESS_KEY="rGcikVqSOmRO/ctJ0xpgIBBmwZmFKNhWKpngOKFp"
+export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEMT//////////wEaCXVzLWVhc3QtMSJIMEYCIQCjeMBt2j7nyjk6OW1KozruT0mLP8i2lhvxxJx9mrQ6cQIhAPG8QZnV8K1r14/DKx+F3iq/wDLsLyQ5I4chI5n5nRrrKv8CCO3//////////wEQABoMODUxNzI1NTI1MTQ4IgyQHfdTuM1esWemqKcq0wKm4HNE1KJkIwfOqtlLUChPJ0lLGCuLf8shlYQ8EdkbWqvSlAlxqykly8v7a47kykGC4iWZFt1bY4dyHjEXo1eSyPCqvD12hGvY+4nhofN3L7pZacMCbivd1K5KYWODGlrKQUDfuaY1WfBpSb+YFXdEEwfDwlpj5YPZnuK2BhZSdc4KOFwTuogr01VAI1huL3jLEZjqNsFVXOK0Nbzam9HZStFg4OPfMIznwPfhQiTgRu6F7BD02y/d5tmAub42cGxrvP6wQ2zeMGI38cjF8Zp/czuWKv9kSpI2Xm6lDO0ZEfYbJ1IZowm7peKtO8/B9NKNW4ZraDF6FbS8xhGOXJGISKxD289slDbuowPYNuk9AEexx3ignrf/9XHoxpViYH0JzbZn7bPz9ZXx3/7mZRgnDdpWmEs/zjaq7YanzCWsZ8BMHnG91LQQrboJtDkDLA5UC04wwM+yxAY6pgGqw8pVGg2g8ZrwzS0LhyWD91oyo8bboBSzDkHt/SbUfAWwRizuiS6dTfnv0B6N39ffGnjHBb1QgipZDZfUio+zIPUQZsYZ1fFqmwOOC9qCyXhPHkU+rmKWWYh9YtzaE1k1JML5/AolFclCSsb18s5MS7y2k4n/o78jaU0qeX6qlWHyuh1ksOCork1mRbTw8bcPxtCtv7h/qXPJdhll9Q0SRNwTFbip"
+
+Option 2: Add a profile to your AWS credentials file
+Copy and paste the following text in your AWS credentials file (~/.aws/credentials). Learn more 
+[851725525148_cloudlab-permission-set]
+aws_access_key_id=ASIA4MTWMECOBX4PSIPG
+aws_secret_access_key=rGcikVqSOmRO/ctJ0xpgIBBmwZmFKNhWKpngOKFp
+aws_session_token=IQoJb3JpZ2luX2VjEMT//////////wEaCXVzLWVhc3QtMSJIMEYCIQCjeMBt2j7nyjk6OW1KozruT0mLP8i2lhvxxJx9mrQ6cQIhAPG8QZnV8K1r14/DKx+F3iq/wDLsLyQ5I4chI5n5nRrrKv8CCO3//////////wEQABoMODUxNzI1NTI1MTQ4IgyQHfdTuM1esWemqKcq0wKm4HNE1KJkIwfOqtlLUChPJ0lLGCuLf8shlYQ8EdkbWqvSlAlxqykly8v7a47kykGC4iWZFt1bY4dyHjEXo1eSyPCqvD12hGvY+4nhofN3L7pZacMCbivd1K5KYWODGlrKQUDfuaY1WfBpSb+YFXdEEwfDwlpj5YPZnuK2BhZSdc4KOFwTuogr01VAI1huL3jLEZjqNsFVXOK0Nbzam9HZStFg4OPfMIznwPfhQiTgRu6F7BD02y/d5tmAub42cGxrvP6wQ2zeMGI38cjF8Zp/czuWKv9kSpI2Xm6lDO0ZEfYbJ1IZowm7peKtO8/B9NKNW4ZraDF6FbS8xhGOXJGISKxD289slDbuowPYNuk9AEexx3ignrf/9XHoxpViYH0JzbZn7bPz9ZXx3/7mZRgnDdpWmEs/zjaq7YanzCWsZ8BMHnG91LQQrboJtDkDLA5UC04wwM+yxAY6pgGqw8pVGg2g8ZrwzS0LhyWD91oyo8bboBSzDkHt/SbUfAWwRizuiS6dTfnv0B6N39ffGnjHBb1QgipZDZfUio+zIPUQZsYZ1fFqmwOOC9qCyXhPHkU+rmKWWYh9YtzaE1k1JML5/AolFclCSsb18s5MS7y2k4n/o78jaU0qeX6qlWHyuh1ksOCork1mRbTw8bcPxtCtv7h/qXPJdhll9Q0SRNwTFbip
+
+Option 3: Use individual values in your AWS service client
+Copy and paste these values into your code. Learn more 
+AWS access key ID
+
+ASIA4MTWMECOBX4PSIPG
+
+AWS secret access key
+
+rGcikVqSOmRO/ctJ0xpgIBBmwZmFKNhWKpngOKFp
+
+AWS session token
+
+IQoJb3JpZ2luX2VjEMT//////////wEaCXVzLWVhc3QtMSJIMEYCIQCjeMBt2j7nyjk6OW1KozruT0mLP8i2lhvxxJx9mrQ6cQIhAPG8QZnV8K1r14/DKx+F3iq/wDLsLyQ5I4chI5n5nRrrKv8CCO3//////////wEQABoMODUxNzI1NTI1MTQ4IgyQHfdTuM1esWemqKcq0wKm4HNE1KJkIwfOqtlLUChPJ0lLGCuLf8shlYQ8EdkbWqvSlAlxqykly8v7a47kykGC4iWZFt1bY4dyHjEXo1eSyPCqvD12hGvY+4nhofN3L7pZacMCbivd1K5KYWODGlrKQUDfuaY1WfBpSb+YFXdEEwfDwlpj5YPZnuK2BhZSdc4KOFwTuogr01VAI1huL3jLEZjqNsFVXOK0Nbzam9HZStFg4OPfMIznwPfhQiTgRu6F7BD02y/d5tmAub42cGxrvP6wQ2zeMGI38cjF8Zp/czuWKv9kSpI2Xm6lDO0ZEfYbJ1IZowm7peKtO8/B9NKNW4ZraDF6FbS8xhGOXJGISKxD289slDbuowPYNuk9AEexx3ignrf/9XHoxpViYH0JzbZn7bPz9ZXx3/7mZRgnDdpWmEs/zjaq7YanzCWsZ8BMHnG91LQQrboJtDkDLA5UC04wwM+yxAY6pgGqw8pVGg2g8ZrwzS0LhyWD91oyo8bboBSzDkHt/SbUfAWwRizuiS6dTfnv0B6N39ffGnjHBb1QgipZDZfUio+zIPUQZsYZ1fFqmwOOC9qCyXhPHkU+rmKWWYh9YtzaE1k1JML5/AolFclCSsb18s5MS7y2k4n/o78jaU0qeX6qlWHyuh1ksOCork1mRbTw8bcPxtCtv7h/qXPJdhll9Q0SRNwTFbip

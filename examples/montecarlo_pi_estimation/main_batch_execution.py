@@ -14,7 +14,8 @@ import time
 from lithops import FunctionExecutor
 
 # Add the project root to the path
-sys.path.insert(0, '/home/users/iarriazu/flexecutor-main')
+# sys.path.insert(0, '/home/users/iarriazu/flexecutor-main')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from examples.montecarlo_pi_estimation.functions import monte_carlo_pi_estimation
 from flexecutor.storage.storage import FlexData
@@ -26,7 +27,7 @@ from flexecutor.workflow.stage import Stage
 
 def save_batch_execution_profiling(results, execution_time, num_workers):
     """Save profiling data for batch execution to JSON file."""
-    profiling_file = "/home/users/iarriazu/flexecutor-main/examples/montecarlo_pi_estimation/montecarlo_batch_profiling.json"
+    profiling_file = "examples/montecarlo_pi_estimation/montecarlo_batch_profiling.json"
     
     try:
         # Load existing data or create new structure
@@ -86,7 +87,7 @@ def save_batch_execution_profiling(results, execution_time, num_workers):
 def run_monte_carlo_pi_estimation(num_workers=4):
     """Run the Monte Carlo Pi estimation with specified number of workers."""
     
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def monte_carlo_pi_workflow():
         dag = DAG("montecarlo_pi_estimation")
 

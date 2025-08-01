@@ -1,0 +1,66 @@
+# FlexExecutor Configuration for AWS Deployment
+# This configuration uses AWS Lambda backend with S3 storage
+
+lithops: 
+    backend: aws_lambda
+    storage: aws_s3
+    data_cleaner: True
+    execution_timeout: 300
+    log_level: DEBUG # manri --> primer paso 
+    # log_format: "%(asctime)s [%(levelname)s] %(name)s -- %(message)s"
+    
+ 
+    cost_simulation: True
+    performance_tracking: True
+    
+    # Disable Python version checking
+    runtime_version_tolerance: 1
+    ignore_runtime_python_version: True
+
+aws:
+    aws_access_key_id: ASIA4MTWMECOPHM7DDRD
+    aws_secret_access_key: xz8JRluUSN7Wl6NI39NNhd3QxYXmmhGqZGBwmBt6
+    aws_session_token: IQoJb3JpZ2luX2VjEMT//////////wEaCXVzLWVhc3QtMSJIMEYCIQC0xKFkkz7g/sHuRbBQAUDwyLhF7ysykiDxsMe24+c7/wIhAI5tjkyXn/jLxy7AFOtX6Yhwb+/tMFGwhZLEX7Fyh2w3Kv8CCO3//////////wEQABoMODUxNzI1NTI1MTQ4IgzDv296gZDOtgtR4FMq0wJeBheaCCjY6r51oJvm08ZdDbj1KQkMVBgkhKBuTXgQyC+lD0pDSRpYTUCEtTUTz5PhZ6SCmViQIh91/FjuEZoPtETRVHJD73qGQzpMNjXJk9XLG8y5mqSgnSONXSMBGc7USFomZQtdWcQLpkbhOXDhG080nfDrX17Ttj6VH2RwXlqipiUbfCvwfgAhJB0wVb65Dj1u3TCf8K1WAqD4IwB19/stoCwRWp4wboqA13sThQtOIjw8DDDo/2ifrYIBvqoADigsVoyYwNlhINtg0Kt5Qf3z0nerHkvdB1eh+qVTojGG2SeEwkkho/6W6Da4oEpZask010rmXJTDQrTKWZHpM50BGlzVbz6Q2tG9x28ZEFbCkSf6M0EqgXuSKxyeH84I7ZqouDCiWbVEcq+LPnr/fbIK6c9OpoYZFCWge4APl5Zw6Pvc0PtlDfwXysUuggaR6R4wm9WyxAY6pgGVKu3N4GX91K4Tq71xgfSAu9oGkBzL8snqAlmr3fAId0D39aA2kuK65G0XELPeuzsE5gS4cQEA1Hxv7r8gkVfraJpcGPLOfISpVdkOaGrk/eYZMTWzbO1W9YlxIs/Lj0DgX6IhoWdwcAOXFOgVC25QZkzNJRbDz/mAzcfa6GIU8nEJ2VYvQWgcMppxBLqupU0rqrxRHqvilaFX8mGBNyNoMgi3qM3s
+    region: us-east-1
+
+ 
+
+# AWS Lambda configuration : ARM64 vs x86_64 architecture
+aws_lambda:
+    execution_role: arn:aws:iam::851725525148:role/lambdaLithopsExecutionRole
+    runtime_timeout: 300
+    runtime_memory: 2048
+
+    # Titanic x86_64 specific runtime: 
+    # runtime: titanic_aws_lambda
+    # architecture: x86_64
+    
+    # Titanic ARM64 specific runtime: 
+    runtime: titanic_aws_lambda_arm
+    architecture: arm64
+
+    # Montecarlo simulation runtime using Titanic runtime: 
+    # runtime: default-runtime-v312 # default runtime for Montecarlo_simulation
+    # Using titanic_aws_lambda runtime for Monte Carlo execution
+
+    max_workers: 1000
+    worker_processes: 1
+    invoke_pool_threads: 64
+    ephemeral_storage: 1024
+    check_version: false
+    
+    environment:
+        ENERGY_MONITORING_ENABLED: "true"
+        COST_SIMULATION_ENABLED: "true"
+        WORKLOAD_TYPE: "flexecutor_ml"
+        MEASUREMENT_FUNCTIONS: "prime_function,sleep_function"
+
+aws_s3:
+    storage_bucket: lithops-us-east-1-45dk
+    region: us-east-1
+    
+    # Energy metrics storage configuration
+    energy_metrics:
+        bucket: lithops-us-east-1-45dk
+        prefix: "energy-metrics/flexecutor/"
+        retention_days: 30

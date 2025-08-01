@@ -42,7 +42,7 @@ def run_titanic_workflow_with_workers(worker_count):
     else:
         raise ValueError(f"Chunker type {CHUNKER_TYPE} not supported")
 
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
         dag = DAG("titanic")
 
@@ -91,8 +91,9 @@ def run_titanic_workflow_with_workers(worker_count):
 
 if __name__ == "__main__":
     # Define worker configurations to test
-    worker_configurations = [1, 2, 4, 8, 16]
-    
+    # worker_configurations = [1, 2, 4, 8, 16]
+    worker_configurations = [ 8, 9 , 10, 12, 16, 20, 24, 28]
+
     print("="*80)
     print("BATCH EXECUTION WITH MULTIPLE WORKER CONFIGURATIONS - TITANIC")
     print("="*80)

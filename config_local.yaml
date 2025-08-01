@@ -1,0 +1,27 @@
+# FlexExecutor Configuration for Local Development
+# This configuration uses localhost backend for testing without external dependencies
+
+lithops:
+    backend: localhost
+    storage: localhost
+    # Enable debug logging for development
+    log_level: INFO
+
+localhost:
+    # Local storage path for data persistence
+    storage_bucket: /tmp/flexecutor-data
+    
+    # Runtime configuration
+    runtime_memory: 2048        # Memory per worker in MB
+    runtime_timeout: 600        # Worker timeout in seconds (10 minutes)
+    # max_workers: 4              # Maximum concurrent workers
+    
+    # Performance settings
+    worker_processes: 1         # Processes per worker    backend: localhost
+    # storage: localhost
+
+minio:
+    storage_bucket: /tmp/flexecutor-data
+    runtime_memory: 2048
+    runtime_timeout: 300
+    max_workers: 4

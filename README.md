@@ -209,3 +209,27 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 ## Acknowledgments
 
 This project is developed at the CLOUDLAB research group at Universitat Rovira i Virgili (URV).
+
+
+
+
+# problems to install the lithops_fork with the energy --> test this one instead
+
+cd /home/bigrobbin/Desktop/green_computing/flexecutor-main && source venv/bin/activate && pip install -e ~/Desktop/green_computing/lithops_fork
+
+
+
+
+
+
+
+
+
+
+
+
+install: 
+source venv/bin/activate && pip install -e ".[all]"
+pip install git+https://github.com/CLOUDLAB-URV/dataplug
+pip install git+https://github.com/CLOUDLAB-URV/dataplug
+ip install git+https://github.com/CLOUDLAB-URV/dataplug
