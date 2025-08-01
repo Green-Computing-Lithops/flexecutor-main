@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 from typing import List
 
-from dataplug import CloudObject
-from dataplug.entities import CloudObjectSlice
+from dataplug.cloudobject import CloudObject, CloudObjectSlice
 from lithops import Storage
 
 from flexecutor.storage.storage import FlexData
@@ -92,11 +91,11 @@ class Chunker:
                 self.cloud_object_format,
                 file,
                 s3_config={
-                    "region_name": "us-east-1",
-                    "endpoint_url": storage_dict["endpoint"],
+                    "region_name": storage_dict.get("region", "us-east-1"),
+                    "endpoint_url": storage_dict.get("endpoint_url"),
                     "credentials": {
-                        "AccessKeyId": storage_dict["access_key_id"],
-                        "SecretAccessKey": storage_dict["secret_access_key"],
+                        "AccessKeyId": storage_dict.get("access_key_id"),
+                        "SecretAccessKey": storage_dict.get("secret_access_key"),
                     },
                 },
             )

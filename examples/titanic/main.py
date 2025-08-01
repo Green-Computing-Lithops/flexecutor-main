@@ -3,7 +3,7 @@
 # ZeroDivisionError: division by zero
 from dataplug.formats.generic.csv import CSV
 from dataplug.formats.generic.csv import partition_num_chunks as chunking_dynamic_csv
-from lithops import FunctionExecutor
+from lithops import FunctionExecutor, Storage
 
 from examples.titanic.functions import train_model
 from flexecutor.storage.chunker import Chunker
@@ -15,8 +15,13 @@ from flexecutor.workflow.dag import DAG
 from flexecutor.workflow.executor import DAGExecutor
 from flexecutor.workflow.stage import Stage
 
-CHUNKER_TYPE = "DYNAMIC" # DYNAMIC
+# Get storage bucket from Lithops configuration
+storage = Storage()
+storage_bucket = storage.config[storage.config['backend']]['storage_bucket']
 
+# CHUNKER_TYPE = "STATIC" # Changed from DYNAMIC to avoid Python 3.12 compatibility issue with dataplug
+CHUNKER_TYPE = "DYNAMIC"  
+NUM_WORKERS = 8
 
 if __name__ == "__main__":
 
@@ -36,7 +41,7 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Chunker type {CHUNKER_TYPE} not supported")
 
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
         dag = DAG("titanic")
 
@@ -56,7 +61,7 @@ if __name__ == "__main__":
         executor = DAGExecutor(dag, executor=FunctionExecutor())
 
         # results = executor.execute(num_workers=7)
-        results = executor.execute_with_profiling(num_workers=8) #avoid profiling + execute : all in one  
+        results = executor.execute_with_profiling(num_workers=NUM_WORKERS) #avoid profiling + execute : all in one  
  
         executor.shutdown()
         print(results["stage"].get_timings())
