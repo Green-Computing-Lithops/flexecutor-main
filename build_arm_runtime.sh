@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# Script to build ARM64 runtime for Titanic project
+# Script to build ARM64 runtime for Titanic project using Podman instead of Docker
 # This script will update credentials from aws_credentials.md and build the runtime
+# Note: Docker commands are now handled by Podman for improved container management
 
-echo "Building ARM64 runtime for Titanic project..."
+echo "Building ARM64 runtime for Titanic project using Podman..."
 
 # Source the virtual environment
 source venv310/bin/activate
