@@ -84,8 +84,8 @@ if __name__ == "__main__":
 
         executor = DAGExecutor(
             dag,
-            # Explicitly set runtime_memory to ensure enough memory is allocated
-            executor=FunctionExecutor(log_level="INFO", runtime_memory=2048, runtime="iarriazu/inigo_runtime_ml:latest"),
+            # Use our new ml_aws_arm64 runtime with config file
+            executor=FunctionExecutor(config_file='../../config_aws.yaml', log_level="INFO", runtime_memory=2048),
             scheduler=Jolteon(
                 dag,
                 bound=40,

@@ -18,9 +18,9 @@ lithops:
     ignore_runtime_python_version: True
 
 aws:
-    aws_access_key_id: ASIA4MTWMECOPHM7DDRD
-    aws_secret_access_key: xz8JRluUSN7Wl6NI39NNhd3QxYXmmhGqZGBwmBt6
-    aws_session_token: IQoJb3JpZ2luX2VjEMT//////////wEaCXVzLWVhc3QtMSJIMEYCIQC0xKFkkz7g/sHuRbBQAUDwyLhF7ysykiDxsMe24+c7/wIhAI5tjkyXn/jLxy7AFOtX6Yhwb+/tMFGwhZLEX7Fyh2w3Kv8CCO3//////////wEQABoMODUxNzI1NTI1MTQ4IgzDv296gZDOtgtR4FMq0wJeBheaCCjY6r51oJvm08ZdDbj1KQkMVBgkhKBuTXgQyC+lD0pDSRpYTUCEtTUTz5PhZ6SCmViQIh91/FjuEZoPtETRVHJD73qGQzpMNjXJk9XLG8y5mqSgnSONXSMBGc7USFomZQtdWcQLpkbhOXDhG080nfDrX17Ttj6VH2RwXlqipiUbfCvwfgAhJB0wVb65Dj1u3TCf8K1WAqD4IwB19/stoCwRWp4wboqA13sThQtOIjw8DDDo/2ifrYIBvqoADigsVoyYwNlhINtg0Kt5Qf3z0nerHkvdB1eh+qVTojGG2SeEwkkho/6W6Da4oEpZask010rmXJTDQrTKWZHpM50BGlzVbz6Q2tG9x28ZEFbCkSf6M0EqgXuSKxyeH84I7ZqouDCiWbVEcq+LPnr/fbIK6c9OpoYZFCWge4APl5Zw6Pvc0PtlDfwXysUuggaR6R4wm9WyxAY6pgGVKu3N4GX91K4Tq71xgfSAu9oGkBzL8snqAlmr3fAId0D39aA2kuK65G0XELPeuzsE5gS4cQEA1Hxv7r8gkVfraJpcGPLOfISpVdkOaGrk/eYZMTWzbO1W9YlxIs/Lj0DgX6IhoWdwcAOXFOgVC25QZkzNJRbDz/mAzcfa6GIU8nEJ2VYvQWgcMppxBLqupU0rqrxRHqvilaFX8mGBNyNoMgi3qM3s
+    aws_access_key_id: ASIA4MTWMECOIRWXVITX
+    aws_secret_access_key: q0zL74aeCLZlo/YL6DVoIl5MeOxt//92VisRD8xD
+    aws_session_token: IQoJb3JpZ2luX2VjEAoaCXVzLWVhc3QtMSJGMEQCIFUBEduL5dwEUhsJyUAsPrz0BBZNlTdeyIOSGa2TGSxoAiBKsqBl5MIgCoBeGhyLD3j9fQFnmpyfire8iJotFbsn5Cr2AghCEAAaDDg1MTcyNTUyNTE0OCIMTf4XURMxWebk9D4OKtMC508E3U191vrJ7boBRxUmuRABRvYKsXIdbmDdsNvr+QOS0BQ4dVV4jf2T6kc4SMzm2eGMJW4GC1QYtG/vTc6tEQE+R7LU7iKgPT2rJkSxi9WArGuXovFR9pBDXrj33N64vXyAK16vLWCj6l9FLvqn6peB5+huNVTRzl4t6591NeZYStPssaDW8xqy+caFo99lhgZGufJhKPuVf7PuHAv+B+8/XMi79BKbg9InoBFEz4y/eQeoMfJjRe6yQESuj02yC7mIPUaNlappE3DsuOgmjggewNmswLjzx6R7uUkitL3VKYw5R8ejuFcruwDEKFGg3LXDqMnwwinPFNByysboP7hyKxCIwXqocgJI97UZQPdydiYEycOpDE/qx/hbQJRuJdm6J4Whj2OCtTMWRckoxqDApVRkcT4wXmnocOdHdzJMUHLSVXj+TxP0tR0FI83wkiGmMMf0wcQGOqgBUCGRpkvuz7B47Ij21QMcSyhdBgKL5GmI+ElFD7OC7GP3z7hw/dazy0EPFfYCkPo+Emfr1bmpo6Qaf7TTihLlxKDJ8nIwZ2AFP0CdTF3VslSftRi8dI8KnuyGyDiwiHkLW7BTuF90mHMPBnkxrkSyJokQi3BC+OP1+Mv4fysCG43SA+WUO8dFxSmnoY7bwSKCYt6/vKn2PSGDmeHV22tFFYwEm+Y/UBW3
     region: us-east-1
 
  
@@ -31,18 +31,23 @@ aws_lambda:
     runtime_timeout: 300
     runtime_memory: 2048
 
+    # ML ARM64 specific runtime: 
+    runtime: ml_aws_arm64
+    architecture: arm64
+    
     # Titanic x86_64 specific runtime: 
     # runtime: titanic_aws_lambda
     # architecture: x86_64
     
     # Titanic ARM64 specific runtime: 
-    runtime: titanic_aws_lambda_arm
-    architecture: arm64
+    # runtime: titanic_aws_lambda_arm_greencomp
+    # architecture: arm64
 
-    # Montecarlo simulation runtime using Titanic runtime: 
-    # runtime: default-runtime-v312 # default runtime for Montecarlo_simulation
-    # Using titanic_aws_lambda runtime for Monte Carlo execution
-
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # FlexExecutor configuration for AWS Lambda with enhanced energy monitoring
+    # Default runtime: 
+    # runtime: default-runtime-v312 
+    # architecture: x86_64
     max_workers: 1000
     worker_processes: 1
     invoke_pool_threads: 64
