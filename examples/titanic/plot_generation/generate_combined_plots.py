@@ -221,10 +221,9 @@ def create_combined_plots(data, output_path=None):
 
 def main():
     """Generate professional energy analysis plots for public presentation."""
-    # Path to analysis results
-    # json_path = '/home/users/iarriazu/flexecutor-main/examples/titanic/plot_generation/analysis_results.json'
-    # json_path = '/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/titanic/plot_generation/analysis_results.json'
-    json_path = '/home/bigrobbin/Desktop/green_computing/flexecutor-main/examples/titanic/plot_generation/analysis_results.json'
+    # Path to analysis results - use relative path based on script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(script_dir, 'analysis_results.json')
 
     print("🚀 Generating professional energy analysis visualization...")
     print("📊 Processing data and applying professional styling...")

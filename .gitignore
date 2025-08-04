@@ -114,7 +114,7 @@ celerybeat-schedule.*
 # dotenv
 .env
 .venv
-venv-flexecutor
+
 
 
 # virtualenv
@@ -123,6 +123,9 @@ ENV/
 env/
 env.bak/
 venv.bak/
+venv310
+venv310/
+venv-flexecutor
 
 # Spyder project settings
 .spyderproject

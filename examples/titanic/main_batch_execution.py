@@ -91,8 +91,9 @@ def run_titanic_workflow_with_workers(worker_count):
 
 if __name__ == "__main__":
     # Define worker configurations to test
-    # worker_configurations = [1, 2, 4, 8, 16]
-    worker_configurations = [ 8, 9 , 10, 12, 16, 20, 24, 28]
+    # worker_configurations = [1, 2, 3, 4, 5, 6, 7] # 1, 2, 3, : fail due to a memory error
+    # worker_configurations = [ 4, 5, 6, 7, 8, 9 , 10, 12, 16, 20, 24, 28]
+    worker_configurations = [28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4]
 
     print("="*80)
     print("BATCH EXECUTION WITH MULTIPLE WORKER CONFIGURATIONS - TITANIC")

@@ -11,7 +11,7 @@ python examples/montecarlo_pi_estimation/main.py
 
 
 
-source venv/bin/activate && pip install awscli
+source venv310/bin/activate && pip install awscli
 
 ```
 source venv/bin/activate 
@@ -235,3 +235,50 @@ basandote en esta conversacion : /home/bigrobbin/Desktop/green_computing/flexecu
 prepara otro runtime para una configuracion de titanic_aws_lambda_arm usando como ejemplo : https://github.com/lithops-cloud/lithops/blob/master/runtime/aws_lambda/Dockerfile.arm64  e incluyendo todas las depencencias que ya existen en /home/bigrobbin/Desktop/green_computing/flexecutor-main/examples/titanic/Dockerfile  para crearlo usa los comandos de forma adaptada source venv310/bin/activate && export LITHOPS_CONFIG_FILE=config_aws.yaml && lithops runtime build -b aws_lambda -f examples/titanic/Dockerfile titanic_aws_lambda
 export LITHOPS_CONFIG_FILE=/home/bigrobbin/Desktop/green_computing/flexecutor-main/config_aws.yaml && echo "Environment variable set: $LITHOPS_CONFIG_FILE"  
 source venv310/bin/activate && python examples/titanic/main.py
+
+
+
+# Runtime issues: 
+recreate the runtime titanic_aws_lambda_arm using this file /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/titanic/Dockerfile.arm64 and upload it to ECR and aws. to build it use the commands asociated with lithops like this ones: 
+
+source venv310/bin/activate && export LITHOPS_CONFIG_FILE=config_aws.yaml && lithops runtime build -b aws_lambda -f examples/titanic/Dockerfile.arm64 titanic_aws_lambda_arm
+
+but adapted to the new runtime and run /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/montecarlo_pi_estimation/main.py to test if the runtime is working properly
+I use podman instead of docker 
+check the python to run 
+
+
+# PODMAN instead of Docker :
+
+| Feature           | Docker                            | Podman |
+| :---              | :---                              | :--- |
+| **Licensing**     | Paid subscription for companies   | Free & open-source (Apache 2.0) |
+| **Architecture**  | Relies on a central `root` daemon | Daemonless architecture |
+| **Security**      | Cont managed by the root daemon   | Natively supports **rootless** containers |
+| **Developer UX**  | Highly polished GUI & mature      | Rapidly improving GUI, security-focused |
+| **Key Tool**      | `docker-compose` multi-container  | `podman-compose` & native Pods |
+
+
+
+# building the last image: 
+&& export DOCKER_ENGINE=podman && lithops runtime build -b aws_lambda -f examples/titanic/Dockerfile.arm64 titanic_aws_lambda_arm_greencomp
+
+
+
+
+
+# properly : 
+export LITHOPS_CONFIG_FILE="/Users/arriazui/Desktop/GreenComputing/flexecutor-main/config_aws.yaml" && export AWS_ACCESS_KEY_ID="ASIA4MTWMECOIRWXVITX" && export AWS_SECRET_ACCESS_KEY="q0zL74aeCLZlo/YL6DVoIl5MeOxt//92VisRD8xD" && export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEAoaCXVzLWVhc3QtMSJGMEQCIFUBEduL5dwEUhsJyUAsPrz0BBZNlTdeyIOSGa2TGSxoAiBKsqBl5MIgCoBeGhyLD3j9fQFnmpyfire8iJotFbsn5Cr2AghCEAAaDDg1MTcyNTUyNTE0OCIMTf4XURMxWebk9D4OKtMC508E3U191vrJ7boBRxUmuRABRvYKsXIdbmDdsNvr+QOS0BQ4dVV4jf2T6kc4SMzm2eGMJW4GC1QYtG/vTc6tEQE+R7LU7iKgPT2rJkSxi9WArGuXovFR9pBDXrj33N64vXyAK16vLWCj6l9FLvqn6peB5+huNVTRzl4t6591NeZYStPssaDW8xqy+caFo99lhgZGufJhKPuVf7PuHAv+B+8/XMi79BKbg9InoBFEz4y/eQeoMfJjRe6yQESuj02yC7mIPUaNlappE3DsuOgmjggewNmswLjzx6R7uUkitL3VKYw5R8ejuFcruwDEKFGg3LXDqMnwwinPFNByysboP7hyKxCIwXqocgJI97UZQPdydiYEycOpDE/qx/hbQJRuJdm6J4Whj2OCtTMWRckoxqDApVRkcT4wXmnocOdHdzJMUHLSVXj+TxP0tR0FI83wkiGmMMf0wcQGOqgBUCGRpkvuz7B47Ij21QMcSyhdBgKL5GmI+ElFD7OC7GP3z7hw/dazy0EPFfYCkPo+Emfr1bmpo6Qaf7TTihLlxKDJ8nIwZ2AFP0CdTF3VslSftRi8dI8KnuyGyDiwiHkLW7BTuF90mHMPBnkxrkSyJokQi3BC+OP1+Mv4fysCG43SA+WUO8dFxSmnoY7bwSKCYt6/vKn2PSGDmeHV22tFFYwEm+Y/UBW3" && echo "Environment set" && /Users/arriazui/Desktop/GreenComputing/flexecutor-main/venv310/bin/python /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/titanic/main_batch_execution.py
+
+
+
+
+# ML: commands 
+symilar to /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/titanic/Dockerfile.arm64. prepare a dockerfile to create a runtime for the element /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/ml , analyze the dependencies and after create the dockerfile 
+
+use this previous prompt: "recreate the runtime titanic_aws_lambda_arm using this file /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/titanic/Dockerfile.arm64 and upload it to ECR and aws. to build it use the commands asociated with lithops like this ones: 
+
+source venv310/bin/activate && export LITHOPS_CONFIG_FILE=config_aws.yaml && lithops runtime build -b aws_lambda -f examples/titanic/Dockerfile.arm64 titanic_aws_lambda_arm
+
+but adapted to the new runtime and run /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/montecarlo_pi_estimation/main.py to test if the runtime is working properly
+I use podman instead of docker "  but adapt it to create a new runtime called : ml_aws_arm6
