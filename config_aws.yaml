@@ -2,6 +2,8 @@
 # This configuration uses AWS Lambda backend with S3 storage
 
 lithops: 
+    # backend: localhost
+    # storage: localhost
     backend: aws_lambda
     storage: aws_s3
     data_cleaner: True
@@ -17,10 +19,13 @@ lithops:
     runtime_version_tolerance: 1
     ignore_runtime_python_version: True
 
+localhost:
+    runtime_python_version: "3.10"
+
 aws:
-    aws_access_key_id: ASIA4MTWMECOIRWXVITX
-    aws_secret_access_key: q0zL74aeCLZlo/YL6DVoIl5MeOxt//92VisRD8xD
-    aws_session_token: IQoJb3JpZ2luX2VjEAoaCXVzLWVhc3QtMSJGMEQCIFUBEduL5dwEUhsJyUAsPrz0BBZNlTdeyIOSGa2TGSxoAiBKsqBl5MIgCoBeGhyLD3j9fQFnmpyfire8iJotFbsn5Cr2AghCEAAaDDg1MTcyNTUyNTE0OCIMTf4XURMxWebk9D4OKtMC508E3U191vrJ7boBRxUmuRABRvYKsXIdbmDdsNvr+QOS0BQ4dVV4jf2T6kc4SMzm2eGMJW4GC1QYtG/vTc6tEQE+R7LU7iKgPT2rJkSxi9WArGuXovFR9pBDXrj33N64vXyAK16vLWCj6l9FLvqn6peB5+huNVTRzl4t6591NeZYStPssaDW8xqy+caFo99lhgZGufJhKPuVf7PuHAv+B+8/XMi79BKbg9InoBFEz4y/eQeoMfJjRe6yQESuj02yC7mIPUaNlappE3DsuOgmjggewNmswLjzx6R7uUkitL3VKYw5R8ejuFcruwDEKFGg3LXDqMnwwinPFNByysboP7hyKxCIwXqocgJI97UZQPdydiYEycOpDE/qx/hbQJRuJdm6J4Whj2OCtTMWRckoxqDApVRkcT4wXmnocOdHdzJMUHLSVXj+TxP0tR0FI83wkiGmMMf0wcQGOqgBUCGRpkvuz7B47Ij21QMcSyhdBgKL5GmI+ElFD7OC7GP3z7hw/dazy0EPFfYCkPo+Emfr1bmpo6Qaf7TTihLlxKDJ8nIwZ2AFP0CdTF3VslSftRi8dI8KnuyGyDiwiHkLW7BTuF90mHMPBnkxrkSyJokQi3BC+OP1+Mv4fysCG43SA+WUO8dFxSmnoY7bwSKCYt6/vKn2PSGDmeHV22tFFYwEm+Y/UBW3
+    AWS_ACCESS_KEY_ID: "ASIA4MTWMECODOTMORFN"
+    AWS_SECRET_ACCESS_KEY: "4vNeqm2FareW0webc2Ayo+Xd3WusxB0cwzwatEQF"
+    AWS_SESSION_TOKEN: "IQoJb3JpZ2luX2VjEEcaCXVzLWVhc3QtMSJGMEQCIBKZ0OyMZH/rf+Nv5lqoE4FiBJOQozCgIWxPZgegSpq6AiAfdURiziOHHimUGDCo+kFLGnR7W9KEp82T3XGxki/rhyr2Agh/EAAaDDg1MTcyNTUyNTE0OCIMoI0PUdCBwLRhcif6KtMCGqKK0JrmlijliqKd+rg9Dy1pJ2jUtiXp4ZiSRtW1qbQawLIVhfpKzWtSd/dTpLAbpJRUtPH21IuF7jJF3M+J+EVMMBFEE2/5KhaxSGh6c/+9RiKQy7b/NslghVehJIUBNKNdrK6Lc2dqdX21rPlGKLXurSysEFNAVJ9KySRVLMFXB7dB2OSZrKqaNngx05eGL4QmH/k7a+NRmipTWLlFoZrC2NHLbK7/xveBVVKag/4keeYqX39Acu9d8BMeaFynPEgAIgiojnljyeNQGFRnW8kSfIIRQGUfGkjHrhryznFkdO8gkIayN+R5gONKOdvxhzqKbGR2hKy9uxe+wdK4k6unvbDsh/90RL65+xISRMtg1i4xZiOU/xrROV+T9aSof8V8y84JFb25rNBTUqwrPJV3fEgfpClTDEj7LnsrDdmJoZX7dpDlOYEkRTD+TzGcoGalMPuiz8QGOqgB4V2OtrKW706N9hfH+vZTRHLH7mXIqyLXur0AeModkdvoVh0tchlHSs2u61ncZigyVfMDeOdLYKjOyIzab/IWoSg4u9nRzCSCwu/+xdxpnfPP+dwW/oWkkR7qpXE4y+9EjkaWzPEP4CgFLuKtS4IrgGp0TpX+74MVWnkNoS0p715KAT4bphAPXbUpT9yrNjgXKMI6oqTwcnUabG2289nsG1IdTUZc4/Sy"
     region: us-east-1
 
  
@@ -32,12 +37,12 @@ aws_lambda:
     runtime_memory: 2048
 
     # ML ARM64 specific runtime: 
-    runtime: ml_aws_arm64
-    architecture: arm64
+    # runtime: ml_aws_arm64
+    # architecture: arm64
     
     # Titanic x86_64 specific runtime: 
-    # runtime: titanic_aws_lambda
-    # architecture: x86_64
+    runtime: titanic_aws_lambda
+    architecture: x86_64
     
     # Titanic ARM64 specific runtime: 
     # runtime: titanic_aws_lambda_arm_greencomp

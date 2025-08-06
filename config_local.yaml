@@ -5,7 +5,9 @@ lithops:
     backend: localhost
     storage: localhost
     # Enable debug logging for development
-    log_level: INFO
+    data_cleaner: True
+    execution_timeout: 300
+    log_level: DEBUG # manri --> primer paso
 
 localhost:
     # Local storage path for data persistence
@@ -17,8 +19,7 @@ localhost:
     # max_workers: 4              # Maximum concurrent workers
     
     # Performance settings
-    worker_processes: 1         # Processes per worker    backend: localhost
-    # storage: localhost
+    worker_processes: 1         # Processes per worker
 
 minio:
     storage_bucket: /tmp/flexecutor-data
