@@ -54,17 +54,44 @@ class StageFuture:
             cpu_percent = s.get("worker_func_avg_cpu_usage", 0)  # Use avg CPU usage, default to 0 if not available
             r.TDP = exec_time * (cpu_percent / 100.0)
             
-            # r.RAPL = s["worker_func_energy_consumption"]
-            # r.RAPL = s["worker_func_perf_energy"]["total"]
-            # revisar elemnetos se sestan dupllicando 
-            # ERROR AWS: s["worker_func_perf_energy_pkg"] not found
-            # r.RAPL = s["worker_func_perf_energy_pkg"]
-            # r.RAPL = s["worker_func_perf_energy_pkg"]
+            # RAPL2 - Enhanced CPU usage measurement
+            r.RAPL2 = s.get("worker_func_avg_cpu_usage_v2", 0.0)
+            
             r.RAPL = s.get("worker_func_energy_consumption", 0)  # Use the actual energy consumption key
      
             
             # Extract energy measurement method used
             r.measurement_energy = s.get("worker_func_energy_method_used", "n/a")
+            
+            # Extract PERF energy metrics
+            r.perf_energy_pkg = s.get("worker_func_perf_energy_pkg", 0.0)
+            r.perf_energy_cores = s.get("worker_func_perf_energy_cores", 0.0)
+            r.perf_energy_total = s.get("worker_func_perf_energy_total", 0.0)
+            
+            # Extract RAPL energy metrics
+            r.rapl_energy_pkg = s.get("worker_func_rapl_energy_pkg", 0.0)
+            r.rapl_energy_cores = s.get("worker_func_rapl_energy_cores", 0.0)
+            r.rapl_energy_total = s.get("worker_func_rapl_energy_total", 0.0)
+            
+            # Extract eBPF energy metrics
+            r.ebpf_energy_pkg = s.get("worker_func_ebpf_energy_pkg", 0.0)
+            r.ebpf_energy_cores = s.get("worker_func_ebpf_energy_cores", 0.0)
+            r.ebpf_energy_total = s.get("worker_func_ebpf_energy_total", 0.0)
+            r.ebpf_cpu_cycles = s.get("worker_func_ebpf_cpu_cycles", 0.0)
+            
+            # Extract PSUtil (base) system monitoring metrics
+            r.psutil_cpu_percent = s.get("worker_func_base_cpu_percent", 0.0)
+            r.psutil_memory_percent = s.get("worker_func_base_memory_percent", 0.0)
+            
+            # Extract CPU information
+            # Get processor info dict for more detailed information
+            processor_info = s.get("worker_processor_info", {})
+            
+            r.cpu_name = s.get("worker_processor_name", processor_info.get("processor_name", "Unknown"))
+            r.cpu_brand = s.get("worker_processor_brand", processor_info.get("processor_brand", "Unknown"))
+            r.cpu_architecture = processor_info.get("architecture", "Unknown")
+            r.cpu_cores_physical = s.get("worker_processor_cores", processor_info.get("cores", 0)) or 0
+            r.cpu_cores_logical = s.get("worker_processor_threads", processor_info.get("threads", 0)) or 0
             
             
             timings_list.append(r)

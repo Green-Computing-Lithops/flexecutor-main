@@ -24,7 +24,7 @@ from flexecutor.workflow.stage import Stage
 
 def save_single_execution_profiling(results, execution_time, num_workers):
     """Save profiling data for single execution to JSON file."""
-    profiling_file = "examples/montecarlo_pi_estimation/montecarlo_single_execution_profiling.json"
+    profiling_file = "montecarlo_single_execution_profiling.json"
     
     try:
         # Load existing data or create new structure
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         )
 
         dag.add_stage(stage)
-        executor = DAGExecutor(dag, executor=FunctionExecutor())
+        executor = DAGExecutor(dag, executor=FunctionExecutor(config_file='../../config_aws.yaml'))
 
         # Execute with profiling to measure performance
         num_workers = 10
