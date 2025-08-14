@@ -49,8 +49,10 @@ RUN pip install --upgrade --ignore-installed pip wheel six setuptools \
         tblib \
         psutil
 
-# Install Lithops fork directly from GitHub (Green Computing Lithops fork with additional features)
-RUN pip install --upgrade --no-cache-dir git+https://github.com/Green-Computing-Lithops/lithops_fork.git
+# Install Lithops fork from local directory (Green Computing Lithops fork with additional features)
+# Copy the lithops fork source code into the container
+COPY lithops_fork/ /tmp/lithops_fork/
+RUN cd /tmp/lithops_fork && pip install . && rm -rf /tmp/lithops_fork
 
 # Set working directory to function root directory
 WORKDIR ${FUNCTION_DIR}

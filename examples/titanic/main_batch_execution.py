@@ -21,6 +21,8 @@ from flexecutor.workflow.stage import Stage
 from flexecutor.utils.dataclass import StageConfig
 
 CHUNKER_TYPE = "DYNAMIC"  # DYNAMIC
+memory_runtime = 2048
+
 
 def run_titanic_workflow_with_workers(worker_count):
     """Run the Titanic workflow with a specific number of workers."""
@@ -42,7 +44,7 @@ def run_titanic_workflow_with_workers(worker_count):
     else:
         raise ValueError(f"Chunker type {CHUNKER_TYPE} not supported")
 
-    @flexorchestrator(bucket="lithops-us-east-1-45dk")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk" )
     def main():
         dag = DAG("titanic")
 
@@ -60,20 +62,19 @@ def run_titanic_workflow_with_workers(worker_count):
 
         dag.add_stage(stage)
         
-        # Create executor with reasonable memory allocation
-        # Use default runtime to avoid missing dependencies
+        # Create executor with 512MB memory configuration from config file
         executor = DAGExecutor(
             dag, 
             executor=FunctionExecutor(
+                config_file_path="/Users/arriazui/Desktop/GreenComputing/flexecutor-main/config_aws.yaml",
                 log_level="INFO", 
-                runtime_memory=1024,  # Reduced from 2048
-                invoke_pool_threads=1  # Limit concurrent invocations
+                runtime_memory=memory_runtime
             )
         )
 
         # Set resource configuration for the stage with specified worker count
-        # Reduced CPU requirements to avoid resource contention
-        stage.resource_config = StageConfig(cpu=1, memory=1024, workers=worker_count)  # Reduced from cpu=4, memory=2048
+        # Memory allocation is handled by the config file (512MB)
+        stage.resource_config = StageConfig(cpu=1, workers=worker_count)
         
         print(f"[+] Executing Titanic DAG with {worker_count} workers...")
         results = executor.execute_with_profiling(num_workers=worker_count)
@@ -91,9 +92,18 @@ def run_titanic_workflow_with_workers(worker_count):
 
 if __name__ == "__main__":
     # Define worker configurations to test
-    # worker_configurations = [1, 2, 3, 4, 5, 6, 7] # 1, 2, 3, : fail due to a memory error
-    # worker_configurations = [ 4, 5, 6, 7, 8, 9 , 10, 12, 16, 20, 24, 28]
-    worker_configurations = [28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4]
+    worker_configurations = [
+         24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,     
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4
+    ]
 
     print("="*80)
     print("BATCH EXECUTION WITH MULTIPLE WORKER CONFIGURATIONS - TITANIC")

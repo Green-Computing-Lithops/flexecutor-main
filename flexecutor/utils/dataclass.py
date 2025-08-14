@@ -45,12 +45,11 @@ class FunctionTimes:
 
 ##~~ENERGY~~##
     # old: 
-    RAPL: Optional[float] = None
+    RAPL_wrong: Optional[float] = None 
     TDP: Optional[float] = None ##~~ENERGY~~##
     measurement_energy: Optional[str] = None
     
-    # RAPL2 - Enhanced CPU usage measurement
-    RAPL2: Optional[float] = None 
+
     
 
     # Energy metrics from different methods
@@ -78,6 +77,9 @@ class FunctionTimes:
     cpu_cores_physical: Optional[int] = None
     cpu_cores_logical: Optional[int] = None
     
+    # AWS CPU processor information
+    aws_cpu: Optional[str] = None
+    
     total: Optional[float] = None
 
     @classmethod
@@ -92,8 +94,7 @@ class FunctionTimes:
             , "measurement_energy"
 
             ##~~ENERGY~~##
-            , "RAPL"
-            , "RAPL2"  # RAPL2 enhanced CPU usage
+            , "RAPL_wrong" 
             , "TDP"
             # , "perf_energy_pkg"
             , "perf_energy_cores"
@@ -116,6 +117,8 @@ class FunctionTimes:
             , "cpu_architecture"
             , "cpu_cores_physical"
             , "cpu_cores_logical"
+            
+            , "aws_cpu"
         ] 
 
     def __lt__(self, other):
