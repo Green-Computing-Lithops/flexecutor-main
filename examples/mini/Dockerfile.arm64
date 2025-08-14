@@ -1,0 +1,40 @@
+# ARM64 Python 3.10 for AWS Lambda
+FROM public.ecr.aws/lambda/python:3.10-arm64
+
+# Install system dependencies
+RUN yum update -y && yum install -y \
+    gcc \
+    gcc-c++ \
+    make \
+    && yum clean all
+
+# Install Python packages
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir \
+    numpy \
+    scipy \
+    matplotlib \
+    psutil \
+    cloudpickle \
+    tblib \
+    wrapt \
+    requests \
+    PyYAML \
+    boto3
+
+# Copy requirements and install additional dependencies
+COPY requirements.txt ${LAMBDA_TASK_ROOT}/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install FlexExecutor and Lithops
+COPY lithops_fork/ ${LAMBDA_TASK_ROOT}/lithops_fork/
+RUN cd ${LAMBDA_TASK_ROOT}/lithops_fork && pip install -e .
+
+COPY flexecutor/ ${LAMBDA_TASK_ROOT}/flexecutor/
+RUN cd ${LAMBDA_TASK_ROOT} && pip install -e .
+
+# Copy function code
+COPY examples/mini/ ${LAMBDA_TASK_ROOT}/examples/mini/
+
+# Set the CMD to your handler
+CMD [ "examples.mini.functions.lambda_handler" ]
