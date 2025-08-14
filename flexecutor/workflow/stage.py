@@ -215,7 +215,14 @@ class Stage:
 
         dag = DAG("single-stage-dag")
         dag.add_stage(self)
-        executor = DAGExecutor(executor=FunctionExecutor(), dag=dag)
+        
+        # Get runtime_memory from configuration to fix memory reporting issue
+        # This ensures the FunctionExecutor uses the correct memory value (2048MB) 
+        # instead of falling back to cached values (1024MB)
+        runtime_memory = int(self.resource_config.memory)
+        function_executor = FunctionExecutor(runtime_memory=runtime_memory)
+        
+        executor = DAGExecutor(executor=function_executor, dag=dag)
         result = executor.execute()
         executor.shutdown()
         return list(result.values())[0]

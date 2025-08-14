@@ -52,6 +52,22 @@ def save_single_execution_profiling(results, execution_time, num_workers):
                         {
                             "compute": t.compute,
                             "read": t.read,
+                            "write": t.write,
+                            "cold_start": t.cold_start,
+                            "time_consumption": t.time_consumption,
+                            "worker_time_execution": t.worker_time_execution,
+                            "RAPL_wrong": t.RAPL_wrong,
+                            "TDP": t.TDP,
+                            "measurement_energy": t.measurement_energy,
+                            "perf_energy_cores": t.perf_energy_cores,
+                            "rapl_energy_cores": t.rapl_energy_cores,
+                            "ebpf_energy_pkg": getattr(t, 'ebpf_energy_pkg', None),
+                            "ebpf_energy_cores": t.ebpf_energy_cores,
+                            "psutil_cpu_percent": t.psutil_cpu_percent,
+                            "cpu_name": t.cpu_name,
+                            "cpu_architecture": t.cpu_architecture,
+                            "cpu_cores_physical": t.cpu_cores_physical,
+                            "cpu_cores_logical": t.cpu_cores_logical,
                             "total": t.compute + t.read
                         } for t in timing_results
                     ]
@@ -90,7 +106,7 @@ if __name__ == "__main__":
         
         start_time = time.time()
         
-        dag = DAG("montecarlo_pi_estimation")
+        dag = DAG("pi")
 
         # Create the pi estimation stage
         stage = Stage(
@@ -106,7 +122,7 @@ if __name__ == "__main__":
         )
 
         dag.add_stage(stage)
-        executor = DAGExecutor(dag, executor=FunctionExecutor(config_file='../../config_aws.yaml'))
+        executor = DAGExecutor(dag, executor=FunctionExecutor(config_file=os.environ.get('LITHOPS_CONFIG_FILE', '../../config_aws.yaml')))
 
         # Execute with profiling to measure performance
         num_workers = 10

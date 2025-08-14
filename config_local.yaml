@@ -1,12 +1,13 @@
-# FlexExecutor Configuration for Local Development
+# FlexExecutor Configuration for Local Development with Python 3.10
 # This configuration uses localhost backend for testing without external dependencies
+# To use Python 3.10 specifically, run with: python3.10 your_script.py
 
 lithops:
     backend: localhost
     storage: localhost
     # Enable debug logging for development
     data_cleaner: True
-    execution_timeout: 300
+    execution_timeout: 600      # Increased timeout for localhost
     log_level: DEBUG # manri --> primer paso
 
 localhost:
@@ -17,9 +18,13 @@ localhost:
     runtime_memory: 2048        # Memory per worker in MB
     runtime_timeout: 600        # Worker timeout in seconds (10 minutes)
     # max_workers: 4              # Maximum concurrent workers
+    runtime: /Users/arriazui/Desktop/GreenComputing/flexecutor-main/venv310/bin/python
     
     # Performance settings
     worker_processes: 1         # Processes per worker
+    
+    # Python 3.10 specific settings
+    python_version: "3.10"      # Specify Python version
 
 minio:
     storage_bucket: /tmp/flexecutor-data

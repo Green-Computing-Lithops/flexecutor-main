@@ -43,23 +43,18 @@ class StageFuture:
             ##~~TIME~~##
             r.time_consumption = s["worker_exec_time"]
             worker_end_tstamp = s["worker_end_tstamp"]
-            r.worker_time_execution = worker_end_tstamp - worker_start_tstamp
-            # r.worker_time_execution = s["worker_func_cpu_user_time"] # not used now --> keep as check   # REVIEW: worker_func_cpu_user_time --> USED IN MANY PLACES 
 
-            
             ##~~ENERGY~~##
             # Extract CPU usage and calculate TDP = execution_time * cpu_percent
+            r.worker_time_execution = worker_end_tstamp - worker_start_tstamp 
             exec_time = s["worker_exec_time"]
-            #cpu_percent = s["worker_cpu_percent"] # ERROR
             cpu_percent = s.get("worker_func_avg_cpu_usage", 0)  # Use avg CPU usage, default to 0 if not available
-            r.TDP = exec_time * (cpu_percent / 100.0)
-            
-            # RAPL2 - Enhanced CPU usage measurement
-            r.RAPL2 = s.get("worker_func_avg_cpu_usage_v2", 0.0)
-            
-            r.RAPL = s.get("worker_func_energy_consumption", 0)  # Use the actual energy consumption key
-     
-            
+
+            # r.TDP = exec_time * (cpu_percent / 100.0) # old TDP calculation, avoid cold start time
+            r.TDP = r.worker_time_execution * (cpu_percent / 100.0)  # optimize TDP calculation
+
+            # r.RAPL_wrong = s.get("worker_func_energy_consumption", 0)  # Use the actual energy consumption key. worker_func_uss_55
+            r.RAPL_wrong = s.get("RAPL_wrong", s.get("worker_func_uss_55", 1))
             # Extract energy measurement method used
             r.measurement_energy = s.get("worker_func_energy_method_used", "n/a")
             
@@ -80,8 +75,8 @@ class StageFuture:
             r.ebpf_cpu_cycles = s.get("worker_func_ebpf_cpu_cycles", 0.0)
             
             # Extract PSUtil (base) system monitoring metrics
-            r.psutil_cpu_percent = s.get("worker_func_base_cpu_percent", 0.0)
-            r.psutil_memory_percent = s.get("worker_func_base_memory_percent", 0.0)
+            r.psutil_cpu_percent = s.get("worker_func_psutil_cpu_percent", 0.0)
+            r.psutil_memory_percent = s.get("worker_func_psutil_memory_percent", 0.0)
             
             # Extract CPU information
             # Get processor info dict for more detailed information
@@ -93,6 +88,14 @@ class StageFuture:
             r.cpu_cores_physical = s.get("worker_processor_cores", processor_info.get("cores", 0)) or 0
             r.cpu_cores_logical = s.get("worker_processor_threads", processor_info.get("threads", 0)) or 0
             
+            # Extract AWS processor information
+            aws_instance_type = s.get("worker_func_aws_instance_type", "Unknown")
+            aws_architecture = s.get("worker_func_aws_architecture", "Unknown") 
+            aws_is_lambda = s.get("worker_func_aws_is_lambda", False)
+            aws_memory_size = s.get("worker_func_aws_memory_size", "unknown")
+            
+            # Create comprehensive AWS CPU identifier with all information
+            r.aws_cpu = f"type:{aws_instance_type}|arch:{aws_architecture}|lambda:{aws_is_lambda}|mem:{aws_memory_size}"
             
             timings_list.append(r)
         return timings_list

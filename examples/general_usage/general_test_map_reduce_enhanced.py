@@ -89,12 +89,12 @@ def print_workload_comparison(sleep_future, prime_future):
     sleep_energy = sleep_future.stats.get('worker_func_enhanced_energy_total', 0.0)
     sleep_duration = sleep_future.stats.get('worker_func_energy_duration', 0.0)
     sleep_power = sleep_future.stats.get('worker_func_enhanced_power_consumption_watts', 0.0)
-    sleep_cpu = sleep_future.stats.get('worker_func_base_process_cpu_percent', 0.0)
+    sleep_cpu = sleep_future.stats.get('worker_func_psutil_process_cpu_percent', 0.0)
     
     prime_energy = prime_future.stats.get('worker_func_enhanced_energy_total', 0.0)
     prime_duration = prime_future.stats.get('worker_func_energy_duration', 0.0)
     prime_power = prime_future.stats.get('worker_func_enhanced_power_consumption_watts', 0.0)
-    prime_cpu = prime_future.stats.get('worker_func_base_process_cpu_percent', 0.0)
+    prime_cpu = prime_future.stats.get('worker_func_psutil_process_cpu_percent', 0.0)
     
     print(f"\n📊 COMPARATIVE METRICS:")
     print(f"{'Metric':<25} {'Sleep Function':<20} {'Prime Function':<20} {'Difference':<15}")
@@ -165,17 +165,17 @@ def print_comprehensive_energy_analysis(future, function_name):
     duration = future.stats.get('worker_func_energy_duration', 0.0)
     
     # PSUtil system monitoring
-    base_available = future.stats.get('worker_func_base_available', False)
-    sys_cpu_percent = future.stats.get('worker_func_base_cpu_percent', 0.0)
-    sys_memory_percent = future.stats.get('worker_func_base_memory_percent', 0.0)
-    proc_cpu_percent = future.stats.get('worker_func_base_process_cpu_percent', 0.0)
-    proc_memory_mb = future.stats.get('worker_func_base_process_memory_mb', 0.0)
-    cpu_freq = future.stats.get('worker_func_base_cpu_freq_current', 0.0)
+    base_available = future.stats.get('worker_func_psutil_available', False)
+    sys_cpu_percent = future.stats.get('worker_func_psutil_cpu_percent', 0.0)
+    sys_memory_percent = future.stats.get('worker_func_psutil_memory_percent', 0.0)
+    proc_cpu_percent = future.stats.get('worker_func_psutil_process_cpu_percent', 0.0)
+    proc_memory_mb = future.stats.get('worker_func_psutil_process_memory_mb', 0.0)
+    cpu_freq = future.stats.get('worker_func_psutil_cpu_freq_current', 0.0)
     
     # CPU information from EnergyManager
-    cpu_name = future.stats.get('worker_func_cpu_name', 'Unknown')
-    cpu_brand = future.stats.get('worker_func_cpu_brand', 'Unknown')
-    cpu_cores_physical = future.stats.get('worker_func_cpu_cores_physical', 0)
+    cpu_name = future.stats.get('worker_func_psutil_cpu_name', 'Unknown')
+    cpu_brand = future.stats.get('worker_func_psutil_cpu_brand', 'Unknown')
+    cpu_cores_physical = future.stats.get('worker_func_psutil_cpu_cores_physical', 0)
     
     # Enhanced energy monitoring
     enhanced_available = future.stats.get('worker_func_enhanced_available', False)
@@ -191,7 +191,7 @@ def print_comprehensive_energy_analysis(future, function_name):
     print(f"   Cores Used: {cpu_cores_physical} physical cores")
     
     # Additional timing and CPU metrics (always show these)
-    cpu_user_time = future.stats.get('worker_func_cpu_user_time', 0.0)
+    cpu_user_time = future.stats.get('worker_func_psutil_cpu_user_time', 0.0)
     cpu_usage_avg = future.stats.get('worker_func_avg_cpu_usage', 0.0)
     print(f"\n⏱️  TIMING & CPU METRICS:")
     print(f"   Duration: {duration:.3f} seconds")
@@ -228,7 +228,7 @@ def print_comprehensive_energy_analysis(future, function_name):
         print(f"   TDP Utilization: {enhanced_efficiency_percent:.2f}% of {enhanced_tdp:.0f}W TDP")
         
         # Additional timing and CPU metrics
-        cpu_user_time = future.stats.get('worker_func_cpu_user_time', 0.0)
+        cpu_user_time = future.stats.get('worker_func_psutil_cpu_user_time', 0.0)
         cpu_usage_avg = future.stats.get('worker_func_avg_cpu_usage', 0.0)
         print(f"\n⏱️  TIMING & CPU METRICS:")
         print(f"   Duration: {duration:.3f} seconds")
@@ -354,7 +354,7 @@ def print_stats(future):
     # === GENERAL METRICS ===
     print("\n🕒 GENERAL METRICS:")
     print(f"   Duration: {future.stats.get('worker_func_energy_duration', 'N/A')} seconds")
-    print(f"   CPU User Time: {future.stats.get('worker_func_cpu_user_time', 'N/A')} seconds")
+    print(f"   CPU User Time: {future.stats.get('worker_func_psutil_cpu_user_time', 'N/A')} seconds")
     print(f"   CPU Usage Average: {future.stats.get('worker_func_avg_cpu_usage', 'N/A')}%")
     print(f"   Legacy Energy Consumption: {future.stats.get('worker_func_energy_consumption', 'N/A')}")
     print(f"   Legacy Energy Method: {future.stats.get('worker_func_energy_method_used', 'N/A')}")
@@ -438,28 +438,28 @@ def print_stats(future):
     
     # === PSUtil SYSTEM MONITORING ===
     print("\n💻 PSUtil SYSTEM MONITORING:")
-    base_available = future.stats.get('worker_func_base_available', False)
-    base_source = future.stats.get('worker_func_base_source', 'unavailable')
+    base_available = future.stats.get('worker_func_psutil_available', False)
+    base_source = future.stats.get('worker_func_psutil_source', 'unavailable')
     print(f"   Status: {'✅ Available' if base_available else '❌ Unavailable'}")
     print(f"   Source: {base_source}")
     
     if base_available:
         # System-wide metrics
-        sys_cpu_percent = future.stats.get('worker_func_base_cpu_percent', 0.0)
-        sys_memory_percent = future.stats.get('worker_func_base_memory_percent', 0.0)
-        sys_memory_used_mb = future.stats.get('worker_func_base_memory_used_mb', 0.0)
-        disk_read_mb = future.stats.get('worker_func_base_disk_io_read_mb', 0.0)
-        disk_write_mb = future.stats.get('worker_func_base_disk_io_write_mb', 0.0)
-        net_sent_mb = future.stats.get('worker_func_base_network_sent_mb', 0.0)
-        net_recv_mb = future.stats.get('worker_func_base_network_recv_mb', 0.0)
+        sys_cpu_percent = future.stats.get('worker_func_psutil_cpu_percent', 0.0)
+        sys_memory_percent = future.stats.get('worker_func_psutil_memory_percent', 0.0)
+        sys_memory_used_mb = future.stats.get('worker_func_psutil_memory_used_mb', 0.0)
+        disk_read_mb = future.stats.get('worker_func_psutil_disk_io_read_mb', 0.0)
+        disk_write_mb = future.stats.get('worker_func_psutil_disk_io_write_mb', 0.0)
+        net_sent_mb = future.stats.get('worker_func_psutil_network_sent_mb', 0.0)
+        net_recv_mb = future.stats.get('worker_func_psutil_network_recv_mb', 0.0)
         
         # Process-specific metrics
-        proc_cpu_percent = future.stats.get('worker_func_base_process_cpu_percent', 0.0)
-        proc_memory_mb = future.stats.get('worker_func_base_process_memory_mb', 0.0)
+        proc_cpu_percent = future.stats.get('worker_func_psutil_process_cpu_percent', 0.0)
+        proc_memory_mb = future.stats.get('worker_func_psutil_process_memory_mb', 0.0)
         
         # Hardware metrics
-        cpu_freq = future.stats.get('worker_func_base_cpu_freq_current', 0.0)
-        cpu_temp = future.stats.get('worker_func_base_cpu_temp_celsius', 0.0)
+        cpu_freq = future.stats.get('worker_func_psutil_cpu_freq_current', 0.0)
+        cpu_temp = future.stats.get('worker_func_psutil_cpu_temp_celsius', 0.0)
         
         print(f"   🖥️  SYSTEM METRICS:")
         print(f"      CPU Usage: {sys_cpu_percent:.2f}%")
@@ -503,25 +503,25 @@ def print_stats(future):
         print("   ⚠️  No energy methods returned valid data")
     
     # === SYSTEM MONITORING SUMMARY ===
-    base_available = future.stats.get('worker_func_base_available', False)
+    base_available = future.stats.get('worker_func_psutil_available', False)
     if base_available:
         print("\n📊 SYSTEM MONITORING SUMMARY:")
-        sys_cpu = future.stats.get('worker_func_base_cpu_percent', 0.0)
-        proc_cpu = future.stats.get('worker_func_base_process_cpu_percent', 0.0)
-        memory_usage = future.stats.get('worker_func_base_memory_percent', 0.0)
+        sys_cpu = future.stats.get('worker_func_psutil_cpu_percent', 0.0)
+        proc_cpu = future.stats.get('worker_func_psutil_process_cpu_percent', 0.0)
+        memory_usage = future.stats.get('worker_func_psutil_memory_percent', 0.0)
         print(f"   System Load: CPU {sys_cpu:.1f}%, Memory {memory_usage:.1f}%")
-        print(f"   Process Impact: CPU {proc_cpu:.1f}%, Memory {future.stats.get('worker_func_base_process_memory_mb', 0.0):.1f} MB")
+        print(f"   Process Impact: CPU {proc_cpu:.1f}%, Memory {future.stats.get('worker_func_psutil_process_memory_mb', 0.0):.1f} MB")
     
     # === CPU INFORMATION (FROM ENERGY MANAGER) ===
     print(f"\n🖥️  CPU INFORMATION (from Energy Manager):")
     
     # NEW: CPU information collected directly by EnergyManager
-    em_cpu_name = future.stats.get('worker_func_cpu_name', 'Unknown')
-    em_cpu_brand = future.stats.get('worker_func_cpu_brand', 'Unknown')
-    em_cpu_arch = future.stats.get('worker_func_cpu_architecture', 'Unknown')
-    em_cpu_cores_physical = future.stats.get('worker_func_cpu_cores_physical', 0)
-    em_cpu_cores_logical = future.stats.get('worker_func_cpu_cores_logical', 0)
-    em_cpu_frequency = future.stats.get('worker_func_cpu_frequency', 0.0)
+    em_cpu_name = future.stats.get('worker_func_psutil_cpu_name', 'Unknown')
+    em_cpu_brand = future.stats.get('worker_func_psutil_cpu_brand', 'Unknown')
+    em_cpu_arch = future.stats.get('worker_func_psutil_cpu_architecture', 'Unknown')
+    em_cpu_cores_physical = future.stats.get('worker_func_psutil_cpu_cores_physical', 0)
+    em_cpu_cores_logical = future.stats.get('worker_func_psutil_cpu_cores_logical', 0)
+    em_cpu_frequency = future.stats.get('worker_func_psutil_cpu_frequency', 0.0)
     
     print(f"   📊 FROM ENERGY MANAGER WORKER:")
     print(f"      CPU Name: {em_cpu_name}")
@@ -555,7 +555,7 @@ def print_stats(future):
     
     print("=" * 80)
 
-    print(f"CPU User Time: {future.stats.get('worker_func_cpu_user_time', 'N/A')}")
+    print(f"CPU User Time: {future.stats.get('worker_func_psutil_cpu_user_time', 'N/A')}")
     print(f"CPU Usage Average: {future.stats.get('worker_func_avg_cpu_usage', 'N/A')}")
     print(f"Energy Consumption: {future.stats.get('worker_func_energy_consumption', 'N/A')}")
     
@@ -634,7 +634,7 @@ if __name__ == "__main__":
     print("📊 LEGACY OUTPUT (for compatibility)")
     print("=" * 80)
     
-    print("CPU User Time:", sleep_future.stats.get('worker_func_cpu_user_time', 'N/A'))
+    print("CPU User Time:", sleep_future.stats.get('worker_func_psutil_cpu_user_time', 'N/A'))
     print("CPU Usage Average:", sleep_future.stats.get('worker_func_avg_cpu_usage', 'N/A'))
     print("Energy Consumption:", sleep_future.stats.get('worker_func_energy_consumption', 'N/A'))
     print("Energy Method used:", sleep_future.stats.get('worker_func_energy_method_used', 'N/A'))

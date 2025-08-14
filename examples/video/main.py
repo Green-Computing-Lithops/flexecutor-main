@@ -16,7 +16,7 @@ from flexecutor.utils.dataclass import StageConfig
 
 if __name__ == "__main__":
 
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
         dag = DAG("video")
 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         ]
         executor = DAGExecutor(
             dag,
-            executor=FunctionExecutor(log_level="INFO"),
+            executor=FunctionExecutor(log_level="INFO", runtime='video_aws_lambda_arm_greencomp_v1'),
             scheduler=Jolteon(
                 dag,
                 bound=20,

@@ -1,0 +1,9 @@
+# update the credentials from the file congi_aws.yaml 
+
+run with something like this: 
+
+source venv310/bin/activate && export AWS_ACCESS_KEY_ID="ASIA4MTWMECOCHIAD4TJ" && export AWS_SECRET_ACCESS_KEY="2CXWr14qv3FHo5ghA7izxmunkXtfBXwwG95GNbG1" && export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEOT//////////wEaCXVzLWVhc3QtMSJGMEQCIEVdS6GAIEqM6OTgpQ8G22gv5jdg+ZF3wrLYtLuINSlxAiBpt7ojUv4drX6zkuUtLFGDyqMVCHh3MVooTRiasJtuJyr2AggtEAAaDDg1MTcyNTUyNTE0OCIMl/l3iGTkaWdDq8y8KtMCduhf7bIaEX9AriimGcj97p9Zu1J+PIVJUaxD+wCh8nWn511QvC+QjrITIDJximjMuhixAQfSLLoSVHSN6qQulYSxsiAKNJ3hTmx7YSQD2/TJ2TfE70KnxH//KKlUQgcKdIN1VkvFJOw9npe9PTAW+yZEOsNcyedDrYx/mXPzKu1NNhjwyWpAItB0e389YkUu6x3UElXS+DjWMRFe8wn4E0vyUNyCPK9iAu4U+j18cBrTMQhswEALJzIB+jvlc4UBGUJeKMFPLWw/a7/a9XIQ04hvAqLZdOZCfto/y8GrlXnXmT0kyiqBj93q9iG4x1eS16j86Tn8bdJZp9DbFIhteL1zE8DoYnwOTkYVFjAsObODrY3KlhfiYUl316sJyVxzxlOsY5NYH5tF4JXTy45ClVujOfvJ6w/kx1buvDXR8bgyb1MP7rCUtOmfFM83kEQ5VFYSMKvt8cQGOqgBkPzyEeLBDh7Y4cSnyjmThWVmbiHXHrLMSAt2IgJfZHCXcn2j0mZvYJkOYSaI+uidM7U2aRKoVTLPEMxSwWjjxuHNBbq6h3g9n4pRC/vQwX8zjxYSCA77BQiNfsdlgiHthN3+my8juI7qkzHW3CR+0U/9jzp/MnRF7d37xxLfjLQe8GZA7BMFx4Y/q09BveO268aCJaJTzq44bJq/QfSPyEv3JCduWodJ" && export DOCKER_ENGINE=podman && export LITHOPS_CONFIG_FILE=/Users/arriazui/Desktop/GreenComputing/flexecutor-main/config_aws.yaml && python examples/ml/main_batch_execution.py
+
+# file to run : 
+the file: 
+

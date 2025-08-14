@@ -23,9 +23,9 @@ localhost:
     runtime_python_version: "3.10"
 
 aws:
-    AWS_ACCESS_KEY_ID: "ASIA4MTWMECODOTMORFN"
-    AWS_SECRET_ACCESS_KEY: "4vNeqm2FareW0webc2Ayo+Xd3WusxB0cwzwatEQF"
-    AWS_SESSION_TOKEN: "IQoJb3JpZ2luX2VjEEcaCXVzLWVhc3QtMSJGMEQCIBKZ0OyMZH/rf+Nv5lqoE4FiBJOQozCgIWxPZgegSpq6AiAfdURiziOHHimUGDCo+kFLGnR7W9KEp82T3XGxki/rhyr2Agh/EAAaDDg1MTcyNTUyNTE0OCIMoI0PUdCBwLRhcif6KtMCGqKK0JrmlijliqKd+rg9Dy1pJ2jUtiXp4ZiSRtW1qbQawLIVhfpKzWtSd/dTpLAbpJRUtPH21IuF7jJF3M+J+EVMMBFEE2/5KhaxSGh6c/+9RiKQy7b/NslghVehJIUBNKNdrK6Lc2dqdX21rPlGKLXurSysEFNAVJ9KySRVLMFXB7dB2OSZrKqaNngx05eGL4QmH/k7a+NRmipTWLlFoZrC2NHLbK7/xveBVVKag/4keeYqX39Acu9d8BMeaFynPEgAIgiojnljyeNQGFRnW8kSfIIRQGUfGkjHrhryznFkdO8gkIayN+R5gONKOdvxhzqKbGR2hKy9uxe+wdK4k6unvbDsh/90RL65+xISRMtg1i4xZiOU/xrROV+T9aSof8V8y84JFb25rNBTUqwrPJV3fEgfpClTDEj7LnsrDdmJoZX7dpDlOYEkRTD+TzGcoGalMPuiz8QGOqgB4V2OtrKW706N9hfH+vZTRHLH7mXIqyLXur0AeModkdvoVh0tchlHSs2u61ncZigyVfMDeOdLYKjOyIzab/IWoSg4u9nRzCSCwu/+xdxpnfPP+dwW/oWkkR7qpXE4y+9EjkaWzPEP4CgFLuKtS4IrgGp0TpX+74MVWnkNoS0p715KAT4bphAPXbUpT9yrNjgXKMI6oqTwcnUabG2289nsG1IdTUZc4/Sy"
+    AWS_ACCESS_KEY_ID: "ASIA4MTWMECOEFKAGSZW"
+    AWS_SECRET_ACCESS_KEY: "uRHlq+4zDpkQAthkBL10afxJmDZeu5+2/4qQnY6I"
+    AWS_SESSION_TOKEN: "IQoJb3JpZ2luX2VjEOz//////////wEaCXVzLWVhc3QtMSJHMEUCIA0d6/qD9cplU+WlxjfPTGFpwXDV9jCqzDZIz8a/yJ0UAiEA6gdPxTvJwHM9xm50GKeky8jxIIzxq9402mmhdetC2Kcq9gIINRAAGgw4NTE3MjU1MjUxNDgiDDFibuu5wupMMchNSSrTAj2qIIybJI3gi2UBaHNQb244H4Ayfa8pdLu3ImkSKIG8Ni2lxPxL2fqsU7alps47IJKcyneDEPbmw9P7yv5xDx3gWnFOrDZN9yuuff12KLYiJ2Nh3Y7lMBOcZrRnjKhw6XwzEZP/Bf7HnBx4tdOx8M1rZj5wdCWi2TGUOiQcYE4mvHcwKwhi5ohHIybPrqVIxeFy8D8CxFYu+g3dU1EiT5+ZTDQbv45LtD8QnwJa3NyJT0F17x7KbB1XPHtzhSvHpeNOakOTm4EnhMzNTWZFydzeMsTylUIiAQyhIhnixojOQZQYokku4eAHjiZZPFKWFPYafLcDrrJWc8f3h3hUAF28ZvOTNCfRcAwzmZGRvjiJSLVZ6P6YdEFVlt5oFerAnv8JlGJvXwL7lg4E0x45fClorsKTeYMCIJ7w4Th7BCtgAriuJGHYAd7Vf9qD+MozZEIz3TD4y/PEBjqnAVM5hFNdMEGzB+nQ2QjOyyBvWGtud4VmjUlBO+rInXGslzq6c4ky3GuN4g2BOAmOtWb5vpriVYn+6rpD3PpUPNDgxov0r4LQEbboh0Wo0SFMVHm5kjOZwjpGdHIq9+BGnpoF4LU+Z/yqUO3xkCaqm75sAdJeX104FjnNC9RCve9ugXXUsoURX+23lgLXzdKHddieAdV/cF6zDycK7GQlC019Ibn92GVQ"
     region: us-east-1
 
  
@@ -34,19 +34,30 @@ aws:
 aws_lambda:
     execution_role: arn:aws:iam::851725525148:role/lambdaLithopsExecutionRole
     runtime_timeout: 300
+    # runtime_memory: 1024
+    # runtime_memory: 512
     runtime_memory: 2048
 
+    ##### ML #####
     # ML ARM64 specific runtime: 
     # runtime: ml_aws_arm64
-    # architecture: arm64
+    # runtime: ml_aws_lambda_arm_greencomp_v1
     
-    # Titanic x86_64 specific runtime: 
-    runtime: titanic_aws_lambda
-    architecture: x86_64
+    #####  Titanic x86_64 specific runtime: #####
+    # runtime: titanic_aws_lambda
+    # architecture: x86_64
     
     # Titanic ARM64 specific runtime: 
-    # runtime: titanic_aws_lambda_arm_greencomp
-    # architecture: arm64
+    runtime: titanic_aws_lambda_arm_greencomp_v1
+    # runtime: titanic_aws_lambda_arm_greencomp_v1_512mb_v2
+    # runtime: titanic_aws_lambda_arm_greencomp_v1_2048mb
+    # runtime: titanic_aws_lambda_arm_greencomp_v3
+    # runtime: video_aws_lambda_arm_greencomp_v1
+    
+    
+    
+    
+    architecture: arm64
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # FlexExecutor configuration for AWS Lambda with enhanced energy monitoring
@@ -56,7 +67,7 @@ aws_lambda:
     max_workers: 1000
     worker_processes: 1
     invoke_pool_threads: 64
-    ephemeral_storage: 1024
+    ephemeral_storage: 10240  # Maximum allowed (10GB) for video processing
     check_version: false
     
     environment:

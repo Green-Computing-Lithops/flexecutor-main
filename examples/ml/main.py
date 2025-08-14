@@ -19,10 +19,10 @@ from flexecutor.utils.dataclass import StageConfig
 
 if __name__ == "__main__":
 
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
       
-        dag = DAG("machine_learning")
+        dag = DAG("ml")
 
         data_training = FlexData("training-data")
         data_vectors_pca = FlexData("vectors-pca")
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         executor = DAGExecutor(
             dag,
             # Use our new ml_aws_arm64 runtime with config file
-            executor=FunctionExecutor(config_file='../../config_aws.yaml', log_level="INFO", runtime_memory=2048),
+            executor=FunctionExecutor(config_file='../../config_aws.yaml', log_level="INFO", runtime_memory=2048, runtime='ml_aws_lambda_arm_greencomp_v1'),
             scheduler=Jolteon(
                 dag,
                 bound=40,
