@@ -18,7 +18,7 @@ from flexecutor.workflow.stage import Stage
 
 if __name__ == "__main__":
 
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
         rebinning_parameters = {
             "msin": FlexInput(prefix="partitions-nozip", custom_data_id="partitions", chunker=Chunker(ChunkerTypeEnum.DYNAMIC, chunking_strategy=ms_partitioning_strategy, cloud_object_format=MS)),

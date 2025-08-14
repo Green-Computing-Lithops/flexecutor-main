@@ -58,7 +58,7 @@ if __name__ == "__main__":
         )
 
         dag.add_stage(stage)
-        executor = DAGExecutor(dag, executor=FunctionExecutor())
+        executor = DAGExecutor(dag, executor=FunctionExecutor(runtime='titanic_aws_lambda_arm_greencomp_v1'))
 
         # results = executor.execute(num_workers=7)
         results = executor.execute_with_profiling(num_workers=NUM_WORKERS) #avoid profiling + execute : all in one  

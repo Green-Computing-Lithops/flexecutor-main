@@ -27,7 +27,7 @@ NUM_ITERATIONS = 2
 
 if __name__ == "__main__":
 
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
         dag = DAG("mini-dag")
 

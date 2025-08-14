@@ -230,8 +230,10 @@ class DAGExecutor:
         # self.optimize(ConfigBounds(*[(1, 6), (512, 4096), (1, 3)]))
         if num_workers is not None:
             for stage in self._dag.stages:
+                # Preserve existing memory configuration if already set, otherwise use default
+                existing_memory = stage.resource_config.memory if stage.resource_config else 1024
                 stage.resource_config = StageConfig(
-                    cpu=1, memory=1024, workers=num_workers
+                    cpu=1, memory=existing_memory, workers=num_workers
                 )
 
         self._futures = dict()

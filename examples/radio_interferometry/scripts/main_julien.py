@@ -14,7 +14,7 @@ from flexecutor.workflow.stage import Stage
 
 if __name__ == "__main__":
 
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
         cal_rebinning_parameters = {
             "msin": FlexInput(prefix="partitions-CAL"),

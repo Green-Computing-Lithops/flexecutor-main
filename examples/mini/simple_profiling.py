@@ -30,7 +30,7 @@ def simple_function(ctx):
     return FunctionTimes(read=0.1, compute=0.8, write=0.1)
 
 if __name__ == "__main__":
-    @flexorchestrator(bucket="test-bucket")
+    @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
         # Create a simple DAG with a single stage
         dag = DAG("simple-dag")
