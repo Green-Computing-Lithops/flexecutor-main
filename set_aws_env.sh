@@ -1,0 +1,12 @@
+#!/bin/bash
+# Set AWS credentials for FlexExecutor
+
+export AWS_ACCESS_KEY_ID="ASIA4MTWMECOK7U3DCY2"
+export AWS_SECRET_ACCESS_KEY="iHiYbEURizkU1uPhXJJlO9Iiqupc6bsmzeuJik50"
+export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEAkaCXVzLWVhc3QtMSJHMEUCIBbx6/c3U2Sir7DHIKLVx80ygIr22VyArt01T+DS25fEAiEA4lhDwQ0pK/lNXnwcx+LVyM9l6Hn5jziVs2FUlVITZlMq9gIIURAAGgw4NTE3MjU1MjUxNDgiDN2fPyUrrBdKBdXhQSrTApywZ5en4HybrdrPAKrTSsrD+iy4LgScl1cH7Ci0tiOxbDwQXYVONpH6vYbTg/uIbjvjn7PEEovCor0QrVbSLTC9kDLqxJTqJjgVk0TxIBQ7p9kex/5kMP5BiI5sXBnUWWaG3gW0UhJ/8mqAgLe0+7z947Q+rSfdo6Pnn81BSBAj0AJaCx0KpD469tARvtIy7z6TftrJkLM/CLrhqiYbLRvHOEaxhiUqGbkcLCB5M8m/5qOeK+hTv8e869fTV1jrXCWQOMBzfaxqFwVWinX+gWZ2yhlXM2IRigLDomKyzUt7NddvbL9GuvJUgELWKekFGEqm/E48V1Itb3ECAD+Wm+B6Y39CSfPr2FwYWtVlH0IiiP4swCRuLoT435aP3eqE/QGt5nsEhdTdrrBSlLaE9DilGVF/pBpuvLobZJHGPNmq3O3wj3pRYoC2EmOH1y9BnByRfzDk+fnEBjqnASHK2/6gh812+H7TsXHlfQAECkrrzbtbWaHZETeWEKKfHgphpxvCigbSJg3YRctD4+fOSa6azpW3BJ8X/nAhDWIX241Fr2qCCy//iV3+n/BiuVGJGRKZlUsRtdASQBiWcy3Uj3BLtMNsCli8hJ90mIKoikcnh6rZ7s+aPuoNqjOQ8FotR0NpX5ADU1BYXZ8t/sq8gHnNinZSi4AHnGSZYZISdu1jz3mr"
+export AWS_DEFAULT_REGION="us-east-1"
+export LITHOPS_CONFIG_FILE="/home/minirobbin/Desktop/GreenComputing/flexecutor-main/config_aws.yaml"
+
+echo "AWS credentials set successfully!"
+echo "Testing S3 access..."
+aws s3 ls s3://lithops-us-east-1-45dk/ | head -10

@@ -2288,5 +2288,235 @@
                 "type:lambda-function|arch:aarch64|lambda:True|mem:2048"
             ]
         ]
+    },
+    "(1, 2048, 8)": {
+        "read": [
+            [
+                0.3641929626464844,
+                0.300079345703125,
+                0.305572509765625,
+                0.32685065269470215,
+                0.29688358306884766,
+                0.3358595371246338,
+                0.2961864471435547,
+                0.3036177158355713
+            ]
+        ],
+        "compute": [
+            [
+                16.88207769393921,
+                16.261175870895386,
+                15.893657445907593,
+                16.070997953414917,
+                16.33939504623413,
+                16.36182475090027,
+                16.491719484329224,
+                15.742932081222534
+            ]
+        ],
+        "write": [
+            [
+                0.1528310775756836,
+                0.15045738220214844,
+                0.15019798278808594,
+                0.1544952392578125,
+                0.1599140167236328,
+                0.2136077880859375,
+                0.15038275718688965,
+                0.15345430374145508
+            ]
+        ],
+        "cold_start": [
+            [
+                3.26138973236084,
+                2.764435291290283,
+                3.2024128437042236,
+                3.2415225505828857,
+                2.840268135070801,
+                3.167147397994995,
+                3.196920156478882,
+                2.5056498050689697
+            ]
+        ],
+        "time_consumption": [
+            [
+                42.18166828,
+                42.14587688,
+                41.23449397,
+                41.18916178,
+                42.03279352,
+                41.76189804,
+                41.74336195,
+                41.82956934
+            ]
+        ],
+        "worker_time_execution": [
+            [
+                42.181668281555176,
+                42.14587688446045,
+                41.23449397087097,
+                41.18916177749634,
+                42.0327935218811,
+                41.761898040771484,
+                41.743361949920654,
+                41.8295693397522
+            ]
+        ],
+        "measurement_energy": [
+            [
+                "null, null, null, psutil",
+                "null, null, null, psutil",
+                "null, null, null, psutil",
+                "null, null, null, psutil",
+                "null, null, null, psutil",
+                "null, null, null, psutil",
+                "null, null, null, psutil",
+                "null, null, null, psutil"
+            ]
+        ],
+        "RAPL_wrong": [
+            [
+                12,
+                12,
+                12,
+                12,
+                12,
+                12,
+                12,
+                12
+            ]
+        ],
+        "TDP": [
+            [
+                9.997055382728576,
+                9.588186991214753,
+                9.339612884402275,
+                9.514696370601653,
+                9.625509716510773,
+                9.751403192520142,
+                9.767946696281435,
+                9.32799396276474
+            ]
+        ],
+        "perf_energy_cores": [
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "rapl_energy_cores": [
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "ebpf_energy_pkg": [
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "ebpf_energy_cores": [
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "psutil_cpu_percent": [
+            [
+                3.8,
+                2.0,
+                3.8,
+                3.8,
+                2.0,
+                2.0,
+                2.0,
+                3.8
+            ]
+        ],
+        "cpu_name": [
+            [
+                "Intel(R) Xeon(R) Processor @ 2.50GHz",
+                "Intel(R) Xeon(R) Processor @ 2.50GHz",
+                "Intel(R) Xeon(R) Processor @ 2.50GHz",
+                "Intel(R) Xeon(R) Processor @ 2.50GHz",
+                "Intel(R) Xeon(R) Processor @ 2.50GHz",
+                "Intel(R) Xeon(R) Processor @ 2.50GHz",
+                "Intel(R) Xeon(R) Processor @ 2.50GHz",
+                "Intel(R) Xeon(R) Processor @ 2.50GHz"
+            ]
+        ],
+        "cpu_architecture": [
+            [
+                "x86_64",
+                "x86_64",
+                "x86_64",
+                "x86_64",
+                "x86_64",
+                "x86_64",
+                "x86_64",
+                "x86_64"
+            ]
+        ],
+        "cpu_cores_physical": [
+            [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+            ]
+        ],
+        "cpu_cores_logical": [
+            [
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+            ]
+        ],
+        "aws_cpu": [
+            [
+                "type:lambda-function|arch:x86_64|lambda:True|mem:2048",
+                "type:lambda-function|arch:x86_64|lambda:True|mem:2048",
+                "type:lambda-function|arch:x86_64|lambda:True|mem:2048",
+                "type:lambda-function|arch:x86_64|lambda:True|mem:2048",
+                "type:lambda-function|arch:x86_64|lambda:True|mem:2048",
+                "type:lambda-function|arch:x86_64|lambda:True|mem:2048",
+                "type:lambda-function|arch:x86_64|lambda:True|mem:2048",
+                "type:lambda-function|arch:x86_64|lambda:True|mem:2048"
+            ]
+        ]
     }
 }
