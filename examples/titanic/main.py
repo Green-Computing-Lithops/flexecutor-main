@@ -20,7 +20,7 @@ storage = Storage()
 storage_bucket = storage.config[storage.config['backend']]['storage_bucket']
 
 # CHUNKER_TYPE = "STATIC" # Changed from DYNAMIC to avoid Python 3.12 compatibility issue with dataplug
-CHUNKER_TYPE = "DYNAMIC"  
+CHUNKER_TYPE = "DYNAMIC"
 NUM_WORKERS = 8
 
 if __name__ == "__main__":
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         )
 
         dag.add_stage(stage)
-        executor = DAGExecutor(dag, executor=FunctionExecutor(runtime='titanic_aws_lambda_arm_greencomp_v1'))
+        executor = DAGExecutor(dag, executor=FunctionExecutor(runtime='titanic_aws_lambda_x86_greencomp_v1'))
 
         # results = executor.execute(num_workers=7)
         results = executor.execute_with_profiling(num_workers=NUM_WORKERS) #avoid profiling + execute : all in one  
