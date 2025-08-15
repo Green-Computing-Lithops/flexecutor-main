@@ -21,7 +21,7 @@ from flexecutor.workflow.stage import Stage
 from flexecutor.utils.dataclass import StageConfig
 
 CHUNKER_TYPE = "DYNAMIC"  # DYNAMIC
-memory_runtime = 2048
+memory_runtime = 512
 
 
 def run_titanic_workflow_with_workers(worker_count):
@@ -93,11 +93,13 @@ def run_titanic_workflow_with_workers(worker_count):
 if __name__ == "__main__":
     # Define worker configurations to test
     worker_configurations = [
-         24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+
+        # 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        # 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        # 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        # 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        # 28, 24, 20, 16, 12, 10, 9,
+          8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,     
