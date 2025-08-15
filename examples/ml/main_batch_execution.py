@@ -20,7 +20,7 @@ from flexecutor.utils.dataclass import StageConfig
 # Import the shared S3 cleanup utility
 from examples.general_usage.aws_s3_cleanup import S3Cleaner
 
-MEMORY = 2048
+MEMORY = 512
 stage_memory = MEMORY
 runtime_memory = MEMORY
 
@@ -139,9 +139,16 @@ def run_ml_workflow_with_workers(worker_count):
 
 if __name__ == "__main__":
     worker_configurations = [
-        20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        20, 16, 12, 10, 9, 8, 7, 6, 5, 4
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,     
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4
     ]
     print("="*80)
     print("BATCH EXECUTION WITH MULTIPLE WORKER CONFIGURATIONS")
