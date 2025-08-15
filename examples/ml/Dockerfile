@@ -1,4 +1,4 @@
-# AWS Lambda x86_64 Runtime for Titanic Project
+# AWS Lambda x86_64 Runtime for ML Project
 # Using proper x86_64 base image for AWS Lambda
 FROM public.ecr.aws/lambda/python:3.10
 
@@ -36,7 +36,10 @@ RUN pip install --upgrade --ignore-installed pip wheel six setuptools \
         scipy==1.10.1 \
         pandas>=1.5.0 \
         scikit-learn==1.2.2 \
+        lightgbm>=4.0.0 \
         joblib>=1.2.0 \
+        minio>=7.0.0 \
+        kubernetes>=18.0.0 \
         wrapt>=1.14.0 \
         smart-open>=6.0.0 \
         pika \
