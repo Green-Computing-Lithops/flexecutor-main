@@ -224,30 +224,16 @@ source venv310/bin/activate && export LITHOPS_CONFIG_FILE="/home/bigrobbin/Deskt
 
 
 
-# ACTUALIZED
-source venv310/bin/activate && export AWS_ACCESS_KEY_ID="ASIA4MTWMECOLY4OJFIO" && export AWS_SECRET_ACCESS_KEY="o5hMTs5fCnRX1MtbV09oiJMG/FPAwtg+DlCtKZox" && export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEMD//////////wEaCXVzLWVhc3QtMSJHMEUCIQD5FrKODB8obY6PWfwsS396QYesPS1SnVcTziPXkNNBIQIgLw2t679vceHZKE4pnRcnzy/BGmOet4gfw/Y/nfk8ljIq/wII6P//////////ARAAGgw4NTE3MjU1MjUxNDgiDGvm6qCgZ9xPEypQZCrTAgVjxdYwLKyt4RgqsosAfKIQhUFCfUuUuguTEa0RsFMnAQlMdk9RaZDsoZUdpCt68m3WEEvzmTSfhmGmqbnru7N9vboY70dM+kCauNfONPAuejNYU/78jRc7lgt1RjAJON24qLkSxjuGvZQk1J374OHuNzgosVOL8KD9rufvqymGFDef/hlWvJlzZCCjbbGUS/t9pXMWSPZdQwjg1vkMhyTHqJsuHDimOShNXaEG63dfPc1EKr3fOmyhMUt6fTPNWM4FFsFA3gdb2EO5k92ZfmpNoimx0E7k194pv//rSae52VBHaeNDSCaPE9x64l+yt9ruO8E3j7I2C+3wdxct4Ah3IWseWk9xjdA9wj7NYlweCE+cY8DdHHwHuWD95L4D3WAr4z15r2yxHUdDBiA3L1+Qmge8aSYidTN+RR+9UP2HtDOs5I9PLSiMHHrYvUFyXClJaTD11LHEBjqnAX6QDPsbayfnL5eJdEQwLoAUHwO7DtwB9Uhn/8LmryJTBokkd/KOTpYDGbwG/R8nT9WHeUmCm2KbmPcE+H9boEx4qlGa3niVLsruepAcE9MrP9nDM/9aOpplZcfAweyo5wPnj7PBOYxCTRvV5YRSkdNSbADVYi395esX5tDjqLyPrmHO2XGrx7MKmbFsw3HDjGvGzB4/ivlAcI4QwlIvGOY7f40w1kq7" && export LITHOPS_CONFIG_FILE="/home/bigrobbin/Desktop/green_computing/flexecutor-main/config_aws.yaml" && python examples/titanic/main.py
+# ACTUALIZED CREDENTIALS USING THIS FILE 
+/home/minirobbin/Desktop/GreenComputing/flexecutor-main/aws_credentials.md
+
+and run this command with the actualized credentials : 
+
+source venv310/bin/activate && export AWS_ACCESS_KEY_ID="ASIA4MTWMECOLY4OJFIO" && export AWS_SECRET_ACCESS_KEY="o5hMTs5fCnRX1MtbV09oiJMG/FPAwtg+DlCtKZox" && export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEMD//////////wEaCXVzLWVhc3QtMSJHMEUCIQD5FrKODB8obY6PWfwsS396QYesPS1SnVcTziPXkNNBIQIgLw2t679vceHZKE4pnRcnzy/BGmOet4gfw/Y/nfk8ljIq/wII6P//////////ARAAGgw4NTE3MjU1MjUxNDgiDGvm6qCgZ9xPEypQZCrTAgVjxdYwLKyt4RgqsosAfKIQhUFCfUuUuguTEa0RsFMnAQlMdk9RaZDsoZUdpCt68m3WEEvzmTSfhmGmqbnru7N9vboY70dM+kCauNfONPAuejNYU/78jRc7lgt1RjAJON24qLkSxjuGvZQk1J374OHuNzgosVOL8KD9rufvqymGFDef/hlWvJlzZCCjbbGUS/t9pXMWSPZdQwjg1vkMhyTHqJsuHDimOShNXaEG63dfPc1EKr3fOmyhMUt6fTPNWM4FFsFA3gdb2EO5k92ZfmpNoimx0E7k194pv//rSae52VBHaeNDSCaPE9x64l+yt9ruO8E3j7I2C+3wdxct4Ah3IWseWk9xjdA9wj7NYlweCE+cY8DdHHwHuWD95L4D3WAr4z15r2yxHUdDBiA3L1+Qmge8aSYidTN+RR+9UP2HtDOs5I9PLSiMHHrYvUFyXClJaTD11LHEBjqnAX6QDPsbayfnL5eJdEQwLoAUHwO7DtwB9Uhn/8LmryJTBokkd/KOTpYDGbwG/R8nT9WHeUmCm2KbmPcE+H9boEx4qlGa3niVLsruepAcE9MrP9nDM/9aOpplZcfAweyo5wPnj7PBOYxCTRvV5YRSkdNSbADVYi395esX5tDjqLyPrmHO2XGrx7MKmbFsw3HDjGvGzB4/ivlAcI4QwlIvGOY7f40w1kq7" && export LITHOPS_CONFIG_FILE="/home/bigrobbin/Desktop/green_computing/flexecutor-main/config_aws.yaml" && python examples/ml/main_batch_execution.py
 
 
 
 
-
-
-basandote en esta conversacion : /home/bigrobbin/Desktop/green_computing/flexecutor-main/information/cline_task_AWS_summarized.md
-
-prepara otro runtime para una configuracion de titanic_aws_lambda_arm usando como ejemplo : https://github.com/lithops-cloud/lithops/blob/master/runtime/aws_lambda/Dockerfile.arm64  e incluyendo todas las depencencias que ya existen en /home/bigrobbin/Desktop/green_computing/flexecutor-main/examples/titanic/Dockerfile  para crearlo usa los comandos de forma adaptada source venv310/bin/activate && export LITHOPS_CONFIG_FILE=config_aws.yaml && lithops runtime build -b aws_lambda -f examples/titanic/Dockerfile titanic_aws_lambda
-export LITHOPS_CONFIG_FILE=/home/bigrobbin/Desktop/green_computing/flexecutor-main/config_aws.yaml && echo "Environment variable set: $LITHOPS_CONFIG_FILE"  
-source venv310/bin/activate && python examples/titanic/main.py
-
-
-
-# Runtime issues: 
-recreate the runtime titanic_aws_lambda_arm using this file /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/titanic/Dockerfile.arm64 and upload it to ECR and aws. to build it use the commands asociated with lithops like this ones: 
-
-source venv310/bin/activate && export LITHOPS_CONFIG_FILE=config_aws.yaml && lithops runtime build -b aws_lambda -f examples/titanic/Dockerfile.arm64 titanic_aws_lambda_arm
-
-but adapted to the new runtime and run /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/montecarlo_pi_estimation/main.py to test if the runtime is working properly
-I use podman instead of docker 
-check the python to run 
 
 
 # PODMAN instead of Docker :

@@ -28,16 +28,3 @@ where the runtime in aws is of 512Mb  for this file /Users/arriazui/Desktop/Gree
 
 
 
-# problems identified : 
-🚨 ROOT CAUSE ANALYSIS - S3 Cleanup Failure
-🔍 Files Currently in S3 Bucket:
-accuracies/: 9 files (21 bytes each)
-forests/: 86+ files (6MB to 34MB each) - These are HUGE!
-lithops.jobs/: Multiple job files (46MB each) + status files
-models/: 300+ files (1.5MB each)
-predictions/: 77+ files (500KB each)
-training-data-transform/: 4 files (18MB each)
-vectors-pca/: 4 files (255KB each)
-💰 Storage Impact:
-Total estimated size: Over 2GB of accumulated temporary files!
-Cost impact: Significant storage costs accumulating
