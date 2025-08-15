@@ -1,8 +1,8 @@
-# AWS Lambda x86_64 Runtime for Titanic Project
+# AWS Lambda x86_64 Runtime for Video Processing Project
 # Using proper x86_64 base image for AWS Lambda
 FROM public.ecr.aws/lambda/python:3.10
 
-# Install system dependencies
+# Install system dependencies for video processing
 RUN yum update -y \
     && yum install -y \
         gcc \
@@ -12,11 +12,29 @@ RUN yum update -y \
         unzip \
         vim \
         git \
+        wget \
+        tar \
+        xz \
         gfortran \
         blas-devel \
         lapack-devel \
         python3-devel \
+        libEGL \
+        libGL \
+        libX11 \
+        libXext \
+        libXfixes \
+        libdrm \
+        libwayland-client \
     && yum clean all
+
+# Install FFmpeg from static builds
+RUN wget -O /tmp/ffmpeg.tar.xz https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz \
+    && cd /tmp \
+    && tar -xf ffmpeg.tar.xz \
+    && cp ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ \
+    && cp ffmpeg-*-amd64-static/ffprobe /usr/local/bin/ \
+    && rm -rf /tmp/ffmpeg*
 
 # Define custom function directory
 ARG FUNCTION_DIR="/function"
@@ -35,7 +53,6 @@ RUN pip install --upgrade --ignore-installed pip wheel six setuptools \
         numpy==1.24.3 \
         scipy==1.10.1 \
         pandas>=1.5.0 \
-        scikit-learn==1.2.2 \
         joblib>=1.2.0 \
         wrapt>=1.14.0 \
         smart-open>=6.0.0 \
@@ -44,7 +61,12 @@ RUN pip install --upgrade --ignore-installed pip wheel six setuptools \
         cloudpickle \
         ps-mem \
         tblib \
-        psutil
+        psutil \
+        opencv-python-headless \
+        Pillow \
+        torch==2.0.1 \
+        torchvision==0.15.2 \
+        moviepy
 
 # Install Lithops fork from local directory (Green Computing Lithops fork with additional features)
 # Copy the lithops fork source code into the container
