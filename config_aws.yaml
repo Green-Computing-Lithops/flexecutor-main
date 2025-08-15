@@ -48,11 +48,11 @@ aws_lambda:
     # architecture: x86_64
     
     # Titanic ARM64 specific runtime: 
-    runtime: titanic_aws_lambda_arm_greencomp_v1
+    # runtime: titanic_aws_lambda_arm_greencomp_v1
     # runtime: titanic_aws_lambda_arm_greencomp_v1_512mb_v2
     # runtime: titanic_aws_lambda_arm_greencomp_v1_2048mb
     # runtime: titanic_aws_lambda_arm_greencomp_v3
-    # runtime: video_aws_lambda_arm_greencomp_v1
+    runtime: video_aws_lambda_arm_greencomp_v1
     
     
     
