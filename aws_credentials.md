@@ -1,4 +1,5 @@
 Get credentials for cloudlab-permission-set
+Get credentials for cloudlab-permission-set
 
 Create access for the account internship-sandbox (851725525148) with cloudlab-permission-set.
 Use any of the following options to access AWS resources programmatically or from the AWS CLI. You can retrieve credentials as often as needed.
