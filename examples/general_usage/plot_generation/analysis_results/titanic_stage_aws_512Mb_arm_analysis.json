@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "description": "Enhanced profiling analysis results",
+    "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
     "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../titanic/profiling/titanic_aws_512Mb_arm/stage.json",
     "title": "titanic_stage_aws_512Mb_arm",
     "example": "titanic",
@@ -8,7 +8,18 @@
     "memory": "512Mb",
     "platform": "aws",
     "architecture": "arm",
-    "total_configurations": 5
+    "total_configurations": 5,
+    "aws_x86_processors": {
+      "AMD EPYC": {
+        "tdp_watts": 225,
+        "description": "AMD EPYC processor for AWS x86 instances"
+      },
+      "Intel(R) Xeon(R) Processor @ 2.90GHz": {
+        "tdp_watts": 300,
+        "description": "Intel Xeon processor @ 2.90GHz for AWS x86 instances"
+      }
+    },
+    "processor_info": null
   },
   "analysis_results": [
     {
@@ -22,9 +33,9 @@
       "avg_cold_start": 2.51655859152476,
       "avg_worker_time_execution": 42.385152808825175,
       "avg_rapl": 12.0,
-      "avg_tdp": 549.161338686943,
+      "avg_tdp": 549.1613386869432,
       "avg_execution": 34.938097572326654,
-      "avg_psutil_cpu_percent": 1.07,
+      "avg_psutil_cpu_percent": 1.0699999999999998,
       "min_compute": 32.136709451675415,
       "max_compute": 34.661574602127075,
       "total_compute": 402.6163043498992,
@@ -33,7 +44,7 @@
       "total_rapl": 144.0,
       "min_tdp": 524.4859580993652,
       "max_tdp": 570.8743138313293,
-      "total_tdp": 6589.936064243317,
+      "total_tdp": 6589.9360642433185,
       "min_execution": 0.5994590401649476,
       "max_execution": 33.55135869582494,
       "total_execution": 419.25717086791985,
@@ -60,7 +71,9 @@
       "cpu_architecture": "aarch64",
       "cpu_cores_logical": 2,
       "aws_cpu_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512",
-      "cost_aws_moneywise": 0.0
+      "cost_aws_moneywise": 0.0,
+      "processor_tdp_watts": 100,
+      "processor_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512"
     },
     {
       "cpu": 1,
@@ -75,7 +88,7 @@
       "avg_rapl": 12.0,
       "avg_tdp": 420.69857652917506,
       "avg_execution": 25.20398716032505,
-      "avg_psutil_cpu_percent": 1.1775,
+      "avg_psutil_cpu_percent": 1.1775000000000002,
       "min_compute": 22.803107261657715,
       "max_compute": 24.581995248794556,
       "total_compute": 379.5868212223053,
@@ -88,10 +101,10 @@
       "min_execution": 0.5758643805980682,
       "max_execution": 23.72417632639408,
       "total_execution": 403.2637945652008,
-      "avg_time_consumption": 32.2544340015,
+      "avg_time_consumption": 32.254434001499995,
       "min_time_consumption": 30.72322154,
       "max_time_consumption": 33.87643886,
-      "total_time_consumption": 516.070944024,
+      "total_time_consumption": 516.0709440239999,
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -111,7 +124,9 @@
       "cpu_architecture": "aarch64",
       "cpu_cores_logical": 2,
       "aws_cpu_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512",
-      "cost_aws_moneywise": 0.0
+      "cost_aws_moneywise": 0.0,
+      "processor_tdp_watts": 100,
+      "processor_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512"
     },
     {
       "cpu": 1,
@@ -139,10 +154,10 @@
       "min_execution": 0.5670180678367615,
       "max_execution": 18.363620302677155,
       "total_execution": 395.90272288322456,
-      "avg_time_consumption": 26.723476901399998,
+      "avg_time_consumption": 26.72347690140001,
       "min_time_consumption": 25.6429739,
       "max_time_consumption": 27.80748367,
-      "total_time_consumption": 534.469538028,
+      "total_time_consumption": 534.4695380280002,
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -162,7 +177,9 @@
       "cpu_architecture": "aarch64",
       "cpu_cores_logical": 2,
       "aws_cpu_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512",
-      "cost_aws_moneywise": 0.0
+      "cost_aws_moneywise": 0.0,
+      "processor_tdp_watts": 100,
+      "processor_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512"
     },
     {
       "cpu": 1,
@@ -175,7 +192,7 @@
       "avg_cold_start": 2.5860013484954836,
       "avg_worker_time_execution": 22.52121277054151,
       "avg_rapl": 12.0,
-      "avg_tdp": 311.7235638910532,
+      "avg_tdp": 311.7235638910533,
       "avg_execution": 16.128845755259196,
       "avg_psutil_cpu_percent": 0.935,
       "min_compute": 14.116822719573975,
@@ -186,14 +203,14 @@
       "total_rapl": 288.0,
       "min_tdp": 280.9091781139374,
       "max_tdp": 337.30290691852576,
-      "total_tdp": 7481.365533385277,
+      "total_tdp": 7481.3655333852785,
       "min_execution": 0.5268296817938487,
       "max_execution": 14.820417867104213,
       "total_execution": 387.0922981262207,
-      "avg_time_consumption": 22.521212770416664,
+      "avg_time_consumption": 22.521212770416657,
       "min_time_consumption": 21.27326941,
       "max_time_consumption": 23.83766127,
-      "total_time_consumption": 540.5091064899999,
+      "total_time_consumption": 540.5091064899998,
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -213,7 +230,9 @@
       "cpu_architecture": "aarch64",
       "cpu_cores_logical": 2,
       "aws_cpu_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512",
-      "cost_aws_moneywise": 0.0
+      "cost_aws_moneywise": 0.0,
+      "processor_tdp_watts": 100,
+      "processor_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512"
     },
     {
       "cpu": 1,
@@ -226,9 +245,9 @@
       "avg_cold_start": 3.7184796707970755,
       "avg_worker_time_execution": 21.510959340844835,
       "avg_rapl": 12.0,
-      "avg_tdp": 260.4061087890182,
+      "avg_tdp": 260.4061087890183,
       "avg_execution": 13.689860992772239,
-      "avg_psutil_cpu_percent": 0.9185714285714285,
+      "avg_psutil_cpu_percent": 0.9185714285714284,
       "min_compute": 11.894805908203125,
       "max_compute": 13.137054204940796,
       "total_compute": 351.5120474338531,
@@ -237,14 +256,14 @@
       "total_rapl": 336.0,
       "min_tdp": 242.29729710817338,
       "max_tdp": 284.8669921875,
-      "total_tdp": 7291.37104609251,
+      "total_tdp": 7291.371046092512,
       "min_execution": 0.5530122416360038,
       "max_execution": 12.554001694066184,
       "total_execution": 383.3161077976227,
-      "avg_time_consumption": 21.51095934107143,
+      "avg_time_consumption": 21.510959341071434,
       "min_time_consumption": 20.27592444,
       "max_time_consumption": 22.97314453,
-      "total_time_consumption": 602.30686155,
+      "total_time_consumption": 602.3068615500001,
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -264,7 +283,9 @@
       "cpu_architecture": "aarch64",
       "cpu_cores_logical": 2,
       "aws_cpu_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512",
-      "cost_aws_moneywise": 0.0
+      "cost_aws_moneywise": 0.0,
+      "processor_tdp_watts": 100,
+      "processor_type": "type:lambda-function|arch:aarch64|lambda:True|mem:512"
     }
   ]
 }
