@@ -27,6 +27,18 @@ TDP_VALUE = 180  # Conversion factor from watts to joules
 TDP_VALUE_ARM = 100  # ARM architecture multiplier -> conservative approach
 TDP_VALUE_X86 = 166  # x86 architecture multiplier -> conservative approach
 
+# AWS x86 processor-specific TDP values (Thermal Design Power in Watts)
+AWS_X86_PROCESSORS = {
+    "AMD EPYC": {
+        "tdp_watts": 225,
+        "description": "AMD EPYC processor for AWS x86 instances"
+    },
+    "Intel(R) Xeon(R) Processor @ 2.90GHz": {
+        "tdp_watts": 300,
+        "description": "Intel Xeon processor @ 2.90GHz for AWS x86 instances"
+    }
+}
+
 # AWS pricing for ARM and x86 architectures
 PRICE_AWS_ARM = 0.00001334  # AWS pricing for ARM
 PRICE_AWS_X86 = 0.00001667  # AWS pricing for x86
@@ -177,6 +189,30 @@ def generate_enhanced_title(example_info, json_filename, stage):
     components = [comp for comp in components if comp != "unknown"]
     
     return "_".join(components)
+
+def get_processor_tdp(cpu_type, architecture):
+    """
+    Get processor-specific TDP value based on CPU type and architecture.
+    
+    Args:
+        cpu_type (str): CPU type identifier from aws_cpu field
+        architecture (str): CPU architecture (arm, x86, etc.)
+        
+    Returns:
+        int: TDP value in watts, or default multiplier for calculations
+    """
+    if architecture.lower() in ['x86', 'x86_64'] and cpu_type:
+        # Check for specific AWS x86 processors
+        for processor_name, processor_info in AWS_X86_PROCESSORS.items():
+            if processor_name.lower() in cpu_type.lower():
+                return processor_info["tdp_watts"]
+        
+        # Default x86 TDP if specific processor not found
+        return TDP_VALUE_X86
+    elif architecture.lower() in ['aarch64', 'arm', 'arm64']:
+        return TDP_VALUE_ARM
+    else:
+        return TDP_VALUE
 
 def analyze_stage_data(file_path):
     """
@@ -351,21 +387,20 @@ def analyze_stage_data(file_path):
                     if numeric_values:
                         stats['cpu_cores_logical'] = numeric_values[0]
         
-        # Calculate TDP values based on CPU architecture
+        # Calculate TDP values based on CPU architecture and specific processor type
         if 'avg_tdp_raw' in stats:
-            # Determine TDP multiplier based on CPU architecture
-            if 'aarch64' in stats['cpu_architecture'].lower() or 'arm' in stats['cpu_architecture'].lower():
-                tdp_multiplier = TDP_VALUE_ARM  # ARM architecture
-            elif 'x86' in stats['cpu_architecture'].lower():
-                tdp_multiplier = TDP_VALUE_X86  # x86 architecture
-            else:
-                tdp_multiplier = TDP_VALUE  # Default fallback (180)
+            # Get processor-specific TDP value
+            tdp_multiplier = get_processor_tdp(stats['aws_cpu_type'], stats['cpu_architecture'])
             
-            # Apply architecture-specific multiplier to convert to joules
+            # Apply processor-specific multiplier to convert to joules
             stats['avg_tdp'] = stats['avg_tdp_raw'] * tdp_multiplier
             stats['min_tdp'] = stats['min_tdp_raw'] * tdp_multiplier
             stats['max_tdp'] = stats['max_tdp_raw'] * tdp_multiplier
             stats['total_tdp'] = stats['avg_tdp'] * workers
+            
+            # Store processor information for analysis
+            stats['processor_tdp_watts'] = tdp_multiplier
+            stats['processor_type'] = stats['aws_cpu_type']
             
             # Clean up temporary raw values
             del stats['avg_tdp_raw']
@@ -404,9 +439,23 @@ def analyze_stage_data(file_path):
 
 def save_analysis_json(results, output_path, metadata):
     """Save analysis results as JSON file with metadata."""
+    # Extract processor information from results for metadata
+    processor_info = {}
+    if results:
+        for result in results:
+            if 'processor_type' in result and result['processor_type']:
+                processor_type = result['processor_type']
+                if processor_type in AWS_X86_PROCESSORS:
+                    processor_info = {
+                        "detected_processor": processor_type,
+                        "tdp_watts": AWS_X86_PROCESSORS[processor_type]["tdp_watts"],
+                        "description": AWS_X86_PROCESSORS[processor_type]["description"]
+                    }
+                break
+    
     analysis_data = {
         "metadata": {
-            "description": "Enhanced profiling analysis results",
+            "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
             # "generated_at": datetime.now().isoformat(),
             "source_file": metadata["source_file"],
             "title": metadata["title"],
@@ -415,7 +464,9 @@ def save_analysis_json(results, output_path, metadata):
             "memory": metadata["memory"],
             "platform": metadata["platform"],
             "architecture": metadata["architecture"],
-            "total_configurations": len(results)
+            "total_configurations": len(results),
+            "aws_x86_processors": AWS_X86_PROCESSORS,
+            "processor_info": processor_info if processor_info else None
         },
         "analysis_results": results
     }
@@ -432,6 +483,10 @@ def process_all_profiling_data():
     print("Starting enhanced profiling data analysis...")
     print(f"Scanning directories: {PROFILING_DIRECTORIES}")
     print("Title format: example_jsonname_stage_platform_memory_architecture")
+    print("\nAWS x86 Processor TDP Configuration:")
+    for processor, info in AWS_X86_PROCESSORS.items():
+        print(f"  - {processor}: {info['tdp_watts']}W TDP ({info['description']})")
+    print()
     
     # Get the directory where this script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
