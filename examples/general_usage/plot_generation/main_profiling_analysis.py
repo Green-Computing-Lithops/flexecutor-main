@@ -387,7 +387,9 @@ def generate_min_execution_summary():
                         actual_memory = int(memory_match.group(1))
                 
                 # Determine architecture from filename
-                if 'aws' in file_name.lower() and 'arm' in file_name.lower():
+                if 'x86' in file_name.lower():
+                    architecture = "x86"  # Explicit x86 in filename
+                elif 'aws' in file_name.lower() and 'arm' in file_name.lower():
                     architecture = "ARM"
                 elif 'processing' in file_name.lower():
                     architecture = "x86"  # processing indicates x86
