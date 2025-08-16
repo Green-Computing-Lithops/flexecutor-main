@@ -105,7 +105,7 @@ def run_video_workflow_with_workers(worker_count):
         executor = DAGExecutor(
             dag,
             # Explicitly set runtime_memory to ensure enough memory is allocated for video processing
-            executor=FunctionExecutor(log_level="INFO", runtime_memory =memory_runtime, runtime="video_aws_lambda_arm_greencomp_v1"),
+            executor=FunctionExecutor(log_level="INFO", runtime_memory=memory_runtime),
             scheduler=Jolteon(
                 dag,
                 bound=60,  # Increased bound for video processing
