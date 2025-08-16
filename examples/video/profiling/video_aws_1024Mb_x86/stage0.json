@@ -1,33 +1,187 @@
 {
+    "(4, 1024, 28)": {
+        "read": [
+            [
+                1.4870483875274658
+            ],
+            [
+                1.8861932754516602
+            ]
+        ],
+        "compute": [
+            [
+                74.59179425239563
+            ],
+            [
+                73.87320876121521
+            ]
+        ],
+        "write": [
+            [
+                7.098499298095703
+            ],
+            [
+                7.840304374694824
+            ]
+        ],
+        "cold_start": [
+            [
+                2.8182313442230225
+            ],
+            [
+                2.3807573318481445
+            ]
+        ],
+        "time_consumption": [
+            [
+                99.88170767
+            ],
+            [
+                86.08168554
+            ]
+        ],
+        "worker_time_execution": [
+            [
+                99.88170766830444
+            ],
+            [
+                86.0816855430603
+            ]
+        ],
+        "measurement_energy": [
+            [
+                "null, null, null, psutil"
+            ],
+            [
+                "null, null, null, psutil"
+            ]
+        ],
+        "RAPL_wrong": [
+            [
+                12
+            ],
+            [
+                12
+            ]
+        ],
+        "TDP": [
+            [
+                20.47575007200241
+            ],
+            [
+                20.960890429735187
+            ]
+        ],
+        "perf_energy_cores": [
+            [
+                0.0
+            ],
+            [
+                0.0
+            ]
+        ],
+        "rapl_energy_cores": [
+            [
+                0.0
+            ],
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_pkg": [
+            [
+                0.0
+            ],
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_cores": [
+            [
+                0.0
+            ],
+            [
+                0.0
+            ]
+        ],
+        "psutil_cpu_percent": [
+            [
+                2.0
+            ],
+            [
+                3.7
+            ]
+        ],
+        "cpu_name": [
+            [
+                "Intel(R) Xeon(R) Processor @ 2.50GHz"
+            ],
+            [
+                "Intel(R) Xeon(R) Processor @ 2.50GHz"
+            ]
+        ],
+        "cpu_architecture": [
+            [
+                "x86_64"
+            ],
+            [
+                "x86_64"
+            ]
+        ],
+        "cpu_cores_physical": [
+            [
+                2
+            ],
+            [
+                2
+            ]
+        ],
+        "cpu_cores_logical": [
+            [
+                2
+            ],
+            [
+                2
+            ]
+        ],
+        "aws_cpu": [
+            [
+                "type:lambda-function|arch:x86_64|lambda:True|mem:1024"
+            ],
+            [
+                "type:lambda-function|arch:x86_64|lambda:True|mem:1024"
+            ]
+        ]
+    },
     "(4, 1024, 20)": {
         "read": [
             [
-                5.3451762199401855
+                1.4920966625213623
             ]
         ],
         "compute": [
             [
-                11.991008520126343
+                73.00550651550293
             ]
         ],
         "write": [
             [
-                2.7571842670440674
+                7.434748411178589
             ]
         ],
         "cold_start": [
             [
-                1.1076381206512451
+                0.8097875118255615
             ]
         ],
         "time_consumption": [
             [
-                22.21898985
+                84.5316186
             ]
         ],
         "worker_time_execution": [
             [
-                22.218989849090576
+                84.53161859512329
             ]
         ],
         "measurement_energy": [
@@ -42,201 +196,7 @@
         ],
         "TDP": [
             [
-                4.377141000270845
-            ]
-        ],
-        "perf_energy_cores": [
-            [
-                0.0
-            ]
-        ],
-        "rapl_energy_cores": [
-            [
-                0.0
-            ]
-        ],
-        "ebpf_energy_pkg": [
-            [
-                0.0
-            ]
-        ],
-        "ebpf_energy_cores": [
-            [
-                0.0
-            ]
-        ],
-        "psutil_cpu_percent": [
-            [
-                3.8
-            ]
-        ],
-        "cpu_name": [
-            [
-                "aarch64"
-            ]
-        ],
-        "cpu_architecture": [
-            [
-                "aarch64"
-            ]
-        ],
-        "cpu_cores_physical": [
-            [
-                0
-            ]
-        ],
-        "cpu_cores_logical": [
-            [
-                2
-            ]
-        ],
-        "aws_cpu": [
-            [
-                "type:lambda-function|arch:aarch64|lambda:True|mem:1024"
-            ]
-        ]
-    },
-    "(4, 1024, 16)": {
-        "read": [
-            [
-                5.264176845550537
-            ]
-        ],
-        "compute": [
-            [
-                11.83643126487732
-            ]
-        ],
-        "write": [
-            [
-                2.9255778789520264
-            ]
-        ],
-        "cold_start": [
-            [
-                1.1339242458343506
-            ]
-        ],
-        "time_consumption": [
-            [
-                22.25874472
-            ]
-        ],
-        "worker_time_execution": [
-            [
-                22.258744716644287
-            ]
-        ],
-        "measurement_energy": [
-            [
-                "null, null, null, psutil"
-            ]
-        ],
-        "RAPL_wrong": [
-            [
-                12
-            ]
-        ],
-        "TDP": [
-            [
-                4.36271396446228
-            ]
-        ],
-        "perf_energy_cores": [
-            [
-                0.0
-            ]
-        ],
-        "rapl_energy_cores": [
-            [
-                0.0
-            ]
-        ],
-        "ebpf_energy_pkg": [
-            [
-                0.0
-            ]
-        ],
-        "ebpf_energy_cores": [
-            [
-                0.0
-            ]
-        ],
-        "psutil_cpu_percent": [
-            [
-                1.9
-            ]
-        ],
-        "cpu_name": [
-            [
-                "aarch64"
-            ]
-        ],
-        "cpu_architecture": [
-            [
-                "aarch64"
-            ]
-        ],
-        "cpu_cores_physical": [
-            [
-                0
-            ]
-        ],
-        "cpu_cores_logical": [
-            [
-                2
-            ]
-        ],
-        "aws_cpu": [
-            [
-                "type:lambda-function|arch:aarch64|lambda:True|mem:1024"
-            ]
-        ]
-    },
-    "(4, 1024, 12)": {
-        "read": [
-            [
-                44.857016801834106
-            ]
-        ],
-        "compute": [
-            [
-                93.75273180007935
-            ]
-        ],
-        "write": [
-            [
-                19.581073999404907
-            ]
-        ],
-        "cold_start": [
-            [
-                0.507094144821167
-            ]
-        ],
-        "time_consumption": [
-            [
-                160.62488699
-            ]
-        ],
-        "worker_time_execution": [
-            [
-                160.6248869895935
-            ]
-        ],
-        "measurement_energy": [
-            [
-                "null, null, null, psutil"
-            ]
-        ],
-        "RAPL_wrong": [
-            [
-                12
-            ]
-        ],
-        "TDP": [
-            [
-                30.67935341501236
+                21.51329693245888
             ]
         ],
         "perf_energy_cores": [
@@ -266,17 +226,17 @@
         ],
         "cpu_name": [
             [
-                "aarch64"
+                "Intel(R) Xeon(R) Processor @ 2.50GHz"
             ]
         ],
         "cpu_architecture": [
             [
-                "aarch64"
+                "x86_64"
             ]
         ],
         "cpu_cores_physical": [
             [
-                0
+                2
             ]
         ],
         "cpu_cores_logical": [
@@ -286,7 +246,201 @@
         ],
         "aws_cpu": [
             [
-                "type:lambda-function|arch:aarch64|lambda:True|mem:1024"
+                "type:lambda-function|arch:x86_64|lambda:True|mem:1024"
+            ]
+        ]
+    },
+    "(4, 1024, 10)": {
+        "read": [
+            [
+                1.5185320377349854
+            ]
+        ],
+        "compute": [
+            [
+                72.57352995872498
+            ]
+        ],
+        "write": [
+            [
+                7.639813423156738
+            ]
+        ],
+        "cold_start": [
+            [
+                0.7396318912506104
+            ]
+        ],
+        "time_consumption": [
+            [
+                84.22302222
+            ]
+        ],
+        "worker_time_execution": [
+            [
+                84.22302222251892
+            ]
+        ],
+        "measurement_energy": [
+            [
+                "null, null, null, psutil"
+            ]
+        ],
+        "RAPL_wrong": [
+            [
+                12
+            ]
+        ],
+        "TDP": [
+            [
+                20.33985986673832
+            ]
+        ],
+        "perf_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "rapl_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_pkg": [
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "psutil_cpu_percent": [
+            [
+                2.0
+            ]
+        ],
+        "cpu_name": [
+            [
+                "Intel(R) Xeon(R) Processor @ 2.50GHz"
+            ]
+        ],
+        "cpu_architecture": [
+            [
+                "x86_64"
+            ]
+        ],
+        "cpu_cores_physical": [
+            [
+                2
+            ]
+        ],
+        "cpu_cores_logical": [
+            [
+                2
+            ]
+        ],
+        "aws_cpu": [
+            [
+                "type:lambda-function|arch:x86_64|lambda:True|mem:1024"
+            ]
+        ]
+    },
+    "(4, 1024, 9)": {
+        "read": [
+            [
+                1.5371026992797852
+            ]
+        ],
+        "compute": [
+            [
+                72.44554710388184
+            ]
+        ],
+        "write": [
+            [
+                7.736774444580078
+            ]
+        ],
+        "cold_start": [
+            [
+                0.7900991439819336
+            ]
+        ],
+        "time_consumption": [
+            [
+                84.19983506
+            ]
+        ],
+        "worker_time_execution": [
+            [
+                84.19983506202698
+            ]
+        ],
+        "measurement_energy": [
+            [
+                "null, null, null, psutil"
+            ]
+        ],
+        "RAPL_wrong": [
+            [
+                12
+            ]
+        ],
+        "TDP": [
+            [
+                20.334260167479513
+            ]
+        ],
+        "perf_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "rapl_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_pkg": [
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "psutil_cpu_percent": [
+            [
+                2.0
+            ]
+        ],
+        "cpu_name": [
+            [
+                "Intel(R) Xeon(R) Processor @ 2.50GHz"
+            ]
+        ],
+        "cpu_architecture": [
+            [
+                "x86_64"
+            ]
+        ],
+        "cpu_cores_physical": [
+            [
+                2
+            ]
+        ],
+        "cpu_cores_logical": [
+            [
+                2
+            ]
+        ],
+        "aws_cpu": [
+            [
+                "type:lambda-function|arch:x86_64|lambda:True|mem:1024"
             ]
         ]
     }
