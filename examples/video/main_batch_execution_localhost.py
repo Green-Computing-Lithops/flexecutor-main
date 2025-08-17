@@ -25,28 +25,21 @@ from flexecutor.workflow.stage import Stage
 from flexecutor.scheduling.jolteon import Jolteon
 from flexecutor.utils.dataclass import StageConfig
 
-# Import the shared S3 cleanup utility
-from examples.general_usage.aws_s3_cleanup import S3Cleaner
-
 memory_runtime = 2048
 
 
 def run_video_workflow_with_workers(worker_count):
     """Run the video processing workflow with a specific number of workers."""
     print(f"\n{'='*60}")
-    print(f"STARTING VIDEO WORKFLOW WITH {worker_count} WORKERS")
+    print(f"STARTING VIDEO WORKFLOW WITH {worker_count} WORKERS (LOCALHOST)")
     print(f"{'='*60}")
     
-    # Perform comprehensive pre-execution cleanup
-    print(f"[+] Performing pre-execution S3 cleanup...")
-    cleaner = S3Cleaner("lithops-us-east-1-45dk")
-    pre_cleanup_success, pre_deleted = cleaner.global_cleanup()
-    if pre_cleanup_success:
-        print(f"[✓] Pre-execution cleanup completed - {pre_deleted} files removed")
-    else:
-        print(f"[!] Pre-execution cleanup completed with warnings - {pre_deleted} files removed")
+    # Create local storage directory if it doesn't exist
+    local_storage = "/tmp/flexecutor-data"
+    os.makedirs(local_storage, exist_ok=True)
+    print(f"[+] Using local storage: {local_storage}")
     
-    @flexorchestrator(bucket="lithops-us-east-1-45dk")
+    @flexorchestrator(bucket=local_storage)
     def main():
         dag = DAG("video_processing")
 
@@ -102,10 +95,15 @@ def run_video_workflow_with_workers(worker_count):
             )
         ]
 
+        # Use local configuration
         executor = DAGExecutor(
             dag,
-            # Explicitly set runtime_memory to ensure enough memory is allocated for video processing
-            executor=FunctionExecutor(log_level="INFO", runtime_memory=memory_runtime),
+            # Use local configuration file and set runtime_memory for video processing
+            executor=FunctionExecutor(
+                config_file_path="config_local.yaml",
+                log_level="INFO", 
+                runtime_memory=memory_runtime
+            ),
             scheduler=Jolteon(
                 dag,
                 bound=60,  # Increased bound for video processing
@@ -123,85 +121,43 @@ def run_video_workflow_with_workers(worker_count):
         for i, stage in enumerate(dag.stages):
             # Video processing needs more memory and CPU
             if stage.stage_id == "stage0":  # Video splitting stage
-                stage.resource_config = StageConfig(cpu=4, memory=memory_runtime, workers=worker_count) # better 1 
+                stage.resource_config = StageConfig(cpu=4, memory=memory_runtime, workers=1) # Use 1 worker for splitting
             elif stage.stage_id == "stage1":  # Frame extraction stage
                 stage.resource_config = StageConfig(cpu=4, memory=memory_runtime, workers=worker_count)
             elif stage.stage_id == "stage2":  # Sharpening filter stage
                 stage.resource_config = StageConfig(cpu=4, memory=memory_runtime, workers=worker_count)
             elif stage.stage_id == "stage3":  # Classification stage
-                stage.resource_config = StageConfig(cpu=4, memory=memory_runtime, workers=worker_count) # better 1 
+                stage.resource_config = StageConfig(cpu=4, memory=memory_runtime, workers=1) # Use 1 worker for classification
         
-        print(f"[+] Executing video processing DAG with {worker_count} workers...")
+        print(f"[+] Executing video processing DAG with {worker_count} workers (localhost)...")
         
-        # Execute with intermediate cleanup between stages
+        # Execute with profiling to capture RAPL measurements
         try:
             futures = executor.execute_with_profiling()
-            
-            # Perform intermediate cleanup after execution to free up space
-            print(f"[+] Performing intermediate cleanup...")
-            intermediate_cleaner = S3Cleaner("lithops-us-east-1-45dk")
-            intermediate_success, intermediate_deleted = intermediate_cleaner.global_cleanup()
-            if intermediate_success:
-                print(f"[✓] Intermediate cleanup completed - {intermediate_deleted} files removed")
-            else:
-                print(f"[!] Intermediate cleanup completed with warnings - {intermediate_deleted} files removed")
+            print(f"[✓] Video workflow with {worker_count} workers completed successfully")
+            return True
                 
+        except Exception as exec_error:
+            print(f"[✗] Execution failed: {exec_error}")
+            return False
         finally:
             executor.shutdown()
-            
-        print(f"[✓] Video workflow with {worker_count} workers completed successfully")
-        
-        # Clean up temporary S3 files after successful execution
-        print(f"[+] Starting cleanup of temporary S3 files...")
-        cleaner = S3Cleaner("lithops-us-east-1-45dk")
-        cleanup_success, total_deleted = cleaner.global_cleanup()
-        if cleanup_success:
-            print(f"[✓] S3 cleanup completed for worker configuration {worker_count}")
-        else:
-            print(f"[!] S3 cleanup had warnings for worker configuration {worker_count}")
-        
-        return True
 
     try:
         return main()
     except Exception as e:
         print(f"[✗] Video workflow with {worker_count} workers failed: {e}")
-        
-        # Perform cleanup even on failure to prevent accumulation of temporary files
-        print(f"[+] Performing cleanup after failure...")
-        try:
-            failure_cleaner = S3Cleaner("lithops-us-east-1-45dk")
-            failure_success, failure_deleted = failure_cleaner.global_cleanup()
-            if failure_success:
-                print(f"[✓] Failure cleanup completed - {failure_deleted} files removed")
-            else:
-                print(f"[!] Failure cleanup completed with warnings - {failure_deleted} files removed")
-        except Exception as cleanup_error:
-            print(f"[!] Warning: Cleanup after failure also failed: {cleanup_error}")
-        
+        import traceback
+        traceback.print_exc()
         return False
 
-if __name__ == "__main__":
-    # Define worker configurations to test
-    # worker_configurations = [
-    #     8, 16, 32
-    # ]
 
-    worker_configurations = [
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,     
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4
-    ]
+if __name__ == "__main__":
+    # Test with a smaller set of worker configurations for localhost
+    worker_configurations = [2, 4]  # Start with small numbers for localhost testing
     
     print("="*80)
-    print("BATCH EXECUTION WITH MULTIPLE WORKER CONFIGURATIONS - VIDEO PROCESSING")
+    print("BATCH EXECUTION WITH LOCALHOST CONFIGURATION - VIDEO PROCESSING")
     print("="*80)
     print(f"Worker configurations to test: {worker_configurations}")
     
@@ -220,11 +176,13 @@ if __name__ == "__main__":
                 
         except Exception as e:
             print(f"[✗] Worker configuration {worker_count}: FAILED with exception: {e}")
+            import traceback
+            traceback.print_exc()
             results[worker_count] = False
     
     # Print final summary
     print("\n" + "="*80)
-    print("BATCH EXECUTION SUMMARY - VIDEO PROCESSING")
+    print("BATCH EXECUTION SUMMARY - VIDEO PROCESSING (LOCALHOST)")
     print("="*80)
     
     for worker_count, success in results.items():
@@ -235,19 +193,6 @@ if __name__ == "__main__":
     total_runs = len(results)
     
     print(f"\nTotal successful runs: {successful_runs}/{total_runs}")
-    
-    # Perform final comprehensive cleanup
-    print(f"\n{'='*80}")
-    print("PERFORMING FINAL COMPREHENSIVE S3 CLEANUP")
-    print(f"{'='*80}")
-    print("[+] Running final cleanup to ensure all temporary files are removed...")
-    cleaner = S3Cleaner("lithops-us-east-1-45dk")
-    final_cleanup_success, _ = cleaner.global_cleanup()
-    
-    if final_cleanup_success:
-        print("[✓] Final S3 cleanup completed successfully")
-    else:
-        print("[!] Final S3 cleanup completed with warnings")
     
     if successful_runs == total_runs:
         print("✓ All worker configurations completed successfully!")
