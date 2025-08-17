@@ -1,0 +1,99 @@
+{
+    "(4, 2048, 1)": {
+        "read": [
+            [
+                0.05547142028808594
+            ]
+        ],
+        "compute": [
+            [
+                8.345423936843872
+            ]
+        ],
+        "write": [
+            [
+                0.006084918975830078
+            ]
+        ],
+        "cold_start": [
+            [
+                0.5603914260864258
+            ]
+        ],
+        "time_consumption": [
+            [
+                12.34642458
+            ]
+        ],
+        "worker_time_execution": [
+            [
+                12.346424579620361
+            ]
+        ],
+        "measurement_energy": [
+            [
+                "null, rapl, null, psutil"
+            ]
+        ],
+        "RAPL_wrong": [
+            [
+                12
+            ]
+        ],
+        "TDP": [
+            [
+                8.275191074490547
+            ]
+        ],
+        "perf_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "rapl_energy_cores": [
+            [
+                379.641851
+            ]
+        ],
+        "ebpf_energy_pkg": [
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "psutil_cpu_percent": [
+            [
+                83.2
+            ]
+        ],
+        "cpu_name": [
+            [
+                "Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz"
+            ]
+        ],
+        "cpu_architecture": [
+            [
+                "x86_64"
+            ]
+        ],
+        "cpu_cores_physical": [
+            [
+                4
+            ]
+        ],
+        "cpu_cores_logical": [
+            [
+                8
+            ]
+        ],
+        "aws_cpu": [
+            [
+                "type:unknown|arch:Unknown|lambda:False|mem:unknown"
+            ]
+        ]
+    }
+}
