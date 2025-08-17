@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
+    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../video/profiling/video_processing_energy/stage3.json",
+    "title": "video_stage3_energy",
+    "example": "video",
+    "stage": "stage3",
+    "memory": "energy",
+    "platform": "unknown",
+    "architecture": "unknown",
+    "total_configurations": 1,
+    "aws_x86_processors": {
+      "AMD EPYC": {
+        "tdp_watts": 225,
+        "description": "AMD EPYC processor for AWS x86 instances"
+      },
+      "Intel(R) Xeon(R) Processor @ 2.90GHz": {
+        "tdp_watts": 300,
+        "description": "Intel Xeon processor @ 2.90GHz for AWS x86 instances"
+      }
+    },
+    "processor_info": null
+  },
+  "analysis_results": [
+    {
+      "cpu": 4,
+      "memory": 2048,
+      "workers": 1,
+      "total_executions": 1,
+      "avg_read": 0.05547142028808594,
+      "avg_compute": 8.345423936843872,
+      "avg_write": 0.006084918975830078,
+      "avg_cold_start": 0.5603914260864258,
+      "avg_worker_time_execution": 12.346424579620361,
+      "avg_rapl": 12.0,
+      "avg_tdp": 1373.6817183654307,
+      "avg_execution": 8.406980276107788,
+      "avg_psutil_cpu_percent": 83.2,
+      "min_compute": 8.345423936843872,
+      "max_compute": 8.345423936843872,
+      "total_compute": 8.345423936843872,
+      "min_rapl": 12,
+      "max_rapl": 12,
+      "total_rapl": 12.0,
+      "min_tdp": 1373.6817183654307,
+      "max_tdp": 1373.6817183654307,
+      "total_tdp": 1373.6817183654307,
+      "min_execution": 0.006084918975830078,
+      "max_execution": 8.345423936843872,
+      "total_execution": 8.406980276107788,
+      "avg_time_consumption": 12.34642458,
+      "min_time_consumption": 12.34642458,
+      "max_time_consumption": 12.34642458,
+      "total_time_consumption": 12.34642458,
+      "avg_perf_energy_cores": 0.0,
+      "min_perf_energy_cores": 0.0,
+      "max_perf_energy_cores": 0.0,
+      "total_perf_energy_cores": 0.0,
+      "avg_rapl_energy_cores": 379.641851,
+      "min_rapl_energy_cores": 379.641851,
+      "max_rapl_energy_cores": 379.641851,
+      "total_rapl_energy_cores": 379.641851,
+      "avg_ebpf_energy_pkg": 0.0,
+      "min_ebpf_energy_pkg": 0.0,
+      "max_ebpf_energy_pkg": 0.0,
+      "total_ebpf_energy_pkg": 0.0,
+      "avg_ebpf_energy_cores": 0.0,
+      "min_ebpf_energy_cores": 0.0,
+      "max_ebpf_energy_cores": 0.0,
+      "total_ebpf_energy_cores": 0.0,
+      "cpu_architecture": "x86_64",
+      "cpu_cores_logical": 8,
+      "aws_cpu_type": "type:unknown|arch:Unknown|lambda:False|mem:unknown",
+      "cost_aws_moneywise": 0.2782364340543747,
+      "processor_tdp_watts": 166,
+      "processor_type": "type:unknown|arch:Unknown|lambda:False|mem:unknown"
+    }
+  ]
+}
