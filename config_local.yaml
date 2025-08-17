@@ -18,7 +18,7 @@ localhost:
     runtime_memory: 2048        # Memory per worker in MB
     runtime_timeout: 600        # Worker timeout in seconds (10 minutes)
     # max_workers: 4              # Maximum concurrent workers
-    runtime: /Users/arriazui/Desktop/GreenComputing/flexecutor-main/venv310/bin/python
+    runtime: /home/minirobbin/Desktop/GreenComputing/flexecutor-main/venv310/bin/python
     
     # Performance settings
     worker_processes: 1         # Processes per worker
