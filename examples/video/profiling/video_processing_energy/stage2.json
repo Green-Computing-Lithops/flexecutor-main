@@ -1,0 +1,118 @@
+{
+    "(4, 2048, 2)": {
+        "read": [
+            [
+                0.02484917640686035,
+                0.023303985595703125
+            ]
+        ],
+        "compute": [
+            [
+                0.7639937400817871,
+                0.7916655540466309
+            ]
+        ],
+        "write": [
+            [
+                0.014302968978881836,
+                0.01577138900756836
+            ]
+        ],
+        "cold_start": [
+            [
+                0.593177318572998,
+                0.5117528438568115
+            ]
+        ],
+        "time_consumption": [
+            [
+                4.78183913,
+                4.83659577
+            ]
+        ],
+        "worker_time_execution": [
+            [
+                4.78183913230896,
+                4.836595773696899
+            ]
+        ],
+        "measurement_energy": [
+            [
+                "null, rapl, null, psutil",
+                "null, rapl, null, psutil"
+            ]
+        ],
+        "RAPL_wrong": [
+            [
+                12,
+                12
+            ]
+        ],
+        "TDP": [
+            [
+                3.6820161318778992,
+                3.7737538524270064
+            ]
+        ],
+        "perf_energy_cores": [
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "rapl_energy_cores": [
+            [
+                100.479784,
+                102.046004
+            ]
+        ],
+        "ebpf_energy_pkg": [
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "ebpf_energy_cores": [
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "psutil_cpu_percent": [
+            [
+                86.6,
+                87.1
+            ]
+        ],
+        "cpu_name": [
+            [
+                "Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz",
+                "Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz"
+            ]
+        ],
+        "cpu_architecture": [
+            [
+                "x86_64",
+                "x86_64"
+            ]
+        ],
+        "cpu_cores_physical": [
+            [
+                4,
+                4
+            ]
+        ],
+        "cpu_cores_logical": [
+            [
+                8,
+                8
+            ]
+        ],
+        "aws_cpu": [
+            [
+                "type:unknown|arch:Unknown|lambda:False|mem:unknown",
+                "type:unknown|arch:Unknown|lambda:False|mem:unknown"
+            ]
+        ]
+    }
+}
