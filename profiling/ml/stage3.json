@@ -1,0 +1,99 @@
+{
+    "(4, 512, 4)": {
+        "read": [
+            [
+                1.3370583057403564
+            ]
+        ],
+        "compute": [
+            [
+                4.040686368942261
+            ]
+        ],
+        "write": [
+            [
+                0.43423914909362793
+            ]
+        ],
+        "cold_start": [
+            [
+                2.055089235305786
+            ]
+        ],
+        "time_consumption": [
+            [
+                11.20912313
+            ]
+        ],
+        "worker_time_execution": [
+            [
+                11.209123134613037
+            ]
+        ],
+        "measurement_energy": [
+            [
+                "null, null, null, psutil"
+            ]
+        ],
+        "RAPL_wrong": [
+            [
+                12
+            ]
+        ],
+        "TDP": [
+            [
+                1.3450947761535643
+            ]
+        ],
+        "perf_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "rapl_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_pkg": [
+            [
+                0.0
+            ]
+        ],
+        "ebpf_energy_cores": [
+            [
+                0.0
+            ]
+        ],
+        "psutil_cpu_percent": [
+            [
+                2.0
+            ]
+        ],
+        "cpu_name": [
+            [
+                "aarch64"
+            ]
+        ],
+        "cpu_architecture": [
+            [
+                "aarch64"
+            ]
+        ],
+        "cpu_cores_physical": [
+            [
+                0
+            ]
+        ],
+        "cpu_cores_logical": [
+            [
+                2
+            ]
+        ],
+        "aws_cpu": [
+            [
+                "type:lambda-function|arch:aarch64|lambda:True|mem:512"
+            ]
+        ]
+    }
+}
