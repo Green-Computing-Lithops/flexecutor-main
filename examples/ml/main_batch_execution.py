@@ -19,10 +19,77 @@ from flexecutor.utils.dataclass import StageConfig
 
 # Import the shared S3 cleanup utility
 from examples.general_usage.aws_s3_cleanup import S3Cleaner
+import subprocess
 
 MEMORY = 2048
 stage_memory = MEMORY
 runtime_memory = MEMORY
+
+
+def cleanup_ml_temp_directories(bucket_name="lithops-us-east-1-45dk"):
+    """
+    Clean up only the temporary directories created by the ML workflow,
+    while preserving permanent directories: videos/, training-data/, test-bucket/
+    """
+    # Only clean up temporary directories created by the ML workflow
+    ml_temp_directories = [
+        "lithops.jobs/",
+        "vectors-pca/",
+        "training-data-transform/",
+        "models/",
+        "forests/",
+        "predictions/",
+        "accuracies/",
+    ]
+    
+    print(f"[+] Starting selective cleanup of ML temporary directories...")
+    cleanup_success = True
+    total_deleted = 0
+    
+    env = os.environ.copy()  # Inherit AWS credentials from environment
+    
+    for directory in ml_temp_directories:
+        try:
+            print(f"[+] Removing {directory}...")
+            cmd = ["aws", "s3", "rm", f"s3://{bucket_name}/{directory}", "--recursive"]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300, env=env)
+            
+            if result.returncode == 0:
+                deleted_count = result.stdout.count("delete:")
+                if deleted_count > 0:
+                    print(f"[✓] Removed {deleted_count} files from {directory}")
+                    total_deleted += deleted_count
+                else:
+                    print(f"[i] No files found in {directory}")
+            else:
+                error_msg = result.stderr.strip()
+                # Don't treat "NoSuchKey" or "does not exist" as errors
+                if any(phrase in error_msg for phrase in ["NoSuchKey", "does not exist", "NoSuchBucket"]):
+                    print(f"[i] No files found in {directory}")
+                else:
+                    print(f"[!] Warning: Failed to remove {directory}: {error_msg}")
+                    cleanup_success = False
+                    
+        except subprocess.TimeoutExpired:
+            print(f"[!] Warning: Timeout while removing {directory}")
+            cleanup_success = False
+        except Exception as e:
+            print(f"[!] Warning: Error removing {directory}: {e}")
+            cleanup_success = False
+    
+    if cleanup_success:
+        print(f"[✓] ML selective cleanup completed successfully")
+    else:
+        print(f"[!] ML selective cleanup completed with warnings")
+    
+    if total_deleted > 0:
+        print(f"[i] Total files removed: {total_deleted}")
+    else:
+        print(f"[i] No temporary files found to remove")
+    
+    print(f"[i] Preserved directories: videos/, training-data/, test-bucket/")
+    
+    return cleanup_success, total_deleted
 
 
 
@@ -120,13 +187,12 @@ def run_ml_workflow_with_workers(worker_count):
         print(f"[✓] ML workflow with {worker_count} workers completed successfully")
         
         # Clean up temporary S3 files after successful execution
-        print(f"[+] Starting cleanup of temporary S3 files...")
-        cleaner = S3Cleaner("lithops-us-east-1-45dk")
-        cleanup_success, total_deleted = cleaner.global_cleanup()
+        print(f"[+] Starting selective cleanup of ML temporary files...")
+        cleanup_success, total_deleted = cleanup_ml_temp_directories("lithops-us-east-1-45dk")
         if cleanup_success:
-            print(f"[✓] S3 cleanup completed for worker configuration {worker_count}")
+            print(f"[✓] ML selective cleanup completed for worker configuration {worker_count}")
         else:
-            print(f"[!] S3 cleanup had warnings for worker configuration {worker_count}")
+            print(f"[!] ML selective cleanup had warnings for worker configuration {worker_count}")
         
         return True
 
@@ -138,13 +204,7 @@ def run_ml_workflow_with_workers(worker_count):
         return False
 
 if __name__ == "__main__":
-
-        
     worker_configurations = [
-        28, 24,  
-        28, 24,  
-        28, 24,  
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
@@ -159,16 +219,15 @@ if __name__ == "__main__":
     
     # Perform initial cleanup before starting batch execution
     print(f"\n{'='*80}")
-    print("PERFORMING INITIAL S3 CLEANUP BEFORE BATCH EXECUTION")
+    print("PERFORMING INITIAL ML SELECTIVE CLEANUP BEFORE BATCH EXECUTION")
     print(f"{'='*80}")
-    print("[+] Running initial cleanup to remove any leftover temporary files...")
-    cleaner = S3Cleaner("lithops-us-east-1-45dk")
-    initial_cleanup_success, _ = cleaner.global_cleanup()
+    print("[+] Running initial selective cleanup to remove any leftover ML temporary files...")
+    initial_cleanup_success, _ = cleanup_ml_temp_directories("lithops-us-east-1-45dk")
     
     if initial_cleanup_success:
-        print("[✓] Initial S3 cleanup completed successfully")
+        print("[✓] Initial ML selective cleanup completed successfully")
     else:
-        print("[!] Initial S3 cleanup completed with warnings")
+        print("[!] Initial ML selective cleanup completed with warnings")
     
     print(f"\n{'='*80}")
     print("STARTING BATCH EXECUTION")
@@ -179,9 +238,8 @@ if __name__ == "__main__":
     for worker_count in worker_configurations:
         try:
             # Clean up any leftover files before starting new configuration
-            print(f"\n[+] Pre-execution cleanup for {worker_count} workers...")
-            cleaner = S3Cleaner("lithops-us-east-1-45dk")
-            cleaner.global_cleanup()
+            print(f"\n[+] Pre-execution selective cleanup for {worker_count} workers...")
+            cleanup_ml_temp_directories("lithops-us-east-1-45dk")
             
             # Run the workflow with current worker configuration
             success = run_ml_workflow_with_workers(worker_count)
@@ -192,19 +250,18 @@ if __name__ == "__main__":
             else:
                 print(f"[✗] Worker configuration {worker_count}: FAILED")
                 # Clean up after failed execution
-                print(f"[+] Post-failure cleanup for {worker_count} workers...")
-                cleaner.global_cleanup()
+                print(f"[+] Post-failure selective cleanup for {worker_count} workers...")
+                cleanup_ml_temp_directories("lithops-us-east-1-45dk")
                 
         except Exception as e:
             print(f"[✗] Worker configuration {worker_count}: FAILED with exception: {e}")
             results[worker_count] = False
             # Clean up after exception
             try:
-                print(f"[+] Exception cleanup for {worker_count} workers...")
-                cleaner = S3Cleaner("lithops-us-east-1-45dk")
-                cleaner.global_cleanup()
+                print(f"[+] Exception selective cleanup for {worker_count} workers...")
+                cleanup_ml_temp_directories("lithops-us-east-1-45dk")
             except:
-                print(f"[!] Warning: Exception cleanup failed for {worker_count} workers")
+                print(f"[!] Warning: Exception selective cleanup failed for {worker_count} workers")
     
     # Print final summary
     print("\n" + "="*80)
@@ -220,18 +277,17 @@ if __name__ == "__main__":
     
     print(f"\nTotal successful runs: {successful_runs}/{total_runs}")
     
-    # Perform final comprehensive cleanup
+    # Perform final selective cleanup
     print(f"\n{'='*80}")
-    print("PERFORMING FINAL COMPREHENSIVE S3 CLEANUP")
+    print("PERFORMING FINAL ML SELECTIVE S3 CLEANUP")
     print(f"{'='*80}")
-    print("[+] Running final cleanup to ensure all temporary files are removed...")
-    cleaner = S3Cleaner("lithops-us-east-1-45dk")
-    final_cleanup_success, _ = cleaner.global_cleanup()
+    print("[+] Running final selective cleanup to ensure all ML temporary files are removed...")
+    final_cleanup_success, _ = cleanup_ml_temp_directories("lithops-us-east-1-45dk")
     
     if final_cleanup_success:
-        print("[✓] Final S3 cleanup completed successfully")
+        print("[✓] Final ML selective cleanup completed successfully")
     else:
-        print("[!] Final S3 cleanup completed with warnings")
+        print("[!] Final ML selective cleanup completed with warnings")
     
     if successful_runs == total_runs:
         print("✓ All worker configurations completed successfully!")

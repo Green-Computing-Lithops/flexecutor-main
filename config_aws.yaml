@@ -41,13 +41,14 @@ aws_lambda:
     ##### ML #####
     # ML ARM64 specific runtime: 
     # runtime: ml_aws_arm64
-    # runtime: ml_aws_lambda_arm_greencomp_v1
+    runtime: ml_aws_lambda_arm_greencomp_v1
+    architecture: arm64
     
-    #####  Titanic x86_64 specific runtime: #####
+    #####  Alternative runtimes (commented out) #####
     # runtime: titanic_aws_lambda_x86_greencomp_v1
-    runtime: video_aws_lambda_x86_greencomp_v1
+    # runtime: video_aws_lambda_x86_greencomp_v1
     # runtime: ml_aws_lambda_x86_greencomp_v1
-    architecture: x86_64
+    # architecture: x86_64
     
     # Titanic ARM64 specific runtime: 
     # runtime: titanic_aws_lambda_arm_greencomp_v1
@@ -55,11 +56,6 @@ aws_lambda:
     # runtime: titanic_aws_lambda_arm_greencomp_v1_2048mb
     # runtime: titanic_aws_lambda_arm_greencomp_v3
     # runtime: video_aws_lambda_arm_greencomp_v1
-    
-    
-    
-    
-    # architecture: arm64
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # FlexExecutor configuration for AWS Lambda with enhanced energy monitoring
