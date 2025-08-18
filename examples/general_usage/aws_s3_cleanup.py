@@ -27,7 +27,7 @@ class S3Cleaner:
     ALL_TEMP_DIRECTORIES = [
         # Core Lithops directories
         "lithops.jobs/",
-        "lithops.runtimes/",
+        # "lithops.runtimes/", # maybe runtimes it is not necessary --> avoid deployment multiple times 
         "lithops.temp/",
         
         # ML workflow directories
