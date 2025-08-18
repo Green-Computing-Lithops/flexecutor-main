@@ -12,9 +12,9 @@ def merge_json_files(stage_num):
     """Merge a stage file from ml_arm with its corresponding ml_aws_512Mb_arm file"""
     
     # File paths
-    source_file = f"ml_arm/stage{stage_num}.json"
-    target_file = f"ml_aws_2048Mb_arm/stage{stage_num}.json"
-    output_file = f"ml_aws_2048Mb_arm/stage{stage_num}_merged.json"
+    source_file = f"ml/{stage_num}.json"
+    target_file = f"ml_aws_1024Mb_arm/stage{stage_num}.json"
+    output_file = f"ml_aws_1024Mb_arm/stage{stage_num}_merged.json"
     
     # Check if both files exist
     if not os.path.exists(source_file):

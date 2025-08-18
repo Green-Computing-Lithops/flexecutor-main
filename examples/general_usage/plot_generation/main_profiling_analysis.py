@@ -19,6 +19,8 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+GENERATE_PLOTS = False
+
 def run_script(script_name, description):
     """Run a Python script and return success status."""
     print(f"\n🚀 {description}")
@@ -318,12 +320,16 @@ def generate_min_execution_summary():
                     example = 'video'
                 
                 # Determine architecture from title
-                if 'aws' in simplified_title.lower() and 'arm' in simplified_title.lower():
+                if 'x86' in simplified_title.lower():
+                    architecture = "x86"  # Explicit x86 in title
+                elif 'aws' in simplified_title.lower() and 'arm' in simplified_title.lower():
                     architecture = "ARM"
                 elif 'local' in simplified_title.lower() or 'processing' in simplified_title.lower():
                     architecture = "x86"  # Assuming local/processing is x86
                 elif 'aws' in simplified_title.lower():
                     architecture = "ARM"  # Default AWS to ARM if not specified
+                else:
+                    architecture = "default"  # Catch-all for unclear architecture
                 
                 if example and architecture != "unknown":
                     # Create key for architecture and memory
@@ -397,6 +403,8 @@ def generate_min_execution_summary():
                     architecture = "ARM"  # Default AWS to ARM if not specified
                 elif actual_memory == 0 or actual_memory == 'default':
                     architecture = "x86"  # Default/0 memory usually indicates x86
+                else:
+                    architecture = "default"  # Catch-all for unclear architecture
                 
                 if example and architecture != "unknown":
                     # Handle memory value conversion
@@ -534,10 +542,11 @@ def main():
         print("\n❌ Data analysis failed")
         return False
     
-    # Stage 3: Plot Generation (commented out for faster execution)
-    # print("\n🎨 STAGE 3: PLOT GENERATION")
-    # plot_success = run_plot_generation()
-    plot_success = False  # Set to False since we're skipping plots
+    # Stage 3: Plot Generation (optional)
+    plot_success = False
+    if GENERATE_PLOTS:
+        print("\n🎨 STAGE 3: PLOT GENERATION")
+        plot_success = run_plot_generation()
     
     # Stage 4: Table Generation
     print("\n📋 STAGE 4: TABLE GENERATION")
