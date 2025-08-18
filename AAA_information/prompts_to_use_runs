@@ -25,8 +25,8 @@ use this to create / manage runtimes :
 
 
 # With that in mind now INSTRUCTIONS: 
- 
-Run the ML : /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/ml/main_batch_execution..py 
+Actualize the credeitials in config_aws.yaml and 
+Run the ML : /Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/ml/main_batch_execution.py 
 and fix the error 
 
 ## configuration: 
