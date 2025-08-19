@@ -28,7 +28,7 @@ from flexecutor.utils.dataclass import StageConfig
 # Import the shared S3 cleanup utility
 from examples.general_usage.aws_s3_cleanup import S3Cleaner
 
-memory_runtime = 2048
+memory_runtime = 512
 
 
 def run_video_workflow_with_workers(worker_count):
@@ -188,10 +188,11 @@ if __name__ == "__main__":
     # ]
 
     worker_configurations = [
-        # 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        # 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        # 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        # 28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
         28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,

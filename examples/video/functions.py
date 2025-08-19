@@ -14,13 +14,13 @@ def split_videos(ctx: StageContext):
     chunk_size = 10
 
     for index, video_path in enumerate(video_paths):
-        vc = VideoFileClip(video_path)
+        vc = VideoFileClip(video_path, verbose=False)
         video_len = int(vc.duration)
         start_size = 0
         while start_size < video_len:
             end_size = min(start_size + chunk_size, video_len)
             chunk_path = f"{ctx.next_output_path('video-chunks')}"
-            clip_vc = vc.subclipped(start_size, end_size)
+            clip_vc = vc.subclip(start_size, end_size)
             # Use /tmp directory for temporary files in AWS Lambda
             # Remove audio to avoid file system issues in Lambda
             clip_vc.write_videofile(
@@ -50,7 +50,7 @@ def extract_frames(ctx: StageContext):
     for index, chunk_path in enumerate(chunk_paths):
         best_frame = None
         best_metric = float("-inf")
-        video_clip = VideoFileClip(chunk_path)
+        video_clip = VideoFileClip(chunk_path, verbose=False)
 
         for frame in video_clip.iter_frames(fps=0.5, dtype="uint8"):
             frame_metric = calculate_average_pixel_value(frame)
