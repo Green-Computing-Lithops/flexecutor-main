@@ -1,6 +1,7 @@
 
 # ENVIROMENT:
 - Always use the venv310 activated 
+source venv310/bin/activate
 
 # CREDENTIALS
 To actualize the credentials look at : 
