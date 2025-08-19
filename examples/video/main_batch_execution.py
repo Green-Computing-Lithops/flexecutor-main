@@ -48,7 +48,7 @@ def run_video_workflow_with_workers(worker_count):
     
     @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def main():
-        dag = DAG("video_processing")
+        dag = DAG("video")
 
         data_videos = FlexData("videos")
         data_video_chunks = FlexData("video-chunks", suffix=".mp4")

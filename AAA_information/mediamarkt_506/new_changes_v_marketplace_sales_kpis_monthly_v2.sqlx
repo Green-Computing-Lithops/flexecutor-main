@@ -1,0 +1,159 @@
+config {
+  type: "view",
+  schema: "data_share",
+  tags: ["stg_init_views_0","data_share"],
+  description: "Contains the daily sales metrics which are able to share with retail",
+  columns: {
+    date_reference: "Represents the date reference",
+    fiscal_year_id: "Represents the fiscal year ID based on the date reference",
+    salesline: "Represents the sales line, defined by shop and country",
+    country: "Represents the country",
+    orders_consumer: "Represents the number orders on consumer level (same as MMS)",
+    orders: "Represents the total number of orders on logistic level (mirakl logic)",
+    products_quantity_orders: "Represents the quantity/items of products in orders",
+
+    gmv_without_shipping: "Represents the gross merchandise value without shipping",
+    gmv_with_shipping: "Represents the gross merchandise value with shipping",
+    fc_gmv_with_shipping: "Represents the forecast defined by controlling",
+ 
+    total_valid_sessions: "Represents the total valid sessions",
+    total_valid_sessions_pdp_mp: "Represents the total valid sessions for product display page in the marketplace",
+    total_valid_sessions_pdp_retail: "Represents the total valid sessions for product display page in the retail",
+    total_valid_sessions_consideration_mp: "Represents the total valid sessions for consideration in the marketplace",
+    total_valid_consideration_retail: "Represents the total valid consideration in the retail",
+
+    orders_consumer_financial_view: "Represents the number orders on consumer level (same as MMS) in the financial view",
+    orders_financial_view: "Represents the total number of orders on logistic level (mirakl logic) in the financial view",
+    gmv_without_shipping_financial_view: "Represents the gross merchandise value without shipping in the financial view",
+    gmv_with_shipping_financial_view: "Represents the gross merchandise value with shipping in the financial view",
+    sold_items_financial_view: "Represents the total number of sold items in the financial view",
+
+  }
+}
+
+config {
+  type: "view",
+  schema: "data_share",
+  tags: ["stg_init_views_0","data_share"],
+  description: "Contains the daily sales metrics which are able to share with retail",
+  columns: {
+    date_reference: "Represents the date reference",
+    fiscal_year_id: "Represents the fiscal year ID based on the date reference",
+    salesline: "Represents the sales line, defined by shop and country",
+    channel: "Represents the channel, defined by shop and country",
+    country: "Represents the country",
+    orders_consumer: "Represents the number orders on consumer level (same as MMS)",
+    orders: "Represents the total number of orders on logistic level (mirakl logic)",
+    products_quantity_orders: "Represents the quantity/items of products in orders",
+
+    gmv_without_shipping: "Represents the gross merchandise value without shipping",
+    gmv_with_shipping: "Represents the gross merchandise value with shipping",
+    fc_gmv_with_shipping: "Represents the forecast defined by controlling",
+    py_wd_orders_consumer: "Represents the previous year for the same week date of orders on consumer level",
+    py_wd_orders: "Represents the previous year for the same week date of orders on logistic level (mirakl logic)",
+    py_wd_products_quantity_orders: "Represents the previous year for the same week date of quantity/items of products in orders",
+    py_wd_gmv_without_shipping: "Represents the previous year for the same week date of gross merchandise value without shipping",
+    py_wd_gmv_with_shipping: "Represents the previous year for the same week date of gross merchandise value with shipping",
+
+    total_valid_sessions: "Represents the total valid sessions",
+    total_valid_sessions_pdp_mp: "Represents the total valid sessions for product display page in the marketplace",
+    total_valid_sessions_pdp_retail: "Represents the total valid sessions for product display page in the retail",
+    total_valid_sessions_consideration_mp: "Represents the total valid sessions for consideration in the marketplace",
+    total_valid_consideration_retail: "Represents the total valid consideration in the retail",
+
+    orders_consumer_financial_view: "Represents the number orders on consumer level (same as MMS) in the financial view",
+    orders_financial_view: "Represents the total number of orders on logistic level (mirakl logic) in the financial view",
+    gmv_without_shipping_financial_view: "Represents the gross merchandise value without shipping in the financial view",
+    gmv_with_shipping_financial_view: "Represents the gross merchandise value with shipping in the financial view",
+    sold_items_financial_view: "Represents the total number of sold items in the financial view",
+
+    py_wd_orders_consumer_financial_view: "Represents the previous year for the same week date of orders on consumer level (same as MMS) in the financial view",
+    py_wd_orders_financial_view: "Represents the previous year for the same week date of orders on logistic level (mirakl logic) in the financial view",
+    py_wd_gmv_without_shipping_financial_view: "Represents the previous year for the same week date of gross merchandise value without shipping in the financial view",
+    py_wd_gmv_with_shipping_financial_view: "Represents the previous year for the same week date of gross merchandise value with shipping in the financial view",
+    py_wd_sold_items_financial_view: "Represents the previous year for the same week date of total number of sold items in the financial view",
+
+    orders_consumer_refunded: "Represents the number orders on consumer level (same as MMS) of refunded orders",
+    orders_refunded: "Represents the total number of orders on logistic level (mirakl logic) of refunded orders",
+    gmv_without_shipping_refunded: "Represents the gross merchandise value without shipping of refunded orders",
+    gmv_with_shipping_refunded: "Represents the gross merchandise value with shipping of refunded orders",
+    sold_items_refunded: "Represents the total number of sold items of refunded orders",
+
+    py_wd_orders_consumer_refunded: "Represents the previous year for the same week date of orders on consumer level (same as MMS) of refunded orders",
+    py_wd_orders_refunded: "Represents the previous year for the same week date of orders on logistic level (mirakl logic) of refunded orders",
+    py_wd_gmv_without_shipping_refunded: "Represents the previous year for the same week date of gross merchandise value without shipping of refunded orders",
+    py_wd_gmv_with_shipping_refunded: "Represents the previous year for the same week date of gross merchandise value with shipping of refunded orders",
+    py_wd_sold_items_refunded: "Represents the previous year for the same week date of total number of sold items of refunded orders",
+  }
+}
+
+with
+last_month_values as (
+  select
+    date_reference,
+    salesline,
+    -- sellers,
+    -- active_products,
+    ---- open sellers latest date
+    last_value(sellers) over (
+      partition by date_trunc(date_reference, month),salesline
+      order by date_reference asc
+      rows between unbounded preceding and unbounded following
+    ) as active_sellers,
+    ---- active products latest date
+    last_value(active_products) over (
+      partition by date_trunc(date_reference, month),salesline
+      order by date_reference asc
+      rows between unbounded preceding and unbounded following
+    ) as active_products,
+  from
+    ${ref("prod_sales_reports","sales_kpis_daily")}
+  where
+    1 = 1
+)
+,sessions_total as (
+  select
+    session_date as date_reference,
+    salesline,
+    sum(total_sessions_pdp_mp) as total_sessions_pdp_mp,
+  from
+    ${ref("prod_customer_journey_reports","sessions_total")}
+  where
+    1 = 1
+    and session_is_valid = true
+  group by
+    all
+)
+
+select
+  date_trunc(date_reference,month) as month_reference,
+  fiscal_year_id,
+  country,
+  salesline,
+  ---- metrics
+  sum(gmv_with_shipping_financial_view) as gmv_with_shipping_financial_view,
+  sum(gmv_with_shipping) as gmv_with_shipping,
+
+  -- mp gross share
+  --sum(gmv_with_shipping)/(sum(retail_gross_order_value) + sum(gmv_with_shipping))
+  sum(retail_gross_order_value) as retail_gross_order_value,
+
+  max(lmv.active_sellers) as active_sellers,
+  max(lmv.active_products) as active_products,
+
+  sum(orders) as orders,
+  
+  ---- conversion rate
+  --sum(orders)/sum(total_sessions_pdp_mp),
+  sum(total_sessions_pdp_mp) as total_sessions_pdp_mp,
+
+from
+  ${ref("prod_sales_reports","sales_kpis_daily")} skd
+  left join last_month_values lmv using(date_reference,salesline)
+where
+  1 = 1
+  and date_trunc(date_reference,month) = '2025-06-01'
+  and date_reference < current_date()
+  and salesline in ('MediaSaturnDE') -- TEST
+group by
+  all
