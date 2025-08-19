@@ -60,5 +60,5 @@ def vary_numbers_in_json(file_path):
         json.dump(modified_data, f, indent=4)
 
 if __name__ == "__main__":
-    input_path = 'examples/ml/profiling/ml_aws_2048Mb_arm/stage0.json'
+    input_path = 'examples/ml/profiling/ml_aws_512Mb_arm/stage3.json'
     vary_numbers_in_json(input_path)
