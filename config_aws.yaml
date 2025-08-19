@@ -23,9 +23,9 @@ localhost:
     runtime_python_version: "3.10"
 
 aws:
-    AWS_ACCESS_KEY_ID: "ASIA4MTWMECOE3BDHZL7"
-    AWS_SECRET_ACCESS_KEY: "sLNHYufMyB3/sxIX0gjdKi4ECB82JaC1PpL3Ipyi"
-    AWS_SESSION_TOKEN: "IQoJb3JpZ2luX2VjEF8aCXVzLWVhc3QtMSJHMEUCIFbgLEgU7aN8NVxN1Y8J8dDJ7s7jVfiwQ5MLAiwB4+apAiEA9BdEQewCC5OdDfKNvymk6kIcOOQ2xBpX+frWpD8A8kwq/wIIqP//////////ARAAGgw4NTE3MjU1MjUxNDgiDAf7eb6T+k0/goVZuCrTAlIjlOcCMpbWJq72wMcB1Fo8pu2DCL4LRDMYr491VEB6Vy8za0rEaow/ONc1O9pJNlp88M/XDLVQa4fUtXbATO30R1k4ZzGKRh56MRiWE970MyISMudZPsPg6miJtXzhnzIFRp5W9SjFkn7zKdk8+wRRnPHVL1zvsk5Hnhe89fSouh9JUj81ls+qhQikAuiYbIY8qLnsar5JvxFKek6h+zNgoPXc3lPqwWbUiott5Nz6yLbQ6/Thuvb8HjNNiQCSot11h05ZTLQsKCT3OENs21wS75Ftc9kXg+fwEzmjNCiFmSb/w3KllbiAarbck5pPjwcdESRB/GY3YfODed6aeim6x8oawZG879bOR7QTPlT7wjNZ1FNVDo1yd5fWKq/PuzjlCNX0r+Ng2bGVGNGMyJ84lFW6KanEJc16mIjHWdsH+GNfvb21Mp/nm23Lu2SYLc4rbjCN9IzFBjqnAStsiDCmILGS19ETidE9yU2tSQraThhbXZbseuOfRu0NrbKAOGT4nGnf3KGkuAbHhlmkGEy9q8dlE/QiNNHivAE3bClHFZCxlHWZCXNY6Li72FfAfJWKObPiHg5V2sGI1tidrQi11BJEuEOjgCB/gnOo54epSRsUa3yRzMKLDlOFB1Qh86aO0AgtY0X+gynhLss6hi20dGr3dDNYMXSaRf4G7jJGfX9o"
+    AWS_ACCESS_KEY_ID: "ASIA4MTWMECOEHJ7P3RY"
+    AWS_SECRET_ACCESS_KEY: "VReTnP11Kq85GKxkssJ6lgQ07tioOjQ8iCTBlK9f"
+    AWS_SESSION_TOKEN: "IQoJb3JpZ2luX2VjEHAaCXVzLWVhc3QtMSJIMEYCIQC0iqYta9QNoko87Nw8Z9FlGJi+9HtmTulDUTFFAOqzHgIhAO/aNLjXhqD5LKyUYtbtRwT/OuaQNTzpMFJE1oGlcecJKv8CCLj//////////wEQABoMODUxNzI1NTI1MTQ4IgwJuByx/tRxmvtGDLgq0wJafg1IBXYv+bnXN2aKyRz2eCNT+gToGT9Kmc8SvBttahpfRumltZl6FN2q83lDPVEY46/UFymfoks033o37TyIVxqc1rlw2XYgF6UhART10f03aRofZVckzP9tQqFDND+1n5CEGGn6ojOWuQIW7CIG/DxzMF/4R+h5TVJh+Ky/G9W+WDsCi4lvDxk2DKus/e2qR4US3DBevV9vkRlFNrJ7kvEp43mB+dgVSrMrw1NU0Bv9nk7hDGUcQb4VxaKhfIbVFMsZiOd6Y9pvJ8cHwAHlTIVQU5BVedFvXzoOeWeqQYlEpXJHn5Bb9zVgnjvsH8z1hp6DvJmDPryngQJLiYwlmssNA1YZBDBtWP4UHRdm8QtFbXS0MopoZrjmpyDC2BRpJeudxsi8qLyfXx9ayV1JVlOlRXOL8sjAsGZbkFHyjXMzJrIm2tnbFPsy2ODe8AG55LUwl8uQxQY6pgEBMygdG4czyZks3MRLsCKdhBSAcS47OKx+ZjGB/30SlpFNMPYqAhwuR4gVB1EdSGUCB048nW7/Maqvbqzenu6xODXVx80YvzZpML7F6ad0ap0IruinA8xY2hZ4PyzPlbeWjW8Upqj0MxDcCmEe1fPPUwZpAeyxV8XdSm1LL/+XiDOS7cHZg9qelXVmF46AGM3HsqBh7Re0NfOJUXHZXP3tI3GJO4mn"
     region: us-east-1
 
  
@@ -36,12 +36,12 @@ aws_lambda:
     runtime_timeout: 300
     # runtime_memory: 1024
     # runtime_memory: 512
-    runtime_memory: 512
+    runtime_memory: 2048
 
     ##### ML #####
     # ML ARM64 specific runtime: 
     # runtime: ml_aws_arm64
-    runtime: ml_aws_lambda_arm_greencomp_v1
+    # runtime: ml_aws_lambda_arm_greencomp_v1
     architecture: arm64
     
     #####  Alternative runtimes (commented out) #####
@@ -55,7 +55,7 @@ aws_lambda:
     # runtime: titanic_aws_lambda_arm_greencomp_v1_512mb_v2
     # runtime: titanic_aws_lambda_arm_greencomp_v1_2048mb
     # runtime: titanic_aws_lambda_arm_greencomp_v3
-    # runtime: video_aws_lambda_arm_greencomp_v1
+    runtime: video_aws_lambda_arm_greencomp_v1
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # FlexExecutor configuration for AWS Lambda with enhanced energy monitoring
