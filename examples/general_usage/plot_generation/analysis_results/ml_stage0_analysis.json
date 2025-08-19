@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
-    "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../ml/profiling/ml/stage0.json",
+    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../ml/profiling/ml/stage0.json",
     "title": "ml_stage0",
     "example": "ml",
     "stage": "stage0",
