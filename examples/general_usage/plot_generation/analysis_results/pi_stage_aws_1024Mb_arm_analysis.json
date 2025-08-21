@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
-    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../montecarlo_pi_estimation/profiling/pi_aws_1024Mb_arm/stage.json",
+    "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../montecarlo_pi_estimation/profiling/pi_aws_1024Mb_arm/stage.json",
     "title": "pi_stage_aws_1024Mb_arm",
     "example": "pi",
     "stage": "stage",
@@ -33,17 +33,10 @@
       "avg_cold_start": 0.9750924598086964,
       "avg_worker_time_execution": 39.140889796343714,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 452.94365711569765,
-      "avg_execution": 37.205510556697845,
-      "avg_psutil_cpu_percent": 2.4899999999999993,
-      "min_compute": 36.102397441864014,
-=======
       "avg_tdp": 447.58814003305014,
       "avg_execution": 37.01213305646723,
       "avg_psutil_cpu_percent": 2.3181818181818183,
       "min_compute": 35.921549558639526,
->>>>>>> origin/main
       "max_compute": 37.525179862976074,
       "total_compute": 145.81257224082947,
       "min_rapl": 12,
@@ -51,16 +44,6 @@
       "total_rapl": 48.0,
       "min_tdp": 430.8262447357178,
       "max_tdp": 472.9423472404479,
-<<<<<<< HEAD
-      "total_tdp": 1811.7746284627906,
-      "min_execution": 0.26929006576538084,
-      "max_execution": 36.64415498971939,
-      "total_execution": 148.82204222679138,
-      "avg_time_consumption": 39.3055351265,
-      "min_time_consumption": 38.57872319,
-      "max_time_consumption": 40.25434518,
-      "total_time_consumption": 157.222140506,
-=======
       "total_tdp": 1790.3525601322006,
       "min_execution": 0.27799422632564197,
       "max_execution": 36.45314306020737,
@@ -69,7 +52,6 @@
       "min_time_consumption": 38.55170751,
       "max_time_consumption": 40.25434518,
       "total_time_consumption": 156.56355918909088,
->>>>>>> origin/main
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -104,15 +86,9 @@
       "avg_cold_start": 0.726900463104248,
       "avg_worker_time_execution": 31.908311514854432,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 368.0164459615946,
-      "avg_execution": 29.816030502319336,
-      "avg_psutil_cpu_percent": 2.385,
-=======
       "avg_tdp": 364.98126764345164,
       "avg_execution": 29.683884339332582,
       "avg_psutil_cpu_percent": 2.3060000000000005,
->>>>>>> origin/main
       "min_compute": 28.659584999084473,
       "max_compute": 29.94169855117798,
       "total_compute": 145.4175575733185,
@@ -121,19 +97,11 @@
       "total_rapl": 60.0,
       "min_tdp": 346.42835397720336,
       "max_tdp": 388.3582814097404,
-<<<<<<< HEAD
-      "total_tdp": 1840.0822298079731,
-      "min_execution": 0.24386847019195557,
-      "max_execution": 29.222168159484863,
-      "total_execution": 149.08015251159668,
-      "avg_time_consumption": 32.009326388,
-=======
       "total_tdp": 1824.9063382172583,
       "min_execution": 0.23035001277923584,
       "max_execution": 29.083511514663698,
       "total_execution": 148.4194216966629,
       "avg_time_consumption": 31.9083115152,
->>>>>>> origin/main
       "min_time_consumption": 31.20976162,
       "max_time_consumption": 32.78329039,
       "total_time_consumption": 159.541557576,
@@ -171,15 +139,9 @@
       "avg_cold_start": 0.8951044281323751,
       "avg_worker_time_execution": 26.819661414623262,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 311.0972236956159,
-      "avg_execution": 24.844340324401855,
-      "avg_psutil_cpu_percent": 2.1791666666666663,
-=======
       "avg_tdp": 309.4162603316704,
       "avg_execution": 24.775846378008527,
       "avg_psutil_cpu_percent": 2.1616666666666675,
->>>>>>> origin/main
       "min_compute": 23.761017560958862,
       "max_compute": 24.920137405395508,
       "total_compute": 144.80304148197175,
@@ -230,21 +192,12 @@
       "avg_cold_start": 0.7712592431477138,
       "avg_worker_time_execution": 23.335015848704746,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 271.37865462260584,
-      "avg_execution": 21.34973814657756,
-      "avg_psutil_cpu_percent": 2.146428571428571,
-      "min_compute": 20.381104469299316,
-      "max_compute": 21.345356702804565,
-      "total_compute": 145.00388431549072,
-=======
       "avg_tdp": 270.7778193819523,
       "avg_execution": 21.320167217935833,
       "avg_psutil_cpu_percent": 2.1828571428571437,
       "min_compute": 20.345877647399902,
       "max_compute": 21.364771366119385,
       "total_compute": 144.50492169857026,
->>>>>>> origin/main
       "min_rapl": 12,
       "max_rapl": 12,
       "total_rapl": 84.0,
@@ -292,15 +245,9 @@
       "avg_cold_start": 0.7757798969745636,
       "avg_worker_time_execution": 20.832165551185607,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 239.7181129857898,
-      "avg_execution": 18.711191274225712,
-      "avg_psutil_cpu_percent": 2.0531249999999996,
-=======
       "avg_tdp": 238.61741252660758,
       "avg_execution": 18.67496182024479,
       "avg_psutil_cpu_percent": 2.280000000000002,
->>>>>>> origin/main
       "min_compute": 17.88622236251831,
       "max_compute": 18.743110179901123,
       "total_compute": 144.97054443359374,
@@ -309,16 +256,6 @@
       "total_rapl": 96.0,
       "min_tdp": 229.38125081062316,
       "max_tdp": 256.66650383472444,
-<<<<<<< HEAD
-      "total_tdp": 1917.7449038863183,
-      "min_execution": 0.2590468153357506,
-      "max_execution": 18.16646310687065,
-      "total_execution": 149.6895301938057,
-      "avg_time_consumption": 20.834589325625,
-      "min_time_consumption": 20.51278973,
-      "max_time_consumption": 21.56861377,
-      "total_time_consumption": 166.676714605,
-=======
       "total_tdp": 1908.9393002128606,
       "min_execution": 0.268399840593338,
       "max_execution": 18.121318054199218,
@@ -327,7 +264,6 @@
       "min_time_consumption": 20.49760365,
       "max_time_consumption": 21.591537,
       "total_time_consumption": 166.65732441300003,
->>>>>>> origin/main
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -362,17 +298,10 @@
       "avg_cold_start": 0.7657747560077244,
       "avg_worker_time_execution": 18.813864964909023,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 217.95538971755235,
-      "avg_execution": 16.710746745268505,
-      "avg_psutil_cpu_percent": 2.344444444444444,
-      "min_compute": 15.901342153549194,
-=======
       "avg_tdp": 217.695148075819,
       "avg_execution": 16.679491445753307,
       "avg_psutil_cpu_percent": 2.2644444444444463,
       "min_compute": 15.870940685272217,
->>>>>>> origin/main
       "max_compute": 16.6581711769104,
       "total_compute": 144.7108778476715,
       "min_rapl": 12,
@@ -380,19 +309,11 @@
       "total_rapl": 108.0,
       "min_tdp": 205.29892826080322,
       "max_tdp": 234.4484094142914,
-<<<<<<< HEAD
-      "total_tdp": 1961.5985074579712,
-      "min_execution": 0.25187881787618,
-      "max_execution": 16.118937823507522,
-      "total_execution": 150.39672070741653,
-      "avg_time_consumption": 18.840930765833335,
-=======
       "total_tdp": 1959.2563326823708,
       "min_execution": 0.23838513957129584,
       "max_execution": 16.078986427519055,
       "total_execution": 150.11542301177977,
       "avg_time_consumption": 18.81386496444445,
->>>>>>> origin/main
       "min_time_consumption": 18.5003922,
       "max_time_consumption": 19.31599784,
       "total_time_consumption": 169.32478468000005,
@@ -430,15 +351,9 @@
       "avg_cold_start": 1.3324023760282075,
       "avg_worker_time_execution": 17.17478199005127,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 201.129152669566,
-      "avg_execution": 15.152160331181118,
-      "avg_psutil_cpu_percent": 2.5728571428571434,
-=======
       "avg_tdp": 200.19317882987173,
       "avg_execution": 15.126390878970808,
       "avg_psutil_cpu_percent": 2.4930769230769227,
->>>>>>> origin/main
       "min_compute": 14.304000854492188,
       "max_compute": 15.081193923950195,
       "total_compute": 145.01653427344104,
@@ -447,16 +362,6 @@
       "total_rapl": 120.0,
       "min_tdp": 189.9479093790054,
       "max_tdp": 215.9851989746094,
-<<<<<<< HEAD
-      "total_tdp": 2011.29152669566,
-      "min_execution": 0.2827794211251395,
-      "max_execution": 14.527324887684413,
-      "total_execution": 151.5216033118112,
-      "avg_time_consumption": 17.18936929371428,
-      "min_time_consumption": 16.69126821,
-      "max_time_consumption": 17.70370483,
-      "total_time_consumption": 171.8936929371428,
-=======
       "total_tdp": 2001.9317882987173,
       "min_execution": 0.29413425005399263,
       "max_execution": 14.501653427344102,
@@ -465,7 +370,6 @@
       "min_time_consumption": 16.69126821,
       "max_time_consumption": 17.70370483,
       "total_time_consumption": 171.74781990076926,
->>>>>>> origin/main
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -500,15 +404,9 @@
       "avg_cold_start": 0.814631978670756,
       "avg_worker_time_execution": 14.681156067053477,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 172.5169921348492,
-      "avg_execution": 12.684227873881659,
-      "avg_psutil_cpu_percent": 2.2791666666666672,
-=======
       "avg_tdp": 173.36399862249695,
       "avg_execution": 12.700530062119165,
       "avg_psutil_cpu_percent": 2.183333333333335,
->>>>>>> origin/main
       "min_compute": 11.855885982513428,
       "max_compute": 12.47909164428711,
       "total_compute": 144.31133534908295,
@@ -516,17 +414,6 @@
       "max_rapl": 12,
       "total_rapl": 144.0,
       "min_tdp": 162.30570329427718,
-<<<<<<< HEAD
-      "max_tdp": 185.03875492811204,
-      "total_tdp": 2070.20390561819,
-      "min_execution": 0.29208435614903766,
-      "max_execution": 12.040665919582048,
-      "total_execution": 152.2107344865799,
-      "avg_time_consumption": 14.70844356708333,
-      "min_time_consumption": 14.49067926,
-      "max_time_consumption": 15.25265312,
-      "total_time_consumption": 176.50132280499997,
-=======
       "max_tdp": 195.43365448713303,
       "total_tdp": 2080.3679834699633,
       "min_execution": 0.29609612822532655,
@@ -536,7 +423,6 @@
       "min_time_consumption": 14.48812389,
       "max_time_consumption": 16.35428071,
       "total_time_consumption": 176.173872801,
->>>>>>> origin/main
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -571,33 +457,15 @@
       "avg_cold_start": 0.8223430410027504,
       "avg_worker_time_execution": 11.681902967393398,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 138.4346851930022,
-      "avg_execution": 9.620400100946426,
-      "avg_psutil_cpu_percent": 2.370312500000001,
-=======
       "avg_tdp": 137.8040960991383,
       "avg_execution": 9.588823360204696,
       "avg_psutil_cpu_percent": 2.3356249999999985,
->>>>>>> origin/main
       "min_compute": 8.871506214141846,
       "max_compute": 9.458842515945435,
       "total_compute": 144.57382221221923,
       "min_rapl": 12,
       "max_rapl": 12,
       "total_rapl": 192.0,
-<<<<<<< HEAD
-      "min_tdp": 133.22465090751646,
-      "max_tdp": 147.34770395755768,
-      "total_tdp": 2214.954963088035,
-      "min_execution": 0.25688536465168,
-      "max_execution": 9.07082948461175,
-      "total_execution": 153.92640161514282,
-      "avg_time_consumption": 11.679423145625005,
-      "min_time_consumption": 11.48861456,
-      "max_time_consumption": 12.17749619,
-      "total_time_consumption": 186.87077033000008,
-=======
       "min_tdp": 131.91576808691025,
       "max_tdp": 148.1033992767334,
       "total_tdp": 2204.8655375862127,
@@ -608,7 +476,6 @@
       "min_time_consumption": 11.4849565,
       "max_time_consumption": 12.34194994,
       "total_time_consumption": 186.91044747400005,
->>>>>>> origin/main
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,
@@ -643,15 +510,9 @@
       "avg_cold_start": 0.7846244075081565,
       "avg_worker_time_execution": 10.047215790098363,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 118.91844043052193,
-      "avg_execution": 7.85590639591217,
-      "avg_psutil_cpu_percent": 2.3270000000000017,
-=======
       "avg_tdp": 118.77179217262703,
       "avg_execution": 7.842142140865326,
       "avg_psutil_cpu_percent": 2.3877272727272705,
->>>>>>> origin/main
       "min_compute": 7.139764785766602,
       "max_compute": 7.617445468902588,
       "total_compute": 145.33110159093684,
@@ -660,21 +521,12 @@
       "total_rapl": 240.0,
       "min_tdp": 111.51212418079378,
       "max_tdp": 129.12754693031312,
-<<<<<<< HEAD
-      "total_tdp": 2378.3688086104385,
-      "min_execution": 0.22951479911804198,
-      "max_execution": 7.2855469560623165,
-      "total_execution": 157.1181279182434,
-      "avg_time_consumption": 10.0398490571,
-      "min_time_consumption": 9.64316297,
-=======
       "total_tdp": 2375.4358434525407,
       "min_execution": 0.22443841153925115,
       "max_execution": 7.266555079546841,
       "total_execution": 156.84284281730652,
       "avg_time_consumption": 10.04721578981818,
       "min_time_consumption": 9.64283943,
->>>>>>> origin/main
       "max_time_consumption": 10.59034014,
       "total_time_consumption": 200.9443157963636,
       "avg_perf_energy_cores": 0.0,
@@ -711,15 +563,9 @@
       "avg_cold_start": 0.8434468092340411,
       "avg_worker_time_execution": 8.611174072280075,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 105.93208996832371,
-      "avg_execution": 6.615941258271535,
-      "avg_psutil_cpu_percent": 2.3375000000000012,
-=======
       "avg_tdp": 106.0564000224526,
       "avg_execution": 6.6162954008940495,
       "avg_psutil_cpu_percent": 2.3083333333333282,
->>>>>>> origin/main
       "min_compute": 5.858721017837524,
       "max_compute": 6.300836086273193,
       "total_compute": 143.4074446071278,
@@ -770,33 +616,15 @@
       "avg_cold_start": 1.3358918776759854,
       "avg_worker_time_execution": 7.820919832625947,
       "avg_rapl": 12.0,
-<<<<<<< HEAD
-      "avg_tdp": 95.72568173919409,
-      "avg_execution": 5.736483069828578,
-      "avg_psutil_cpu_percent": 2.2835714285714284,
-=======
       "avg_tdp": 96.05047199180379,
       "avg_execution": 5.7523847740966,
       "avg_psutil_cpu_percent": 2.2834415584415524,
->>>>>>> origin/main
       "min_compute": 5.016672134399414,
       "max_compute": 5.300216913223267,
       "total_compute": 142.8959246331995,
       "min_rapl": 12,
       "max_rapl": 12,
       "total_rapl": 336.0,
-<<<<<<< HEAD
-      "min_tdp": 88.85419225692749,
-      "max_tdp": 102.64221135377885,
-      "total_tdp": 2680.3190886974344,
-      "min_execution": 0.2904924375670297,
-      "max_execution": 5.103636607101985,
-      "total_execution": 160.62152595520018,
-      "avg_time_consumption": 7.7841514094285715,
-      "min_time_consumption": 7.47527361,
-      "max_time_consumption": 8.21874976,
-      "total_time_consumption": 217.956239464,
-=======
       "min_tdp": 88.73807897567748,
       "max_tdp": 103.18298128843308,
       "total_tdp": 2689.413215770506,
@@ -807,7 +635,6 @@
       "min_time_consumption": 7.47376847,
       "max_time_consumption": 8.50005627,
       "total_time_consumption": 218.98575531545447,
->>>>>>> origin/main
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,

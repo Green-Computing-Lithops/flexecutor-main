@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
-    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../video/profiling/video_aws_2048Mb_arm/stage0.json",
+    "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../video/profiling/video_aws_2048Mb_arm/stage0.json",
     "title": "video_stage0_aws_2048Mb_arm",
     "example": "video",
     "stage": "stage0",
