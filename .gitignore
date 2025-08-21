@@ -156,3 +156,4 @@ dmypy.json
 
 # avoid only for the runtime creation ---> remove from the folder 
 # lithops_fork
+aws_credentials.md
