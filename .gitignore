@@ -157,3 +157,4 @@ dmypy.json
 # avoid only for the runtime creation ---> remove from the folder 
 # lithops_fork
 aws_credentials.md
+AAA_information/Creation_runtimes_summary.md
