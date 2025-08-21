@@ -176,7 +176,7 @@ def create_combined_plots(data, output_path=None):
     ax5.grid(True, alpha=0.3, linestyle='--')
     ax5.set_xticks(workers)
     
-    # Plot 6: Monte Carlo Performance Variability (moved from ax9)
+    # Plot 6: Performance Variability (moved from ax9)
     ax6.plot(workers, min_compute, color=COLORS['accent1'], linewidth=3,
             marker='^', markersize=10, markeredgecolor='black', markeredgewidth=1.5,
             label='Minimum Compute Time', alpha=0.9)
@@ -186,7 +186,7 @@ def create_combined_plots(data, output_path=None):
     
     ax6.set_xlabel('Number of Workers', fontweight='bold')
     ax6.set_ylabel('Execution Time (seconds)', fontweight='bold')
-    ax6.set_title('Monte Carlo Performance Variability', fontweight='bold', pad=20)
+    ax6.set_title('Performance Variability', fontweight='bold', pad=20)
     ax6.legend(frameon=True, fancybox=True, shadow=True, loc='best')
     ax6.grid(True, alpha=0.3, linestyle='--')
     ax6.set_xticks(workers)

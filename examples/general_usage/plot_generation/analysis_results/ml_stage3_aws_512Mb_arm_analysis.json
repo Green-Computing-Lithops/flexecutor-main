@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
-    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../ml/profiling/ml_aws_512Mb_arm/stage3.json",
+    "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../ml/profiling/ml_aws_512Mb_arm/stage3.json",
     "title": "ml_stage3_aws_512Mb_arm",
     "example": "ml",
     "stage": "stage3",
@@ -625,18 +625,6 @@
       "min_rapl": 12,
       "max_rapl": 12,
       "total_rapl": 336.0,
-<<<<<<< HEAD
-      "min_tdp": 154.8153536081314,
-      "max_tdp": 168.25006818771365,
-      "total_tdp": 4543.38119597435,
-      "min_execution": 0.8728711009025574,
-      "max_execution": 5.657967686653137,
-      "total_execution": 294.3226125240326,
-      "avg_time_consumption": 15.705640080000002,
-      "min_time_consumption": 14.78696561,
-      "max_time_consumption": 16.44789243,
-      "total_time_consumption": 439.7579222400001,
-=======
       "min_tdp": 150.3882252285319,
       "max_tdp": 169.76725100445555,
       "total_tdp": 4419.489488786008,
@@ -647,7 +635,6 @@
       "min_time_consumption": 14.78696561,
       "max_time_consumption": 16.59408538,
       "total_time_consumption": 437.50351946,
->>>>>>> origin/main
       "avg_perf_energy_cores": 0.0,
       "min_perf_energy_cores": 0.0,
       "max_perf_energy_cores": 0.0,

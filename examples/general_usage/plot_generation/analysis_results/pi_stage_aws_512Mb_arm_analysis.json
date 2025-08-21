@@ -1,13 +1,8 @@
 {
   "metadata": {
     "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
-<<<<<<< HEAD:examples/general_usage/plot_generation/analysis_results/pi_monte_carlo_pi_stage_aws_512Mb_arm_analysis.json
-    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../montecarlo_pi_estimation/profiling/pi_aws_512Mb_arm/monte_carlo_pi_stage.json",
-    "title": "pi_monte_carlo_pi_stage_aws_512Mb_arm",
-=======
     "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../montecarlo_pi_estimation/profiling/pi_aws_512Mb_arm/stage.json",
     "title": "pi_stage_aws_512Mb_arm",
->>>>>>> origin/main:examples/general_usage/plot_generation/analysis_results/pi_stage_aws_512Mb_arm_analysis.json
     "example": "pi",
     "stage": "stage",
     "memory": "512Mb",
