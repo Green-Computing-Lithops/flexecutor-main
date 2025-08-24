@@ -1,0 +1,476 @@
+config {
+  type: "incremental",
+  schema: "prod_sales_reports",
+  uniqueKey: ["order_id","order_line_id"],
+  tags: ["scheduled_mrk_daily","mirakl_orderlines"],
+  bigquery: {
+    partitionBy: "date_created",
+    clusterBy: ["salesline"]
+  },
+  description: "Table shows the latest information for each orderline_id",
+  columns: {
+    commercial_id: "Commercial identifier of the order",
+    order_id: "Identifier of the order",
+    order_line_id: "Identifier of the order line",
+    order_line_state: "State of the order line (STAGING, WAITING_ACCEPTANCE, WAITING_DEBIT, WAITING_DEBIT_PAYMENT, SHIPPING, SHIPPED, TO_COLLECT, RECEIVED, CLOSED, REFUSED, CANCELED, INCIDENT_OPEN, WAITING_REFUND (deprecated), WAITING_REFUND_PAYMENT (deprecated), REFUNDED)",
+    date_created: "Creation date",
+    date_waiting_acceptance: "Scoring date (date of the fraud check or operator's approval for an order)",
+    date_waiting_debit: "Acceptance date of the order line, Available if order has been accepted",
+    date_waiting_debit_payment: "Payment request date, Available if order has been accepted",
+    date_shipping: "Payment confirmation date, Available if order debit has been confirmed",
+    date_shipped: "Confirmation date of the shipping, Available if order has been confirmed as shipped",
+    date_received: "Order receipt confirmation date, Available if an order has been confirmed as received or automatically received",
+    date_paid: "Date of the corresponding generated invoice, Available if order has been paid to the seller",
+    debit_transaction_date: "Debit transaction date, Available if a debit transaction date has been included during the debit confirmation process",
+    debit_transaction_number: "Debit transaction number, Available if a debit transaction date has been included during the debit confirmation process",
+    date_incident_open: "Opening date of the last incident of the order line, Available if there was at least one incident on the order",
+    date_incident_close: "Closing date of the last opened incident of the order line, Available if there was at least one closed incident on the order",
+    incident_reason_code: "Opening incident reason code of the last incident of the order line, Available if there was at least one incident on the order",
+    incident_reason_label: "Opening incident reason label of the last incident of the order line, Available if there was at least one incident on the order",
+    incident_closed_reason_code: "Code of the last incident closure reason for this order line, Available if there was at least one closed incident on the order",
+    incident_closed_reason_label: "Label of the last incident closure reason for this order line, Available if there was at least one closed incident on the order",
+    date_waiting_refund: "(deprecated) Refund request date of the first refund performed on the order line",
+    date_waiting_refund_payment: "(deprecated) Debit refund request date of the first refund experienced by the order line",
+    date_refunded: "(deprecated) Refund confirmation date of the first refund experienced by the order line",
+    refund_reason_code: "(deprecated) Reason code of the refund of the first refund experienced by the order line",
+    refund_reason_label: "(deprecated) Reason label of the refund of the first refund experienced by the order line",
+    refund_transaction_date: "(deprecated) Refund transaction date of the first refund experienced by the order line",
+    refund_transaction_number: "(deprecated) Refund transaction number of the first refund experienced by the order line",
+    quantity: "Quantity of product for the order line",
+    price_unit: "Unit price of the product line",
+    price: "Total line price: Unit price x Quantity",
+    shipping_from: "Format for shipping from address",
+    shipping_price: "Total shipping price of the order line",
+    commission_fee: "Commission fee of the order line, Available if payment for the order has been retrieved",
+    commission_vat: "(deprecated) Commission VAT of the order line, Available if payment for the order has been retrieved, Prefer the use of the commission_taxes field.",
+    commission_rate_vat: "(deprecated) Rate of the commission VAT applied for the order line",
+    total_commission: "Total commission of the order line (sum of the commission fee and the commission VAT)",
+    commission_grid_label: "Label of the commission grid that applies",
+    payment_type: "The type of payment used by the customer to pay this order, Available if payment for the order has been retrieved",
+    shipping_type_code: "Code of the shipping type",
+    shipping_type_label: "Label of the shipping type",
+    shipping_zone_code: "Code of the shipping zone",
+    shipping_zone_label: "Label of the shipping zone",
+    shop_id: "Identifier of the shop (For example: min. length 0, max. length 20 with value 9223372036854775807)",
+    shop_operator_internal_id: "Operator internal id for the shop",
+    shop_name: "Name of the shop",
+    shop_is_professional: "Indicates if a shop is professional",
+    shop_reward: "Amount paid to the shop for the order line",
+    product_sku: "SKU of the product associated with the order line",
+    product_title: "Title of the product associated with the order line",
+    category_code: "Code of the product category",
+    category_label: "Label of the product category",
+    offer_id: "Identifier of the associated offer",
+    offer_sku: "SKU of the associated offer (this is the shop SKU)",
+    brand: "Brand name of the product associated with the order line",
+    offer_state_code: "State code of the offer associated with the order line",
+    offer_state_label: "State label of the offer associated with the order line",
+    customer_id: "Identifier of the customer",
+    customer_lastname: "Last name of the customer",
+    customer_firstname: "First name of the customer",
+    customer_civility: "Civility of the customer",
+    customer_email: "Email of the customer",
+    customer_shipping_civility: "Civility of the person associated with the address",
+    customer_shipping_lastname: "Last name of the person associated with the address",
+    customer_shipping_firstname: "First name of the person associated with the address",
+    customer_shipping_company: "Company of the person associated with the address",
+    customer_shipping_company2: "Second company of the person associated with the address",
+    customer_shipping_street1: "First information line of the street of the address",
+    customer_shipping_street2: "Second information line of the street of the address",
+    customer_shipping_complementary: "Complementary information about the address",
+    customer_shipping_zip_code: "Zip Code of the address",
+    customer_shipping_state: "State of the address",
+    customer_shipping_city: "City of the address",
+    customer_shipping_country: "Country of the address",
+    customer_shipping_phone: "Phone number",
+    customer_shipping_phone_secondary: "Phone number (secondary)",
+    customer_shipping_additional_info: "Additional information for the shipping address",
+    customer_shipping_internal_additional_info: "Internal additional information for the shipping address",
+    customer_billing_civility: "Civility of the person associated with the address",
+    customer_billing_lastname: "Last name of the person associated with the address",
+    customer_billing_firstname: "First name of the person associated with the address",
+    customer_billing_company: "Company of the person associated with the address",
+    customer_billing_company2: "Second company of the person associated with the address",
+    customer_billing_street1: "First information line of the street of the address",
+    customer_billing_street2: "Second information line of the street of the address",
+    customer_billing_complementary: "Complementary information about the address",
+    customer_billing_zip_code: "Zip Code of the address",
+    customer_billing_state: "State of the address",
+    customer_billing_city: "City of the address",
+    customer_billing_country: "Country of the address",
+    customer_billing_phone: "Phone number of the person associated with the address",
+    customer_billing_phone_secondary: "Secondary phone number of the person associated with the address",
+    customer_organization_id: "Identifier of the organization to which the customer is attached",
+    customer_organization_name: "Name of the organization to which the customer is attached",
+    customer_organization_identification_number: "Identification number of the organization to which the customer is attached",
+    customer_organization_tax_identification_number: "Tax identification number of the organization to which the customer is attached",
+    payment_state_code: "Financial order line status: PENDING, PAYABLE, PAID, NOT_APPLICABLE",
+    invoice_number: "Associated invoice number, Available if the order has been paid",
+    additional_fields: "Returns the additional fields of the order line",
+    order_additional_fields: "Returns the additional fields of the logistic order",
+    refunds: "Available if the order line has been refunded",
+    price_taxes: "Format for price taxes",
+    shipping_price_taxes: "Format for shipping price taxes",
+    order_line_fees: "Format for order line fees",
+    currency_iso_code: "Shop's currency ISO code",
+    commission_taxes: "Format for commission taxes",
+    customer_locale: "Customer's locale code (RFC 3066)",
+    carrier_code: "Code of the carrier",
+    carrier_standard_code: "Standard code of the carrier generated by Mirakl",
+    carrier_name: "Name of the carrier",
+    tracking_url: "Tracking URL for customers to track their shipments",
+    tracking_number: "Tracking number for customers to identify their shipment using the tracking URL",
+    order_channel_code: "Code of the order's channel. Can be null if none was set when the order was created.",
+    order_channel_label: "Label of the order's channel. Can be null if none was set when the order was created.",
+    order_payment_workflow: "Payment workflow used for the order: PAY_ON_ACCEPTANCE or PAY_ON_DELIVERY",
+    order_customer_debited_date: "Customer debit date (date when the API PA01 confirmation was made for the order)",
+    cancelations: "Description of the cancelation(s) in JSON format",
+    quote_id: "The identifier of the quote, if any",
+    promotions: "Description in JSON format of the promotion",
+    payment_duration: "The payment's duration (i.e. the delay after which the order is supposed to be paid), in days",
+    product_shop_sku: "Product SKU of the seller",
+    original_offer_leadtime_to_ship: "Lead time to ship specified by the seller at offer level",
+    order_leadtime_to_ship: "Lead time to ship at order level",
+    order_shipping_deadline: "Shipping deadline of the order",
+    order_reference_for_customer: "Order reference for customer",
+    order_reference_for_seller: "Order reference for seller",
+    excluded_from_quality_control: "true if this order was excluded from quality control",
+    date_created_day_of_week: "Order creation day of the week",
+    month_of_year_shipping: "Month_Year of shipping",
+    quarter_shipping: "Quarter of shipping date",
+    datetime_created: "Order creation datetime",
+    datetime_shipping: "Shipping datetime",
+    datetime_shipped: "Shipped datetime",
+    inserted_at: "Timestamp of latest update for the record",
+    seller_id: "Seller_id for the created order",
+    seller_name: "Seller_name for the created order"
+  }
+}
+
+pre_operations { ${when(incremental(),
+  `declare latest_datetime default ( select max(inserted_at) latest_datetime from ${self()})`)
+  }
+}
+
+with 
+orderlines_latest as (
+  select
+    m.*,
+    row_number() over (partition by order_channel_code, order_line_id order by inserted_at desc) as orderlines_rn
+  from
+    ${ref("prod_sales_reports","v_orderlines")} as m
+  where
+    1 = 1
+    and order_channel_code is not null
+    ${when(incremental(), `and inserted_at > latest_datetime`)}
+  qualify
+    orderlines_rn = 1
+)
+,sellers_latest as (
+  select 
+    sl.*
+  from
+    ${ref("prod_sales_reports","sellers_latest")} as sl
+  where
+    1 = 1
+)
+,cos_orders as (
+  select 
+    ord.date_id as date_created
+    ,${ref("udf","get_salesline")}(ord.subsidiary) as salesline
+    ,ord.customer_order_id as order_id
+    ,ord.customer_order_source_channel_code as sales_channel
+    ,min(ord.customer_order_payment_method) as payment_method
+    --,min(ord.marketplace_order_id) as marketplace_order_d
+    ,array_agg(distinct ord.assortment_type order by assortment_type) as assortment_types
+  from
+    ${ref("data_share_marketplace_v2","v_cos_ordered_items")} as ord
+  where
+    true
+    and ord.date_id >= '2021-05-09' -- date which starts mp data
+    ${when(incremental(), `and ord.date_id >= date(latest_datetime)-1`)}
+    and ord.date_id < current_date('Europe/Berlin')
+  group by
+    1,2,3,4
+)
+,refunds_by_orderline as (
+  select
+    ordl.order_line_id
+    ,min(
+      ${ref("udf","convert_to_local_date")}(
+        safe_cast(json_value(ext_refund, '$.date_waiting_refund')as timestamp)
+    ,ordl.order_channel_code)) as first_refund_date
+    ,round(sum(safe_cast(json_value(ext_refund, '$.amount') as float64)),2) as amount_refunded
+    ,round(sum(safe_cast(json_value(ext_refund, '$.shipping_amount') as float64)),2)as shipping_refunded
+    ,round(sum(safe_cast(json_value(ext_refund, '$.amount') as float64))
+      + sum(safe_cast(json_value(ext_refund, '$.shipping_amount') as float64)),2)as gmv_with_shipping_refunded
+    ,sum(safe_cast(json_value(ext_refund, '$.commission_amount') as float64)) as commission_amount_refunded
+    ,sum(safe_cast(json_value(ext_refund, '$.commission_vat_amount') as float64)) as commission_vat_amount_refunded
+    ,sum(safe_cast(json_value(ext_refund, '$.quantity') as int64)) as quantity_refunded
+  from
+    orderlines_latest ordl
+    ,unnest(json_extract_array(refunds)) as ext_refund
+  where
+    1 = 1
+    and lower(json_value(ext_refund, '$.state')) = 'refunded'
+  group by
+    all
+)
+,returns_by_orderline as (
+  select
+    ordl.order_line_id
+    ,min(
+      ${ref("udf","convert_to_local_date")}(
+        safe_cast(json_value(ext_refund, '$.date_waiting_refund')as timestamp)
+    ,ordl.order_channel_code)) as first_return_date
+    ,round(sum(safe_cast(json_value(ext_refund, '$.amount') as float64)),2) as amount_returned
+    ,round(sum(safe_cast(json_value(ext_refund, '$.shipping_amount') as float64)),2)as shipping_returned
+    ,round(sum(safe_cast(json_value(ext_refund, '$.amount') as float64))
+      + sum(safe_cast(json_value(ext_refund, '$.shipping_amount') as float64)),2)as gmv_with_shipping_returned
+    ,sum(safe_cast(json_value(ext_refund, '$.commission_amount') as float64)) as commission_amount_returned
+    ,sum(safe_cast(json_value(ext_refund, '$.commission_vat_amount') as float64)) as commission_vat_amount_returned
+    ,sum(safe_cast(json_value(ext_refund, '$.quantity') as int64)) as quantity_returned
+  from
+    orderlines_latest ordl
+    ,unnest(json_extract_array(refunds)) as ext_refund
+  where
+    1 = 1
+    and lower(json_value(ext_refund, '$.state')) = 'refunded'
+    and lower(json_value(ext_refund, '$.reason_label'))= 'item returned'
+  group by
+    all
+)
+,late_shipped_by_orderline as (
+  select
+    ordl.order_line_id
+    ,case
+      ---- rule 1: exclude orders with 'excluded_from_quality_control' set to true or canceled
+      when ordl.excluded_from_quality_control = 't' or lower(ordl.order_line_state) in('canceled') then 0
+      ---- rule 2: exclude orders fully refunded before the shipping deadline
+      when ${ref("udf","convert_to_local_datetime")}(ordl.date_waiting_refund, ordl.order_channel_code) 
+        < ${ref("udf","convert_to_local_datetime")}(ordl.order_shipping_deadline, ordl.order_channel_code) 
+        and ordrf.quantity_refunded = ordl.quantity  then 0
+      ---- rule 3: date_shipped is after order_shipping_deadline
+      when ordl.date_shipped is not null 
+        and ${ref("udf","convert_to_local_datetime")}(ordl.date_shipped, ordl.order_channel_code) 
+        >= ${ref("udf","convert_to_local_datetime")}(ordl.order_shipping_deadline, ordl.order_channel_code) then 1
+      ---- rule 4: date_shipped is empty/null and order_shipping_deadline is in the past
+      when ordl.date_shipped is null and datetime(ordl.order_shipping_deadline,'Europe/Berlin') < current_date('Europe/Berlin') then 1
+    else 0 end is_late_shipped
+  from
+    orderlines_latest ordl
+    left join refunds_by_orderline ordrf using(order_line_id)
+  where
+    1 = 1
+  group by
+    all
+)
+,orderlines_latest_final as (
+  select
+    ordl.commercial_id
+    ,ordl.order_id
+    ,ordl.order_line_id
+    ,ordl.order_line_state
+    ,ordl.order_channel_code
+    ,ordl.order_channel_label
+    ,right(${ref("udf","get_salesline")}(ordl.order_channel_code),2) as country
+    ,${ref("udf","get_salesline")}(ordl.order_channel_code) as salesline
+    -- date dimensions
+    ,${ref("udf","convert_to_local_date")}(ordl.date_created,ordl.order_channel_code) as date_created
+    ,${ref("udf","convert_to_local_date")}(ordl.date_shipping, ordl.order_channel_code) as date_shipping
+    ,${ref("udf","convert_to_local_date")}(ordl.date_shipped, ordl.order_channel_code) as date_shipped
+    ,${ref("udf","convert_to_local_date")}(ordl.date_refunded,ordl.order_channel_code) as date_refunded
+    ,if(regexp_contains(json_extract_scalar(ordl.refunds,'$[0].reason_label'),r'(?i)item returned') is true,
+      ${ref("udf","convert_to_local_date")}(ordl.date_refunded,ordl.order_channel_code),null)as date_returned
+    ,${ref("udf","convert_to_local_date")}(ordl.date_waiting_acceptance,ordl.order_channel_code) as date_waiting_acceptance
+    ,${ref("udf","convert_to_local_date")}(ordl.date_waiting_debit,ordl.order_channel_code) as date_waiting_debit
+    ,${ref("udf","convert_to_local_date")}(ordl.date_waiting_debit_payment,ordl.order_channel_code) as date_waiting_debit_payment
+    ,${ref("udf","convert_to_local_date")}(ordl.date_received,ordl.order_channel_code) as date_received
+    ,${ref("udf","convert_to_local_date")}(ordl.date_paid,ordl.order_channel_code) as date_paid
+    ,${ref("udf","convert_to_local_date")}(ordl.debit_transaction_date,ordl.order_channel_code) as debit_transaction_date
+    ,${ref("udf","convert_to_local_date")}(ordl.order_customer_debited_date,ordl.order_channel_code) as order_customer_debited_date
+    ,${ref("udf","convert_to_local_date")}(ordl.date_incident_open,ordl.order_channel_code) as date_incident_open
+    ,${ref("udf","convert_to_local_date")}(ordl.date_incident_close,ordl.order_channel_code) as date_incident_close
+    ,${ref("udf","convert_to_local_date")}(ordl.date_waiting_refund,ordl.order_channel_code) as date_waiting_refund
+    ,${ref("udf","convert_to_local_date")}(ordl.date_waiting_refund_payment,ordl.order_channel_code) as date_waiting_refund_payment
+    ,${ref("udf","convert_to_local_date")}(ordl.refund_transaction_date,ordl.order_channel_code) as date_refund_transaction
+    -- datetime dimensions
+    ,${ref("udf","convert_to_local_datetime")}(ordl.date_created, ordl.order_channel_code) as datetime_created
+    ,${ref("udf","convert_to_local_datetime")}(ordl.date_shipping, ordl.order_channel_code) as datetime_shipping
+    ,${ref("udf","convert_to_local_datetime")}(ordl.date_shipped, ordl.order_channel_code) as datetime_shipped
+    ,${ref("udf","convert_to_local_datetime")}(ordl.date_refunded,ordl.order_channel_code) as datetime_refunded
+    ,if(regexp_contains(json_extract_scalar(ordl.refunds,'$[0].reason_label'),r'(?i)item returned') is true,
+      ${ref("udf","convert_to_local_datetime")}(ordl.date_refunded,ordl.order_channel_code),null)as datetime_returned
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_waiting_acceptance,ordl.order_channel_code) as datetime_waiting_acceptance
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_waiting_debit,ordl.order_channel_code) as datetime_waiting_debit
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_waiting_debit_payment,ordl.order_channel_code) as datetime_waiting_debit_payment
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_received,ordl.order_channel_code) as datetime_received
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_paid,ordl.order_channel_code) as datetime_paid
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.debit_transaction_date,ordl.order_channel_code) as debit_transaction_date
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.order_customer_debited_date,ordl.order_channel_code) as order_customer_debited_date
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_incident_open,ordl.order_channel_code) as datetime_incident_open
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_incident_close,ordl.order_channel_code) as datetime_incident_close
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_waiting_refund,ordl.order_channel_code) as datetime_waiting_refund
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.date_waiting_refund_payment,ordl.order_channel_code) as datetime_waiting_refund_payment
+    -- ,${ref("udf","convert_to_local_datetime")}(ordl.refund_transaction_date,ordl.order_channel_code) as datetime_refund_transaction
+
+    -- timestamp dimensions
+    ,ordl.date_created as timestamp_created
+    ,ordl.date_shipping as timestamp_shipping
+    ,ordl.date_shipped as timestamp_shipped
+    -- other columns
+    ,ordl.incident_reason_code
+    ,ordl.incident_reason_label
+    ,ordl.refund_reason_code
+    ,ordl.refund_reason_label
+    ,ordl.debit_transaction_number
+    ,ordl.refund_transaction_number
+    -- sales metrics
+    ,ordl.quantity
+    ,ordl.price_unit
+    ,ordl.price
+    ,ordl.shipping_price
+    ,ordl.commission_fee
+    ,ordl.commission_vat
+    ,ordl.commission_rate_vat
+    ,ordl.total_commission
+    -- gross metrics
+    ,ifnull(ordl.price,0) + ifnull(ordl.shipping_price,0) as gmv_with_shipping
+    -- net metrics
+    ,vt.standard_rate as vat
+    ,safe_divide(ordl.price,(1+vt.standard_rate)) as net_price
+    ,safe_divide(ordl.shipping_price,(1+vt.standard_rate)) as net_shipping_price
+    ,safe_divide((ifnull(ordl.price,0) + ifnull(ordl.shipping_price,0)),(1+vt.standard_rate)) as nmv_with_shipping
+    -- other dimensions
+    ,ordl.commission_grid_label
+    ,ordl.payment_type
+    ,ordl.shipping_type_code
+    ,ordl.shipping_type_label
+    ,ordl.shipping_zone_code
+    ,ordl.shipping_zone_label
+    ,ordl.shop_operator_internal_id
+    ,ordl.shop_is_professional
+    ,ordl.shop_reward
+    ,ordl.product_id
+    ,ordl.product_title
+    ,ifnull(json_value(additional_fields, '$.mms-localized-product-title'),ordl.product_title) as mms_product_title_hist
+    ,ordl.offer_id
+    ,ordl.offer_sku
+    ,ordl.offer_state_code
+    ,ordl.offer_state_label
+    ,ordl.payment_state_code
+    ,ordl.invoice_number
+    ,ordl.additional_fields
+    ,ordl.order_additional_fields
+    ,ordl.refunds
+    ,ordl.price_taxes
+    ,ordl.shipping_price_taxes
+    ,ordl.currency_iso_code
+    ,ordl.commission_taxes
+    ,ordl.carrier_code
+    ,ordl.carrier_name
+    ,ordl.tracking_url
+    ,ordl.tracking_number
+    ,ordl.order_payment_workflow
+    ,ordl.brand
+    ,ordl.cancelations
+    ,ordl.quote_id
+    ,ordl.promotions
+    ,ordl.payment_duration
+    ,ordl.product_shop_sku
+    ,ordl.original_offer_leadtime_to_ship
+    ,ordl.order_leadtime_to_ship
+    ,ordl.order_shipping_deadline
+    -- customer info
+    ,ordl.customer_id
+    ,ordl.customer_locale
+    ,ordl.customer_billing_zip_code
+    ,ordl.customer_billing_city
+    ,case
+      when ordl.customer_billing_country is null then ordl.customer_shipping_country
+      else ordl.customer_billing_country
+    end as customer_billing_country
+    ,ordl.customer_shipping_zip_code
+    ,ordl.customer_shipping_city
+    ,ordl.customer_shipping_country
+    -----------------------------------------------------------------------------------------------------------------------------
+    -- offer info
+    ,ifnull(ofl.condition,'No data') as offer_condition
+    -----------------------------------------------------------------------------------------------------------------------------
+    -- category info
+    ,ifnull(ct.focus_category_id,999) as focus_category_id
+    ,ct.focus_category_name as focus_category_name
+    ,ct.category_cluster
+    ,ct.category_group
+    ,ordl.category_code
+    ,ifnull(ct.category_label,ordl.category_label) as category_label
+    -- sellers info
+    ,ordl.seller_id
+    ,sl.seller_name
+    -----------------------------------------------------------------------------------------------------------------------------
+    -- custom metrics
+    -- ,if(safe_cast(json_extract_scalar(ordl.refunds,'$[0].quantity')as int64)>0,1,0) as has_refunds
+    -- ,if(regexp_contains(json_extract_scalar(ordl.refunds,'$[0].reason_label'),r'(?i)item returned') is true,1,0)as has_returns
+    ,if(ordrf.order_line_id is not null,1,0) as has_refunds
+    ,if(ordrt.order_line_id is not null,1,0) as has_returns
+    ,ordls.is_late_shipped
+    -----------------------------------------------------------------------------------------------------------------------------
+    -- refunds
+    -- ,safe_cast(json_extract_scalar(ordl.refunds,'$[0].quantity')as int64) as quantity_refunded
+    -- ,safe_cast(json_extract_scalar(ordl.refunds,'$[0].amount')as float64) as price_refunded
+    -- ,safe_cast(json_extract_scalar(ordl.refunds,'$[0].shipping_amount')as float64) as shipping_price_refunded
+    ,ordrf.quantity_refunded as quantity_refunded
+    ,ordrf.amount_refunded as price_refunded
+    ,ordrf.shipping_refunded as shipping_cost_refunded
+    ,ordrf.gmv_with_shipping_refunded as gmv_with_shipping_refunded
+    ,ordrf.commission_amount_refunded as commission_fee_refunded
+    ,ifnull(ordrf.commission_amount_refunded,0) + ifnull(ordrf.commission_vat_amount_refunded,0) as total_commission_refunded
+    -----------------------------------------------------------------------------------------------------------------------------
+    -- returns
+    -- ,if(regexp_contains(json_extract_scalar(ordl.refunds,'$[0].reason_label'),r'(?i)item returned') is true,ordl.quantity,null)as quantity_returned
+    ,ordrt.quantity_returned as quantity_returned
+    ,ordrt.amount_returned as price_returned
+    ,ordrt.shipping_returned as shipping_cost_returned
+    ,ordrt.gmv_with_shipping_returned as gmv_with_shipping_returned
+    ,ordrt.commission_amount_returned as commission_fee_returned
+    ,ifnull(ordrt.commission_amount_returned,0) + ifnull(ordrt.commission_vat_amount_returned,0) as total_commission_returned
+    -- cos data
+    ,co.sales_channel
+    ,co.payment_method
+    ,co.assortment_types
+    -- quality
+    ,ordl.excluded_from_quality_control
+    -- log
+    ,ordl.inserted_at
+    ,current_datetime(${ref("udf","tenant_settings")}(ordl.salesline).timezone) as created_at_tz
+    ,current_timestamp() as creation_timestamp
+    ,current_timestamp() as publishing_timestamp
+    ,to_hex(sha512(ifnull(@@script.job_id,@@current_job_id))) as publishing_key
+    ,ifnull(@@script.job_id,@@current_job_id) as job_id
+    ,row_number() over (partition by ordl.order_channel_code, ordl.order_line_id order by ordl.inserted_at desc) as orderlines_rn
+  from
+    orderlines_latest ordl 
+    left join sellers_latest sl on cast(sl.seller_id as int64) = cast(ordl.seller_id as int64)
+    left join ${ref("prod_sales_reports","v_category_mapping")} ct on ct.category_code = ordl.category_code
+    left join ${ref("prod_sales_reports","vat_rates")} as vt on vt.country_code = right(${ref("udf","get_salesline")}(ordl.order_channel_code),2)
+      and ${ref("udf","convert_to_local_date")}(ordl.date_created,ordl.order_channel_code) between vt.valid_from and vt.valid_to
+    left join cos_orders co on co.salesline = ordl.salesline
+      --and co.date_created = ${ref("udf","convert_to_local_date")}(ordl.date_created,ordl.order_channel_code)
+      and co.order_id = REGEXP_EXTRACT(ordl.order_id,r"_?(\d+)-.*")
+    left join ${ref("prod_sales_reports","v_offer_changes_histo_log")} as ofl on ofl.offer_id = safe_cast(ordl.offer_id as string)
+      and ofl.salesline = ${ref("udf","get_salesline")}(ordl.order_channel_code) 
+      and ordl.date_created between ofl.valid_from_ts and ofl.valid_to_ts
+    left join refunds_by_orderline ordrf using(order_line_id)
+    left join returns_by_orderline ordrt using(order_line_id)
+    left join late_shipped_by_orderline ordls using(order_line_id)
+  where
+    1 = 1
+  qualify
+    orderlines_rn = 1 -- to avoid duplicates
+)
+select
+  ordl.*
+from
+  orderlines_latest_final ordl
+where
+  true
