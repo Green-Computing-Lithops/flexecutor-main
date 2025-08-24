@@ -12,7 +12,7 @@ python examples/montecarlo_pi_estimation/main.py
 
 # Set variables
 NEW_VERSION="montecarlo_aws_lambda_arm_greencomp_v6"  # Increment this each time
-FLEXECUTOR_DIR="/Users/arriazui/Desktop/GreenComputing/flexecutor-main"
+FLEXECUTOR_DIR="REDACTED_SECRET_ACCESS_KEYlexecutor-main"
 
 cd $FLEXECUTOR_DIR
 
@@ -51,11 +51,11 @@ echo "✅ Done! Check output for RAPL_wrong: [7, 7, 7, ...] to confirm new versi
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Done by you: 
-export DOCKER_ENGINE=podman && export LITHOPS_CONFIG_FILE=/Users/arriazui/Desktop/GreenComputing/flexecutor-main/config_aws.yaml && source venv310/bin/activate && lithops runtime build -b aws_lambda -f examples/montecarlo_pi_estimation/Dockerfile.arm64 montecarlo_aws_lambda_arm_greencomp_v3
+export DOCKER_ENGINE=podman && export LITHOPS_CONFIG_FILE=REDACTED_SECRET_ACCESS_KEYlexecutor-main/config_aws.yaml && source venv310/bin/activate && lithops runtime build -b aws_lambda -f examples/montecarlo_pi_estimation/Dockerfile.arm64 montecarlo_aws_lambda_arm_greencomp_v3
 
 
 
-export DOCKER_ENGINE=podman && export LITHOPS_CONFIG_FILE=/Users/arriazui/Desktop/GreenComputing/flexecutor-main/config_aws.yaml && source venv310/bin/activate && lithops runtime build -b aws_lambda -f examples/montecarlo_pi_estimation/Dockerfile.arm64 montecarlo_aws_lambda_arm_greencomp_v4
+export DOCKER_ENGINE=podman && export LITHOPS_CONFIG_FILE=REDACTED_SECRET_ACCESS_KEYlexecutor-main/config_aws.yaml && source venv310/bin/activate && lithops runtime build -b aws_lambda -f examples/montecarlo_pi_estimation/Dockerfile.arm64 montecarlo_aws_lambda_arm_greencomp_v4
 
 
 ```shell
@@ -77,13 +77,13 @@ pip uninstall lithops -y
 
 📦 __Step 1: Install Updated Lithops Fork in FlexExecutor Repository__
 # Navigate to flexecutor-main directory
-cd /Users/arriazui/Desktop/GreenComputing/flexecutor-main
+cd REDACTED_SECRET_ACCESS_KEYlexecutor-main
 
 # Activate virtual environment
 source venv310/bin/activate
 
 # Sync the latest lithops_fork (if needed)
-rm -rf lithops_fork && rsync -av --exclude='.git' /Users/arriazui/Desktop/GreenComputing/lithops_fork/ ./lithops_fork/
+rm -rf lithops_fork && rsync -av --exclude='.git' REDACTED_SECRET_ACCESS_KEYithops_fork/ ./lithops_fork/
 
 # Install the updated lithops fork in development mode
 cd lithops_fork
@@ -100,7 +100,7 @@ RUN cd /tmp/lithops_fork && pip install . && rm -rf /tmp/lithops_fork
 🔨 __Step 3: Build the Runtime Image__
 # Set environment variables
 export DOCKER_ENGINE=podman
-export LITHOPS_CONFIG_FILE=/Users/arriazui/Desktop/GreenComputing/flexecutor-main/config_aws.yaml
+export LITHOPS_CONFIG_FILE=REDACTED_SECRET_ACCESS_KEYlexecutor-main/config_aws.yaml
 
 # Activate virtual environment
 source venv310/bin/activate
@@ -140,7 +140,7 @@ python examples/montecarlo_pi_estimation/main.py
 
 # Set variables
 NEW_VERSION="montecarlo_aws_lambda_arm_greencomp_v6"  # Increment this each time
-FLEXECUTOR_DIR="/Users/arriazui/Desktop/GreenComputing/flexecutor-main"
+FLEXECUTOR_DIR="REDACTED_SECRET_ACCESS_KEYlexecutor-main"
 
 cd $FLEXECUTOR_DIR
 
