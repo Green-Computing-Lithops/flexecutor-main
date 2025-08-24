@@ -1,0 +1,137 @@
+config {
+  type: "view",
+  schema: "prod_sales_reports",
+  tags: ["stg_init_views_0"]
+}
+
+with
+-- identify the wesbhop category based on valid entries and lowest id
+webshop_category as(
+  select
+    ${ref("udf","get_salesline")}(concat(sp.salesline,sp.country)) as salesline
+    ,sp.subject as product_id
+    ,cd.pim_id
+    ,cd.names_hierarchy
+    ,split(cd.names_hierarchy, ";")[safe_offset(0)] as webshop_category_level_1
+    ,split(cd.names_hierarchy, ";")[safe_offset(1)] as webshop_category_level_2
+    ,split(cd.names_hierarchy, ";")[safe_offset(2)] as webshop_category_level_3
+    ,split(cd.names_hierarchy, ";")[safe_offset(3)] as webshop_category_level_4
+    ,row_number() over (
+      partition by sp.salesline,sp.country,sp.language,sp.subject
+      order by cast(regexp_extract(customer_category_id, r'(\d+)$') as int64) asc) as rn_lowest_pim_id
+  from
+    ${ref("mms-tra-latest-tables-p-0000","data_share_prod","v_sales_product_cluster")} sp
+    ,unnest(sp.data.hierarchy.customer_category_ids) customer_category_id
+    join ${ref("mms-tra-latest-tables-p-0000","data_share_prod","v_shop_category")} cd 
+      on cd.pim_id = customer_category_id
+      and ${ref("udf","get_salesline")}(cd.metadata_context) = ${ref("udf","get_salesline")}(concat(sp.salesline,sp.country))
+  where
+    1 = 1
+    and ${ref("udf","get_date_allowed_salesline")}(concat(sp.salesline,sp.country)) is not null
+    and ${ref("udf","get_date_allowed_language")}(sp.language) is not null
+    and cd.visible = true
+  qualify
+    rn_lowest_pim_id = 1
+)
+
+select
+  ---- cluster by: country;salesline;language;subject
+  ${ref("udf","get_salesline")}(concat(sp.salesline,sp.country)) as salesline
+  ,sp.country as country
+  ,sp.language as language_code
+  ,ifnull(initcap(sp.data.assortment_type),'Retail') as assortment_type
+  ,sp.data.lifecycle_status
+  ,sp.data.released_for_online
+  ,sp.subject as product_id
+  --,sp.data.product_id.product_id
+  ,sp.data.hierarchy.customer_category_ids
+  ,wct.pim_id as customer_category_id
+  ,sp.data.gtin13_primary as gtin13_primary
+  ,sp.data.gtin13_codes
+  ,sp.data.name_basic as product_name
+  ,sp.data.name_customer_friendly as product_name_customer_friendly
+  ,sp.data.base_data.manufacturer.name as product_brand
+  ,sp.data.kind_of_product
+  ,ifnull(cast(sp.data.hierarchy.product_group_id as string),'0') as product_group_id
+  ,sp.data.hierarchy.feature_frame_id as category_code
+  ,sp.data.feature_frame.name as category_label_country
+  ,ifnull(ct_clu.category_code,'No Cluster') as category_cluster_id
+  ,ifnull(ct_clu.category_label,'No Cluster') as category_cluster
+  ,ifnull(ct_grp.category_code,'No Group') as category_group_id
+  ,ifnull(ct_grp.category_label,'No Group') as category_group
+  ,ifnull(ct.category_label,sp.data.feature_frame.name) as category_label
+  ,ifnull(fc.focus_category_id,999) as focus_category_id
+  ,ifnull(fc.focus_category_name,'Not Mapped') as focus_category_name
+  ,sp.data.base_price.sales_volume as sales_volume
+  ,sp.data.base_price.unit_string as unit_string
+  ,sp.data.manufacturer_part_number as manufacturer_part_number
+  ,sp.data.confidential_until
+  ,sp.data.meta_data.last_online_release
+  --,sp.latest_tables_metadata.insert_timestamp
+  --,sp.latest_tables_metadata.update_timestamp
+  -- webshop categories
+  ,wct.pim_id
+  ,wct.names_hierarchy
+  ,wct.webshop_category_level_1
+  ,wct.webshop_category_level_2
+  ,wct.webshop_category_level_3
+  ,wct.webshop_category_level_4
+  -- new vertical categories
+  ,ifnull(nc.category_code_classification,'Core Categories') as category_class
+  ,ifnull(nc.vertical_category_name,'Core Categories') as vertical_category_name
+  -- columns in validation
+  ,length(sp.data.name_basic) as product_length_name_basic
+  ,length(sp.data.name_customer_friendly) as product_length_name_customer_friendly
+  ,length(sp.data.marketing.description_long) as product_length_marketing_description_long
+  ,(select
+      count(distinct(if(img.mimetype in('image/jpeg','image/png'),img.id,null))) as product_images_cnt
+    from
+      unnest(sp.data.assets)img
+  ) as product_images_count
+  ,(select
+      count(distinct(fg.id)) as feat_grp_count
+    from
+      unnest(sp.data.feature_frame.groups)fg
+      ,unnest(fg.features)fgf
+    where
+      1 = 1
+      and fgf.invisible is false
+      and ifnull(fgf.type,'n/a') != 'hidden'
+  ) as product_features_group_count
+  ,(select
+      count(distinct(fgf.id)) as feat_count
+    from
+      unnest(sp.data.feature_frame.groups)fg
+      ,unnest(fg.features)fgf
+    where
+      1 = 1
+      and fgf.invisible is false
+      and ifnull(fgf.type,'n/a') != 'hidden'
+  ) as product_features_count  
+  ,(select
+      count(distinct(fgf.id)) as feat_count
+    from
+      unnest(sp.data.feature_frame.groups)fg
+      ,unnest(fg.features)fgf
+    where
+      1 = 1
+      and fgf.searchable is true
+      and fgf.invisible is false
+      and ifnull(fgf.type,'n/a') != 'hidden'
+  ) as product_features_searchable_count
+  ,sp.data.feature_frame
+  --,row_number() over (partition by sp.salesline,sp.country,sp.language,sp.subject order by 1) as rn_product_id
+from
+  ${ref("mms-tra-latest-tables-p-0000","data_share_prod","v_sales_product_cluster")} sp
+  left join ${ref( "prod_sales_reports","category_mapping")} ct on ct.category_code = sp.data.hierarchy.feature_frame_id
+  left join ${ref( "prod_sales_reports","category_mapping")} ct_grp on ct_grp.category_code = ct.parent_code and left(ct_grp.category_code,7) = 'FRA_GRP'
+  left join ${ref( "prod_sales_reports","category_mapping")} ct_clu on ct_clu.category_code = ct_grp.parent_code and left(ct_clu.category_code,7) = 'FRA_CLU'
+  left join ${ref( "prod_sales_reports","focus_category")} fc on fc.focus_category_id = ct.focus_category_id
+  left join webshop_category wct on wct.salesline = ${ref("udf","get_salesline")}(concat(sp.salesline,sp.country))
+    and wct.product_id = sp.subject
+  left join ${ref("prod_sales_reports","new_vertical_categories")} nc on nc.category_code = sp.data.hierarchy.feature_frame_id
+where
+  1 = 1
+  --and sp.subject in('2495512','2495512') and sp.country = 'DE' and sp.salesline = 'MM'
+  and ${ref("udf","get_date_allowed_salesline")}(concat(sp.salesline,sp.country)) is not null
+  and ${ref("udf","get_date_allowed_language")}(sp.language) is not null

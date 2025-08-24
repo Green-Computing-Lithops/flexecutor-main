@@ -1,0 +1,1599 @@
+config {
+  type: "incremental",
+  schema: "prod_sales_reports",
+  tags: ["sales_kpis_daily","scheduled_mrk_daily","mirakl_orderlines"],
+  uniqueKey: ["date_reference","salesline"],
+  bigquery: {
+    partitionBy: "date_reference",
+    clusterBy: ["salesline"]
+  },
+  description: "Table contains the main Marketplace post-sales metrics in daily basis, extracted from Mirakl APIs (offers, sellers and orders)",
+  columns: {
+    salesline: "Salesline / Webshop Name - defines the website and country",
+    date_reference: "Date of reference",
+    fiscal_year_id: "Year id referring to the fiscal year, from Oct until Sep",
+    sellers: "number of active sellers",
+    active_products: "number of active products",
+    active_offers: "number of active offers",
+    orders_consumer: "number of distinct orders by consumer/buyer level",
+    orders: "number of orders by seller level",
+    sellers_orders: "number of sellers with orders",
+    products_orders: "number of distinct ordered skus",
+    products_quantity_orders: "quantity of ordered products",
+    gmv_without_shipping: "Gross merchandise value - Ordered products without shipping cost",
+    gmv_with_shipping: "Gross merchandise value - Ordered products with shipping cost",
+    commission_fee: "Commission value in euros",
+    total_only_mp_sessions_with_impressions: "Number of sessions with exclusive Marketplace products impressions from Customer Journey data",
+    total_mp_sessions_with_impressions: "Number of sessions with impressions with Marketplace products from Customer Journey data",
+    total_mp_sessions_with_orders: "Number of sessions with orders with Marketplace products from Customer Journey data",
+    total_mp_sessions: "Number of sessions with interactions in Marketplace products from Customer Journey data",
+    py_wd_date_created: "Date of reference for previous year date from same week day date",
+    py_wd_sellers: "number of active sellers from Previous Year",
+    py_wd_active_offers: "number of active offers from Previous Year",
+    py_wd_active_products: "number of active products from Previous Year",
+    py_wd_sellers_orders: "number of sellers with orders from Previous Year",
+    py_wd_orders_consumer: "number of orders_consumer from Previous Year",
+    py_wd_orders: "number of orders from Previous Year",
+    py_wd_products_orders: "number of distinct ordered skus from Previous Year",
+    py_wd_products_quantity_orders: "quantity of ordered products from Previous Year",
+    py_wd_gmv_without_shipping: "Gross merchandise value - Ordered products without shipping cost from Previous Year",
+    py_wd_gmv_with_shipping: "Gross merchandise value - Ordered products with shipping cost from Previous Year",
+    retail_orders: "Number of orders from Retail",
+    retail_gross_order_value: "Gross merchandise value from Retail, incl. VAT, incl. shipping",
+    retail_order_net_value_excl_shipping: "net merchandise value from Retail, excl. VAT, excl. shipping ",
+    retail_order_gross_value_excl_shipping: "Gross merchandise value from Retail, incl. VAT, excl. shipping",
+    py_wd_commission_fee: "Commission value in euros from Previous Year",
+    pw_wd_orders_consumer: "number of orders_consumer from Previous Week",
+    pw_wd_orders: "number of orders from Previous Week",
+    pw_wd_products_orders: "number of distinct ordered skus from Previous Week",
+    pw_wd_products_quantity_orders: "quantity of ordered products from Previous Week",
+    pw_wd_gmv_without_shipping: "Gross merchandise value - Ordered products without shipping cost from Previous Week",
+    pw_wd_gmv_with_shipping: "Gross merchandise value - Ordered products with shipping cost from Previous Week",
+    pw_wd_commission_fee: "Commission value in euros from Previous Week"
+  }
+}
+with 
+sellers_daily as (
+  select
+    date_reference
+    ,salesline
+    ,count(distinct seller_id) as sellers
+  from
+    ${ref("prod_sales_reports","sellers_daily")} sd
+  where
+    1 = 1
+    and ifnull(sd.open_status_duration_minutes,0) > 0
+    ${when(incremental(), `and date_reference >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,offers_daily_0 as (
+  select
+    date_reference as date_reference
+    ,${ref("udf","get_salesline")}(salesline) as salesline
+    ,count(distinct offer_id) as active_offers
+    ,count(distinct product_id) as active_products
+    ,count(distinct case when is_buyable = 1 then offer_id end) as buyable_offers
+    ,count(distinct case when is_buyable = 1 then product_id end) as buyable_products
+    ,count(distinct case when is_buyable = 1 then seller_id end) as buyable_sellers
+  from
+    ${ref("prod_sales_reports","offers_daily")}
+  where
+    1 = 1
+    ${when(incremental(), `and date_reference >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+
+  union all
+
+  -- products with changed logic 
+  select
+    date_reference as date_reference
+    ,salesline
+    ,sum(offers) as active_offers
+    ,sum(products) as active_products
+    ,0 as buyable_offers
+    ,0 as buyable_products
+    ,0 as buyable_sellers
+  from
+    ${ref("prod_sales_reports","offers_daily_accept_changed_logic")}
+  where
+    1 = 1
+    ${when(incremental(), `and date_reference >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,offers_daily as (
+  select
+    date_reference
+    ,salesline
+    ,sum(active_offers) as active_offers
+    ,sum(active_products) as active_products
+    ,sum(buyable_offers) as buyable_offers
+    ,sum(buyable_products) as buyable_products
+    ,sum(buyable_sellers) as buyable_sellers
+  from
+    offers_daily_0
+  where
+    1 = 1
+  group by
+    1,2
+)
+,orders_daily as (
+  select
+    date(date_created) as date_reference
+    ,${ref("udf","get_salesline")}(order_channel_code) as salesline
+    ,count(distinct commercial_id) as orders_consumer
+    ,count(distinct order_id) as orders
+    ,count(distinct if(lower(order_line_state)!= "canceled" , order_id,null)) as orders_valid
+    ,sum(price) as gmv_without_shipping
+    ,sum(price)+sum(shipping_price) as gmv_with_shipping
+    ,sum(net_price) as nmv_without_shipping
+    ,sum(net_price)+sum(net_shipping_price) as nmv_with_shipping
+    ,sum(commission_fee) as commission_fee
+    ,sum(total_commission) as total_commission
+    ,count(distinct seller_id) as sellers_orders
+    ,count(distinct offer_id) as offers_orders
+    ,count(distinct product_id) as products_orders
+    ,sum(quantity) as products_quantity_orders
+  from
+    ${ref("prod_sales_reports","orderlines_latest")}
+  where
+    1 = 1
+    and lower(order_line_state) not in("refused","canceled")
+    and order_id is not null
+    ${when(incremental(), `and date(date_created) >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,orders_de as (
+  select
+    date(ordl.date_created) as date_reference
+    ,'MediaSaturnDE' as salesline
+    ,right(ordl.salesline,2) as country
+    ,count(distinct seller_id) as sellers_orders
+    ,count(distinct offer_id) as offers_orders
+    ,count(distinct product_id) as products_orders
+  from
+    ${ref("prod_sales_reports","orderlines_latest")} ordl
+  where
+    1 = 1
+    and ordl.date_created < current_date('Europe/Berlin')
+    and lower(ordl.order_line_state) not in("refused","canceled")
+    and ordl.order_id is not null
+    and ordl.salesline in('MediaDE','SaturnDE')
+  group by
+    1,2,3
+)
+,sellers_global as (
+  select
+    sd.date_reference
+    ,'Global' as salesline
+    ,count(distinct sd.seller_id) as seller_id_cnt
+    ,count(distinct sd.seller_id_global) as sellers
+  from
+    ${ref("prod_sales_reports","sellers_daily")} sd
+  where
+    1 = 1
+    and ifnull(sd.open_status_duration_minutes,0) > 0
+    and sd.date_reference < current_date('Europe/Berlin')
+  group by
+    1,2
+)
+,orders_global as (
+  select
+    date(ordl.date_created) as date_reference
+    ,'Global' as salesline
+    ,count(distinct
+      ifnull(regexp_replace(sl.tax_identification_number, r'[^a-zA-Z0-9]+',''),
+      cast(ordl.seller_id as string))) as sellers_orders
+    ,count(distinct offer_id) as offers_orders
+    ,count(distinct product_id) as products_orders
+  from
+    ${ref("prod_sales_reports","orderlines_latest")} ordl
+    join ${ref("prod_sales_reports","sellers_latest")} sl on cast(sl.seller_id as int64) = cast(ordl.seller_id as int64)
+    ,unnest(sl.seller_additional_fields) saf
+  where
+    1 = 1
+    and ordl.date_created < current_date('Europe/Berlin')
+    and lower(order_line_state) not in("refused","canceled")
+    and order_id is not null 
+  group by
+    1,2
+)
+,orders_created_daily as (
+  select
+    date(ordl.date_created) as date_reference
+    ,${ref("udf","get_salesline")}(ordl.order_channel_code) as salesline
+    ,count(distinct ordl.commercial_id) as orders_consumer_created
+    ,count(distinct ordl.order_id) as orders_created
+    ,sum(if(lower(ordl.order_line_state)not in("canceled"),ordl.price,ordlc.amount)) as gmv_without_shipping_created
+    ,sum(if(lower(ordl.order_line_state)not in("canceled"),ordl.price,ordlc.amount))
+      + sum(if(lower(ordl.order_line_state)not in("canceled"),ordl.shipping_price,ordlc.shipping_amount)) as gmv_with_shipping_created
+    -- ,sum(net_price) as nmv_without_shipping
+    -- ,sum(net_price)+sum(net_shipping_price) as nmv_with_shipping
+    ,sum(if(lower(ordl.order_line_state)not in("canceled"),ordl.commission_fee,ordlc.commission_amount)) as commission_fee_created
+    ,sum(0) as total_commission_created
+    ,count(distinct ordl.seller_id) as sellers_sales_created
+    ,count(distinct ordl.offer_id) as offers_sales_created
+    ,count(distinct ordl.product_id) as products_sales_created
+    ,sum(if(lower(ordl.order_line_state)not in("canceled"),ordl.quantity,ordlc.quantity)) as qty_sales_created
+  from
+    ${ref("prod_sales_reports","orderlines_latest")} ordl
+    left join ${ref("prod_sales_reports","orderlines_cancellations")} ordlc using(order_line_id) 
+  where
+    1 = 1
+    --and lower(order_line_state) not in("refused","canceled")
+    and ordl.order_id is not null
+    ${when(incremental(), `and date(ordl.date_created) >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,old_orders_refunded_daily as (
+  select
+    date(ordr.date_reference) as date_reference
+    ,ordr.salesline
+    ,sum(orders_consumer_refunded) as orders_consumer_refunded
+    ,sum(orders_refunded) as orders_refunded
+    ,sum(gmv_without_shipping_refunded) as gmv_without_shipping_refunded
+    ,sum(gmv_with_shipping_refunded) as gmv_with_shipping_refunded
+    ,sum(nmv_without_shipping_refunded) as nmv_without_shipping_refunded
+    ,sum(nmv_with_shipping_refunded) as nmv_with_shipping_refunded
+    ,sum(commission_fee_refunded) as commission_fee_refunded
+    ,sum(total_commission_refunded) as total_commission_refunded
+    ,sum(sold_items_refunded) as sold_items_refunded
+    ,sum(sellers_orders_refunded) as sellers_orders_refunded
+    ,sum(products_orders_refunded) as products_orders_refunded
+  from
+    ${ref("prod_sales_reports","orderlines_refunds_old_logic")} ordr
+  where
+    1 = 1
+    and ordr.date_reference < '2024-09-01'
+  group by
+    1,2
+)
+,new_orders_refunded_daily as (
+  select
+    ordr.date_reference
+    ,ordr.salesline
+    ,count(distinct ordl.commercial_id) as orders_consumer_refunded
+    ,count(distinct ordl.order_id) as orders_refunded
+    ,sum(ordr.amount) as gmv_without_shipping_refunded
+    ,sum(ifnull(ordr.amount,0))+sum(ifnull(ordr.shipping_amount,0)) as gmv_with_shipping_refunded
+    ,safe_divide((sum(ifnull(ordr.amount,0))),(1+max(ordr.standard_rate))) as nmv_without_shipping_refunded
+    ,safe_divide((sum(ifnull(ordr.amount,0))+sum(ifnull(ordr.shipping_amount,0))),(1+max(ordr.standard_rate))) as nmv_with_shipping_refunded
+    ,sum(ordr.commission_amount) as commission_fee_refunded
+    ,sum(ifnull(ordr.commission_amount,0)) + sum(ifnull(ordr.commission_vat_amount,0)) as total_commission_refunded
+    ,sum(ordr.quantity) as sold_items_refunded
+    ,count(distinct ordl.seller_id) as sellers_orders_refunded
+    --,count(distinct offer_id) as offers_orders_refunded
+    ,count(distinct ordl.product_id) as products_orders_refunded
+  from
+    ${ref("prod_sales_reports","orderlines_refunds")} ordr
+    left join ${ref("prod_sales_reports","orderlines_latest")} ordl using(order_line_id)
+  where
+    1 = 1
+    and ordr.date_reference >= '2024-09-01'
+    ${when(incremental(), `and ordr.date_reference >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+    and ordr.date_waiting_refund is not null
+  group by
+    1,2
+)
+,orders_refunded_daily as (
+  select
+    --date_reference,
+    date_reference
+    ,salesline
+    ,orders_consumer_refunded
+    ,orders_refunded
+    ,sold_items_refunded
+    ,gmv_without_shipping_refunded
+    ,gmv_with_shipping_refunded
+    ,nmv_without_shipping_refunded
+    ,nmv_with_shipping_refunded
+    ,commission_fee_refunded
+    ,total_commission_refunded
+  from
+    old_orders_refunded_daily ordl
+  where
+    1 = 1
+    and date_reference < '2024-09-01'
+
+  union all
+
+  select
+    --date_reference,
+    date_reference
+    ,salesline
+    ,orders_consumer_refunded
+    ,orders_refunded
+    ,sold_items_refunded
+    ,gmv_without_shipping_refunded
+    ,gmv_with_shipping_refunded
+    ,nmv_without_shipping_refunded
+    ,nmv_with_shipping_refunded
+    ,commission_fee_refunded
+    ,total_commission_refunded
+  from
+    new_orders_refunded_daily ordl
+  where
+    1 = 1
+    and date_reference >= '2024-09-01'
+)
+,orders_backfilled_daily as (
+  select
+    date_reference
+    ,salesline
+    ,count(distinct order_id) as backfilled_orders
+    ,sum(price) as backfilled_gmv_without_shipping
+    ,sum(price)+sum(shipping_price) as backfilled_gmv_with_shipping
+    ,sum(commission_fee) as backfilled_commission_fee
+    ,sum(total_commission) as backfilled_total_commission
+    -- ,count(distinct seller_id) as sellers_orders
+    -- ,count(distinct offer_id) as offers_orders
+    -- ,count(distinct product_id) as products_orders
+    ,sum(quantity) as backfilled_products_quantity_orders
+  from
+    ${ref("prod_sales_reports","product_match_status_orderlines")}
+  where
+    1 = 1
+    and order_id is not null
+    and product_match_status_id = '3'
+    and lower(order_line_state) not in("refused","canceled")
+    ${when(incremental(), `and date_reference >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,orders_refurbished_daily as (
+  select
+    date(ordl.date_created) as date_reference
+    ,ordl.salesline
+    -- ,count(distinct order_id) as refurbished_orders
+    -- ,sum(price) as refurbished_gmv_without_shipping
+    ,sum(price)+sum(shipping_price) as refurbished_gmv_with_shipping
+    -- ,sum(commission_fee) as refurbished_commission_fee
+    --,sum(total_commission) as refurbished_total_commission
+    -- ,count(distinct seller_id) as sellers_orders
+    -- ,count(distinct offer_id) as offers_orders
+    -- ,count(distinct product_id) as products_orders
+    -- ,sum(quantity) as refurbished_products_quantity_orders
+  from
+    ${ref("prod_sales_reports","orderlines_latest")} ordl
+  where
+    1 = 1
+    and ordl.order_id is not null
+    and ifnull(ordl.offer_condition,'NEW') != 'NEW'
+    and lower(order_line_state) not in("refused","canceled")
+    ${when(incremental(), `and date(ordl.date_created) >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,orders_vertical_categories_daily as (
+  select
+    date(ordl.date_created) as date_reference
+    ,ordl.salesline
+    -- ,count(distinct order_id) as refurbished_orders
+    -- ,sum(price) as vertical_category_gmv_without_shipping
+    ,sum(price)+sum(shipping_price) as vertical_category_gmv_with_shipping
+    -- ,sum(commission_fee) as vertical_category_commission_fee
+    -- ,sum(total_commission) as vertical_category_total_commission
+    -- ,count(distinct seller_id) as sellers_orders
+    -- ,count(distinct offer_id) as offers_orders
+    -- ,count(distinct product_id) as products_orders
+    -- ,sum(quantity) as vertical_category_products_quantity_orders
+  from
+    ${ref("prod_sales_reports","orderlines_latest")} ordl
+    left join ${ref("prod_sales_reports","sales_product_cluster_latest")} sp on sp.product_id = ordl.product_id and sp.salesline = ordl.salesline
+  where
+    1 = 1
+    and ordl.order_id is not null
+    and ifnull(sp.category_class,'Core Categories') = 'New Verticals'
+    and lower(ordl.order_line_state) not in("refused","canceled")
+    ${when(incremental(), `and date(ordl.date_created) >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,standard_orders_order_date_daily as (
+  select
+    date(date_created) as date_reference
+    ,${ref("udf","get_salesline")}(order_channel_code) as salesline
+    ,count(distinct commercial_id) as orders_consumer_standard_order_date
+    ,count(distinct order_id) as orders_standard_order_date
+    ,sum(price) as gmv_without_shipping_standard_order_date
+    ,sum(price)+sum(shipping_price) as gmv_with_shipping_standard_order_date
+    ,sum(net_price) as nmv_without_shipping_standard_order_date
+    ,sum(net_price)+sum(net_shipping_price) as nmv_with_shipping_standard_order_date
+    ,sum(commission_fee) as commission_fee_standard_order_date
+    ,sum(total_commission) as total_commission_standard_order_date
+    ,count(distinct seller_id) as sellers_orders_standard_order_date
+    ,count(distinct offer_id) as offers_orders_standard_order_date
+    ,count(distinct product_id) as products_orders_standard_order_date
+    ,sum(quantity) as sold_items_standard_order_date
+  from
+    ${ref("prod_sales_reports","orderlines_latest")} ordl
+  where
+    1 = 1
+    and lower(ordl.order_line_state) not in ("refused","canceled")
+    and ordl.order_id is not null
+    and lower(ordl.payment_type) != 'financing'
+    ${when(incremental(), `and date(date_created) >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,financing_orders_payment_date_daily as (
+  select
+    date(date_shipping) as date_reference
+    ,${ref("udf","get_salesline")}(order_channel_code) as salesline
+    ,count(distinct commercial_id) as orders_consumer_financing_payment_date
+    ,count(distinct order_id) as orders_financing_payment_date
+    ,sum(price) as gmv_without_shipping_financing_payment_date
+    ,sum(price)+sum(shipping_price) as gmv_with_shipping_financing_payment_date
+    ,sum(net_price) as nmv_without_shipping_financing_payment_date
+    ,sum(net_price)+sum(net_shipping_price) as nmv_with_shipping_financing_payment_date
+    ,sum(commission_fee) as commission_fee_financing_payment_date
+    ,sum(total_commission) as total_commission_financing_payment_date
+    ,count(distinct seller_id) as sellers_orders_financing_payment_date
+    ,count(distinct offer_id) as offers_orders_financing_payment_date
+    ,count(distinct product_id) as products_orders_financing_payment_date
+    ,sum(quantity) as sold_items_financing_payment_date
+  from
+    ${ref("prod_sales_reports","orderlines_latest")} ordl
+  where
+    1 = 1
+    and lower(ordl.order_line_state) not in ("refused","canceled")
+    and ordl.order_id is not null
+    and lower(ordl.payment_type) = 'financing'
+    and ordl.date_shipping is not null
+    ${when(incremental(), `and date(date_shipping) >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,sessions_total_daily as (
+  select
+    session_date as date_reference
+    ,salesline
+    ,sum(total_sessions) as total_sessions
+    ,sum(total_sessions_awareness_mp) as total_sessions_awareness_mp
+    ,sum(total_sessions_awareness_retail) as total_sessions_awareness_retail
+    ,sum(total_sessions_consideration_mp) as total_sessions_consideration_mp
+    ,sum(total_sessions_consideration_retail) as total_sessions_consideration_retail
+    ,sum(total_sessions_pdp_mp) as total_sessions_pdp_mp
+    ,sum(total_sessions_pdp_retail) as total_sessions_pdp_retail
+    ,sum(total_sessions_checkout_mp) as total_sessions_checkout_mp
+    ,sum(total_sessions_checkout_retail) as total_sessions_checkout_retail   
+    ,sum(total_sessions_transaction_mp) as total_sessions_transaction_mp
+    ,sum(total_sessions_transaction_retail) as total_sessions_transaction_retail
+  from
+    ${ref("prod_customer_journey_reports","sessions_total")}
+  where
+    1 = 1
+    and session_is_valid is true
+    ${when(incremental(), `and session_date >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+  group by
+    1,2
+)
+,retail_kpis as (
+  select
+    customer_order_date_id as date_reference
+    ,${ref("udf","get_salesline")}(concat(sales_line_code,country_id)) as salesline
+    ,count(distinct customer_order_id) as retail_orders
+    ,sum(mms_order_total_net_val_loc) as retail_net_order_value
+    ,sum(mms_order_total_val_loc) as retail_gross_order_value
+  from
+    ${ref("mms-ads-alp-business-p-prod","shared_analytics","v_dmart_customer_order_header")}
+  where
+    1 = 1
+    and customer_order_date_id >= '2020-10-01'
+    ${when(incremental(), `and customer_order_date_id >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month)`)}
+    and ${ref("udf","get_date_allowed_salesline")}(concat(sales_line_code,country_id)) is not null
+    and customer_order_source_channel_code not in  ('MYSTORE','FSP_RETURN')
+  group by
+    all
+)
+,sales_metrics_data_joined as (
+  select
+    ordl.salesline
+    ,date_reference
+    ,${ref("udf","get_fiscal_year_from_date")}(ordl.date_reference) as fiscal_year_id
+    ,${ref("udf","get_channel")}(ordl.salesline) as channel
+    ,right(ordl.salesline,2) as country
+    ,sellers
+    ,active_products
+    ,active_offers
+    ,buyable_offers
+    ,buyable_products
+    ,buyable_sellers
+    ,orders_consumer
+    ,orders
+    ,orders_valid
+    ,sellers_orders
+    ,offers_orders
+    ,products_orders
+    ,products_quantity_orders
+    ,round(gmv_without_shipping,2) as gmv_without_shipping
+    ,round(gmv_with_shipping,2) as gmv_with_shipping
+    ,round(commission_fee,2) as commission_fee
+    ,round(total_commission,2) as total_commission
+    -- net sales
+    ,round(nmv_without_shipping,2) as nmv_without_shipping
+    ,round(nmv_with_shipping,2) as nmv_with_shipping    
+    -- refunded
+    ,ifnull(orders_consumer_refunded,0)       as orders_consumer_refunded
+    ,ifnull(orders_refunded,0)                as orders_refunded
+    ,ifnull(sold_items_refunded,0)            as sold_items_refunded
+    ,ifnull(gmv_without_shipping_refunded,0)  as gmv_without_shipping_refunded
+    ,ifnull(gmv_with_shipping_refunded,0)     as gmv_with_shipping_refunded
+    ,ifnull(nmv_without_shipping_refunded,0)  as nmv_without_shipping_refunded
+    ,ifnull(nmv_with_shipping_refunded,0)     as nmv_with_shipping_refunded
+    ,ifnull(commission_fee_refunded,0)        as commission_fee_refunded
+    ,ifnull(total_commission_refunded,0)      as total_commission_refunded
+    -- tracking
+    ,total_sessions
+    ,total_sessions_awareness_mp
+    ,total_sessions_awareness_retail
+    ,total_sessions_consideration_mp
+    ,total_sessions_consideration_retail
+    ,total_sessions_pdp_mp
+    ,total_sessions_pdp_retail
+    ,total_sessions_checkout_mp
+    ,total_sessions_checkout_retail
+    ,total_sessions_transaction_mp
+    ,total_sessions_transaction_retail
+    ,retail_orders
+    ,retail_net_order_value
+    ,retail_gross_order_value
+    -- backfill information
+    ,backfilled_orders
+    ,backfilled_gmv_without_shipping
+    ,backfilled_gmv_with_shipping
+    ,backfilled_commission_fee
+    ,backfilled_total_commission
+    ,backfilled_products_quantity_orders
+    -- orders created
+    ,orcd.orders_consumer_created
+    ,orcd.orders_created
+    ,orcd.gmv_without_shipping_created
+    ,orcd.gmv_with_shipping_created
+    ,orcd.commission_fee_created
+    -- ,orcd.total_commission_created
+    -- ,orcd.sellers_sales_created
+    -- ,orcd.offers_sales_created
+    ,orcd.products_sales_created
+    ,orcd.qty_sales_created
+    -- refurbished
+    ,orfd.refurbished_gmv_with_shipping
+    -- vertical categories
+    ,ovcd.vertical_category_gmv_with_shipping
+    ---- standard orders - order date
+    ,sood.orders_consumer_standard_order_date
+    ,sood.orders_standard_order_date
+    ,sood.gmv_without_shipping_standard_order_date
+    ,sood.gmv_with_shipping_standard_order_date
+    ,sood.nmv_without_shipping_standard_order_date
+    ,sood.nmv_with_shipping_standard_order_date
+    ,sood.commission_fee_standard_order_date
+    ,sood.total_commission_standard_order_date
+    ,sood.sellers_orders_standard_order_date
+    ,sood.offers_orders_standard_order_date
+    ,sood.products_orders_standard_order_date
+    ,sood.sold_items_standard_order_date
+    ---- financing orders - payment date
+    ,fopd.orders_consumer_financing_payment_date
+    ,fopd.orders_financing_payment_date
+    ,fopd.gmv_without_shipping_financing_payment_date
+    ,fopd.gmv_with_shipping_financing_payment_date
+    ,fopd.nmv_without_shipping_financing_payment_date
+    ,fopd.nmv_with_shipping_financing_payment_date
+    ,fopd.commission_fee_financing_payment_date
+    ,fopd.total_commission_financing_payment_date
+    ,fopd.sellers_orders_financing_payment_date
+    ,fopd.offers_orders_financing_payment_date
+    ,fopd.products_orders_financing_payment_date
+    ,fopd.sold_items_financing_payment_date
+  from
+    orders_daily ordl
+    left join offers_daily using (salesline, date_reference)
+    left join sellers_daily using (salesline, date_reference)
+    left join sessions_total_daily using (salesline, date_reference)
+    left join retail_kpis using (salesline, date_reference)
+    left join orders_backfilled_daily using (salesline, date_reference)
+    left join orders_refunded_daily oref using (salesline, date_reference)
+    left join standard_orders_order_date_daily sood using (salesline, date_reference)
+    left join financing_orders_payment_date_daily fopd using (salesline, date_reference)
+    left join orders_refurbished_daily orfd using (salesline, date_reference)
+    left join orders_vertical_categories_daily ovcd using (salesline, date_reference)
+    left join orders_created_daily orcd using (salesline, date_reference)
+  where
+    1 = 1
+    and date_reference < current_date('Europe/Berlin')
+    and date_reference >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 19 month) 
+)
+,forecast_data as(
+  select
+    fc.date_reference
+    ,fc.fiscal_year_id
+    ,fc.salesline
+    ,fc.channel
+    ,fc.country
+    ,${ref("udf","get_currency_code_from_salesline")}(fc.salesline) as currency_code
+    ,c.conversion_rate as currency_conversion_rate
+    -- metrics
+    ,fc.fc_month_gmv_with_shipping
+    ,fc.py_wd_month_gmv_with_shipping
+    ,fc.py_wd_month_country_gmv_with_shipping
+    ,fc.pc_fc_month_country_gmv_with_shipping
+    ,fc.pc_fc_gmv_with_shipping
+    ,fc.manual_daily_fc_gmv_with_shipping
+    ,ifnull(fc.manual_daily_fc_gmv_with_shipping,fc.fc_gmv_with_shipping) as fc_gmv_with_shipping
+    ,safe_divide(ifnull(fc.manual_daily_fc_gmv_with_shipping,fc.fc_gmv_with_shipping),(1+(vt.standard_rate*100))) as fc_nmv_with_shipping
+  from
+    ${ref("prod_sales_reports","sales_forecast_daily")} fc
+    left join ${ref("prod_sales_reports","vat_rates")} vt on vt.country_code = fc.country
+      and fc.date_reference between vt.valid_from and vt.valid_to
+    left join ${ref("silver_layer","dim_currency_conversion")} c on c.currency_date_id =  fc.date_reference
+      and c.destination_currency_code = ${ref("udf","get_currency_code_from_salesline")}(fc.salesline)
+  where
+    1 = 1
+    and (
+      fc.fc_month_gmv_with_shipping > 0
+      or fc.manual_daily_fc_gmv_with_shipping >= 0
+    )
+)
+,forecast_data_currency_converted as(
+  select
+    fc.date_reference
+    ,fc.fiscal_year_id
+    ,fc.salesline
+    ,fc.channel
+    ,fc.country
+    ,fc.currency_code
+    ,fc.currency_conversion_rate
+    -- metrics converted to the local currency value since all forecast is in euros
+    ,if(fc.currency_code != 'EUR',(fc.fc_month_gmv_with_shipping * fc.currency_conversion_rate),fc_month_gmv_with_shipping)as fc_month_gmv_with_shipping
+    ,if(fc.currency_code != 'EUR',(fc.py_wd_month_gmv_with_shipping * fc.currency_conversion_rate),py_wd_month_gmv_with_shipping)as py_wd_month_gmv_with_shipping
+    ,if(fc.currency_code != 'EUR',(fc.py_wd_month_country_gmv_with_shipping * fc.currency_conversion_rate),py_wd_month_country_gmv_with_shipping)as py_wd_month_country_gmv_with_shipping
+    ,fc.pc_fc_month_country_gmv_with_shipping
+    ,fc.pc_fc_gmv_with_shipping
+    ,if(fc.currency_code != 'EUR',(fc.manual_daily_fc_gmv_with_shipping * fc.currency_conversion_rate),manual_daily_fc_gmv_with_shipping)as manual_daily_fc_gmv_with_shipping
+    ,if(fc.currency_code != 'EUR',(fc.fc_gmv_with_shipping * fc.currency_conversion_rate),fc_gmv_with_shipping)as fc_gmv_with_shipping
+    ,if(fc.currency_code != 'EUR',(fc.fc_nmv_with_shipping * fc.currency_conversion_rate),fc_nmv_with_shipping)as fc_nmv_with_shipping
+  from
+    forecast_data fc
+  where
+    1 = 1
+)
+,forecast_with_sales_data as(
+  select
+    fc.date_reference
+    ,fc.fiscal_year_id
+    ,fc.salesline
+    ,fc.channel
+    ,fc.country
+    ,fc.currency_code
+    ,fc.currency_conversion_rate
+    ,ordl.sellers
+    ,ordl.active_products
+    ,ordl.active_offers
+    ,ordl.buyable_offers
+    ,ordl.buyable_products
+    ,ordl.buyable_sellers
+    ,ordl.orders_consumer
+    ,ordl.orders
+    ,ordl.orders_valid
+    ,ordl.sellers_orders
+    ,ordl.offers_orders
+    ,ordl.products_orders
+    ,ordl.products_quantity_orders
+    ,ordl.gmv_without_shipping
+    ,ordl.gmv_with_shipping
+    ,ordl.nmv_without_shipping
+    ,ordl.nmv_with_shipping
+    ,ordl.commission_fee
+    ,ordl.total_commission
+    ,ordl.orders_consumer_refunded
+    ,ordl.orders_refunded
+    ,ordl.sold_items_refunded
+    ,ordl.commission_fee_refunded
+    ,ordl.total_commission_refunded
+    ,ordl.gmv_without_shipping_refunded
+    ,ordl.gmv_with_shipping_refunded
+    ,ordl.nmv_without_shipping_refunded
+    ,ordl.nmv_with_shipping_refunded
+    -- tracking data
+    ,ordl.total_sessions
+    ,ordl.total_sessions_awareness_mp
+    ,ordl.total_sessions_awareness_retail
+    ,ordl.total_sessions_consideration_mp
+    ,ordl.total_sessions_consideration_retail
+    ,ordl.total_sessions_pdp_mp
+    ,ordl.total_sessions_pdp_retail
+    ,ordl.total_sessions_checkout_mp
+    ,ordl.total_sessions_checkout_retail
+    ,ordl.total_sessions_transaction_mp
+    ,ordl.total_sessions_transaction_retail
+    -- retail data
+    ,ordl.retail_orders
+    ,ordl.retail_net_order_value
+    ,ordl.retail_gross_order_value
+    -- backfill data
+    ,ordl.backfilled_orders
+    ,ordl.backfilled_gmv_without_shipping
+    ,ordl.backfilled_gmv_with_shipping
+    ,ordl.backfilled_commission_fee
+    ,ordl.backfilled_total_commission
+    ,ordl.backfilled_products_quantity_orders
+    -- orders created
+    ,ordl.orders_consumer_created
+    ,ordl.orders_created
+    ,ordl.gmv_without_shipping_created
+    ,ordl.gmv_with_shipping_created
+    ,ordl.commission_fee_created
+    -- ,ordl.total_commission_created
+    -- ,ordl.sellers_sales_created
+    -- ,ordl.offers_sales_created
+    ,ordl.products_sales_created
+    ,ordl.qty_sales_created
+    -- refurbished
+    ,ordl.refurbished_gmv_with_shipping
+    -- vertical categories
+    ,ordl.vertical_category_gmv_with_shipping
+    -- forecast data
+    ,fc.fc_month_gmv_with_shipping
+    ,fc.py_wd_month_gmv_with_shipping
+    ,fc.py_wd_month_country_gmv_with_shipping
+    ,fc.pc_fc_month_country_gmv_with_shipping
+    ,fc.pc_fc_gmv_with_shipping
+    ,fc.fc_gmv_with_shipping
+    ,fc.fc_nmv_with_shipping
+    ---- standard orders - order date
+    ,ordl.orders_consumer_standard_order_date
+    ,ordl.orders_standard_order_date
+    ,ordl.gmv_without_shipping_standard_order_date
+    ,ordl.gmv_with_shipping_standard_order_date
+    ,ordl.nmv_without_shipping_standard_order_date
+    ,ordl.nmv_with_shipping_standard_order_date
+    ,ordl.commission_fee_standard_order_date
+    ,ordl.total_commission_standard_order_date
+    ,ordl.sellers_orders_standard_order_date
+    ,ordl.offers_orders_standard_order_date
+    ,ordl.products_orders_standard_order_date
+    ,ordl.sold_items_standard_order_date
+    ---- financing orders - payment date
+    ,ordl.orders_consumer_financing_payment_date
+    ,ordl.orders_financing_payment_date
+    ,ordl.gmv_without_shipping_financing_payment_date
+    ,ordl.gmv_with_shipping_financing_payment_date
+    ,ordl.nmv_without_shipping_financing_payment_date
+    ,ordl.nmv_with_shipping_financing_payment_date
+    ,ordl.commission_fee_financing_payment_date
+    ,ordl.total_commission_financing_payment_date
+    ,ordl.sellers_orders_financing_payment_date
+    ,ordl.offers_orders_financing_payment_date
+    ,ordl.products_orders_financing_payment_date
+    ,ordl.sold_items_financing_payment_date
+    ---- financial view logic (standard orders + financing - refunds)
+    ,(((ordl.orders_consumer_standard_order_date)      + ifnull(ordl.orders_consumer_financing_payment_date,0)) - ifnull(ordl.orders_consumer_refunded,0)) as orders_consumer_financial_view
+    ,(((ordl.orders_standard_order_date)               + ifnull(ordl.orders_financing_payment_date,0))          - ifnull(ordl.orders_refunded,0))          as orders_financial_view
+    ,(((ordl.gmv_without_shipping_standard_order_date) + ifnull(ordl.gmv_without_shipping_financing_payment_date,0))- ifnull(ordl.gmv_without_shipping_refunded,0)) as gmv_without_shipping_financial_view
+    ,(((ordl.gmv_with_shipping_standard_order_date)    + ifnull(ordl.gmv_with_shipping_financing_payment_date,0)) - ifnull(ordl.gmv_with_shipping_refunded,0)) as gmv_with_shipping_financial_view
+    ,(((ordl.nmv_without_shipping_standard_order_date) + ifnull(ordl.nmv_without_shipping_financing_payment_date,0)) - ifnull(ordl.nmv_without_shipping_refunded,0)) as nmv_without_shipping_financial_view
+    ,(((ordl.nmv_with_shipping_standard_order_date)    + ifnull(ordl.nmv_with_shipping_financing_payment_date,0)) - ifnull(ordl.nmv_with_shipping_refunded,0)) as nmv_with_shipping_financial_view
+    ,(((ordl.commission_fee_standard_order_date)       + ifnull(ordl.commission_fee_financing_payment_date,0))    - ifnull(ordl.commission_fee_refunded,0)) as commission_fee_financial_view
+    ,(((ordl.total_commission_standard_order_date)     + ifnull(ordl.total_commission_financing_payment_date,0))  - ifnull(ordl.total_commission_refunded,0)) as total_commission_financial_view
+    ,(((ordl.sold_items_standard_order_date)           + ifnull(ordl.sold_items_financing_payment_date,0))        - ifnull(ordl.sold_items_refunded,0)) as sold_items_financial_view
+  from
+    forecast_data_currency_converted fc
+    left join sales_metrics_data_joined ordl on ordl.salesline = fc.salesline and ordl.date_reference = fc.date_reference
+  where
+    1 = 1
+    and (
+      fc.fc_month_gmv_with_shipping > 0
+      --or ordl.orders > 0
+      or fc.manual_daily_fc_gmv_with_shipping >= 0
+    )
+)
+,forecast_with_sales_data_union as (
+  -- if the kpi is not in the local currency, we convert, for example, forecast
+  select
+    ordl.date_reference
+    ,ordl.fiscal_year_id
+    ,salesline
+    ,channel
+    ,ordl.country
+    ,ordl.currency_code
+    ,ordl.currency_conversion_rate
+    ,(sellers) as sellers
+    ,(active_products) as active_products
+    ,(active_offers) as active_offers
+    ,(buyable_offers) as buyable_offers
+    ,(buyable_products) as buyable_products
+    ,(buyable_sellers) as buyable_sellers
+    ,(orders_consumer) as orders_consumer
+    ,(orders) as orders
+    ,(orders_valid) as orders_valid
+    ,(sellers_orders) as sellers_orders
+    ,(offers_orders) as offers_orders
+    ,(products_orders) as products_orders
+    ,(products_quantity_orders) as products_quantity_orders
+    ,(gmv_without_shipping) as gmv_without_shipping
+    ,(gmv_with_shipping) as gmv_with_shipping
+    ,(nmv_without_shipping) as nmv_without_shipping
+    ,(nmv_with_shipping) as nmv_with_shipping
+    ,(commission_fee) as commission_fee
+    ,(total_commission) as total_commission
+    ,(orders_consumer_refunded) as orders_consumer_refunded
+    ,(orders_refunded) as orders_refunded
+    ,(sold_items_refunded) as sold_items_refunded
+    ,(commission_fee_refunded) as commission_fee_refunded
+    ,(total_commission_refunded) as total_commission_refunded
+    ,(gmv_without_shipping_refunded) as gmv_without_shipping_refunded
+    ,(gmv_with_shipping_refunded) as gmv_with_shipping_refunded
+    ,(nmv_without_shipping_refunded) as nmv_without_shipping_refunded
+    ,(nmv_with_shipping_refunded) as nmv_with_shipping_refunded
+    ---- tracking data
+    ,(total_sessions) as total_sessions
+    ,(total_sessions_awareness_mp) as total_sessions_awareness_mp
+    ,(total_sessions_awareness_retail) as total_sessions_awareness_retail
+    ,(total_sessions_consideration_mp) as total_sessions_consideration_mp
+    ,(total_sessions_consideration_retail) as total_sessions_consideration_retail
+    ,(total_sessions_pdp_mp) as total_sessions_pdp_mp
+    ,(total_sessions_pdp_retail) as total_sessions_pdp_retail
+    ,(total_sessions_checkout_mp) as total_sessions_checkout_mp
+    ,(total_sessions_checkout_retail) as total_sessions_checkout_retail
+    ,(total_sessions_transaction_mp) as total_sessions_transaction_mp
+    ,(total_sessions_transaction_retail) as total_sessions_transaction_retail
+    ---- retail data
+    ,(retail_orders) as retail_orders
+    ,(retail_net_order_value) as retail_net_order_value
+    ,(retail_gross_order_value) as retail_gross_order_value
+    ---- backfill data
+    ,(backfilled_orders) as backfilled_orders
+    ,(backfilled_gmv_without_shipping) as backfilled_gmv_without_shipping
+    ,(backfilled_gmv_with_shipping) as backfilled_gmv_with_shipping
+    ,(backfilled_commission_fee) as backfilled_commission_fee
+    ,(backfilled_total_commission) as backfilled_total_commission
+    ,(backfilled_products_quantity_orders) as backfilled_products_quantity_orders
+    ---- orders created
+    ,(orders_consumer_created) as orders_consumer_created
+    ,(orders_created) as orders_created
+    ,(gmv_without_shipping_created) as gmv_without_shipping_created
+    ,(gmv_with_shipping_created) as gmv_with_shipping_created
+    ,(commission_fee_created) as commission_fee_created
+    ---- total_commission_created
+    ---- sellers_sales_created
+    ---- offers_sales_created
+    ,(products_sales_created) as products_sales_created
+    ,(qty_sales_created) as qty_sales_created
+    ---- refurbished
+    ,(refurbished_gmv_with_shipping) as refurbished_gmv_with_shipping
+    ---- vertical categories
+    ,(vertical_category_gmv_with_shipping) as vertical_category_gmv_with_shipping
+    ---- forecast data (when the source is not EUR we convert to local currency)
+    ,(fc_month_gmv_with_shipping) as fc_month_gmv_with_shipping
+    ,(py_wd_month_gmv_with_shipping) as py_wd_month_gmv_with_shipping
+    ,(py_wd_month_country_gmv_with_shipping) as py_wd_month_country_gmv_with_shipping
+    ,(pc_fc_month_country_gmv_with_shipping) as pc_fc_month_country_gmv_with_shipping
+    ,(pc_fc_gmv_with_shipping) as pc_fc_gmv_with_shipping
+    ,(fc_gmv_with_shipping)as fc_gmv_with_shipping
+    ,(fc_nmv_with_shipping) as fc_nmv_with_shipping
+    ---- standard orders - order date
+    ,(orders_consumer_standard_order_date) as orders_consumer_standard_order_date
+    ,(orders_standard_order_date) as orders_standard_order_date
+    ,(gmv_without_shipping_standard_order_date) as gmv_without_shipping_standard_order_date
+    ,(gmv_with_shipping_standard_order_date) as gmv_with_shipping_standard_order_date
+    ,(nmv_without_shipping_standard_order_date) as nmv_without_shipping_standard_order_date
+    ,(nmv_with_shipping_standard_order_date) as nmv_with_shipping_standard_order_date
+    ,(commission_fee_standard_order_date) as commission_fee_standard_order_date
+    ,(total_commission_standard_order_date) as total_commission_standard_order_date
+    ,(sellers_orders_standard_order_date) as sellers_orders_standard_order_date
+    ,(offers_orders_standard_order_date) as offers_orders_standard_order_date
+    ,(products_orders_standard_order_date) as products_orders_standard_order_date
+    ,(sold_items_standard_order_date) as sold_items_standard_order_date
+    ---- financing orders - payment date
+    ,(orders_consumer_financing_payment_date) as orders_consumer_financing_payment_date
+    ,(orders_financing_payment_date) as orders_financing_payment_date
+    ,(gmv_without_shipping_financing_payment_date) as gmv_without_shipping_financing_payment_date
+    ,(gmv_with_shipping_financing_payment_date) as gmv_with_shipping_financing_payment_date
+    ,(nmv_without_shipping_financing_payment_date) as nmv_without_shipping_financing_payment_date
+    ,(nmv_with_shipping_financing_payment_date) as nmv_with_shipping_financing_payment_date
+    ,(commission_fee_financing_payment_date) as commission_fee_financing_payment_date
+    ,(total_commission_financing_payment_date) as total_commission_financing_payment_date
+    ,(sellers_orders_financing_payment_date) as sellers_orders_financing_payment_date
+    ,(offers_orders_financing_payment_date) as offers_orders_financing_payment_date
+    ,(products_orders_financing_payment_date) as products_orders_financing_payment_date
+    ,(sold_items_financing_payment_date) as sold_items_financing_payment_date
+    ---- financial view logic (standard orders + financing - refunds)
+    ,(orders_consumer_financial_view) as orders_consumer_financial_view
+    ,(orders_financial_view) as orders_financial_view
+    ,(gmv_without_shipping_financial_view) as gmv_without_shipping_financial_view
+    ,(gmv_with_shipping_financial_view) as gmv_with_shipping_financial_view
+    ,(nmv_without_shipping_financial_view) as nmv_without_shipping_financial_view
+    ,(nmv_with_shipping_financial_view) as nmv_with_shipping_financial_view
+    ,(commission_fee_financial_view) as commission_fee_financial_view
+    ,(total_commission_financial_view) as total_commission_financial_view
+    ,(sold_items_financial_view) as sold_items_financial_view
+  from
+    forecast_with_sales_data ordl
+  where
+    1 = 1
+    
+  union all
+  
+  -- DE - repeated values in DE from MediaDE
+
+  select
+    ordl.date_reference
+    ,ordl.fiscal_year_id
+    ,'MediaSaturnDE' as salesline
+    ,'MMSEDE' as channel
+    ,ordl.country
+    ,ordl.currency_code
+    ,1 as currency_conversion_rate
+    ,sum(case when lower(ordl.channel) not in ('sede') then sellers end) as sellers
+    ,sum(case when lower(ordl.channel) not in ('sede') then active_products end) as active_products
+    ,sum(case when lower(ordl.channel) not in ('sede') then active_offers end) as active_offers
+    ,sum(case when lower(ordl.channel) not in ('sede') then buyable_offers end) as buyable_offers
+    ,sum(case when lower(ordl.channel) not in ('sede') then buyable_products end) as buyable_products
+    ,sum(case when lower(ordl.channel) not in ('sede') then buyable_sellers end) as buyable_sellers
+    ,sum(orders_consumer) as orders_consumer
+    ,sum(orders) as orders
+    ,sum(orders_valid) as orders_valid
+    --,sum(sellers_orders) as sellers_orders
+    ,max(og.sellers_orders) as sellers_orders
+    --,sum(offers_orders) as offers_orders
+    ,max(og.offers_orders) as offers_orders
+    --,sum(products_orders) as products_orders
+    ,max(og.products_orders) as products_orders
+    ,sum(products_quantity_orders) as products_quantity_orders
+    ,sum(gmv_without_shipping) as gmv_without_shipping
+    ,sum(gmv_with_shipping) as gmv_with_shipping
+    ,sum(nmv_without_shipping) as nmv_without_shipping
+    ,sum(nmv_with_shipping) as nmv_with_shipping
+    ,sum(commission_fee) as commission_fee
+    ,sum(total_commission) as total_commission
+    ,sum(orders_consumer_refunded) as orders_consumer_refunded
+    ,sum(orders_refunded) as orders_refunded
+    ,sum(sold_items_refunded) as sold_items_refunded
+    ,sum(commission_fee_refunded) as commission_fee_refunded
+    ,sum(total_commission_refunded) as total_commission_refunded
+    ,sum(gmv_without_shipping_refunded) as gmv_without_shipping_refunded
+    ,sum(gmv_with_shipping_refunded) as gmv_with_shipping_refunded
+    ,sum(nmv_without_shipping_refunded) as nmv_without_shipping_refunded
+    ,sum(nmv_with_shipping_refunded) as nmv_with_shipping_refunded
+    ---- tracking data
+    ,sum(total_sessions) as total_sessions
+    ,sum(total_sessions_awareness_mp) as total_sessions_awareness_mp
+    ,sum(total_sessions_awareness_retail) as total_sessions_awareness_retail
+    ,sum(total_sessions_consideration_mp) as total_sessions_consideration_mp
+    ,sum(total_sessions_consideration_retail) as total_sessions_consideration_retail
+    ,sum(total_sessions_pdp_mp) as total_sessions_pdp_mp
+    ,sum(total_sessions_pdp_retail) as total_sessions_pdp_retail
+    ,sum(total_sessions_checkout_mp) as total_sessions_checkout_mp
+    ,sum(total_sessions_checkout_retail) as total_sessions_checkout_retail
+    ,sum(total_sessions_transaction_mp) as total_sessions_transaction_mp
+    ,sum(total_sessions_transaction_retail) as total_sessions_transaction_retail
+    ---- retail data
+    ,sum(retail_orders) as retail_orders
+    ,sum(retail_net_order_value) as retail_net_order_value
+    ,sum(retail_gross_order_value) as retail_gross_order_value
+    ---- backfill data
+    ,sum(backfilled_orders) as backfilled_orders
+    ,sum(backfilled_gmv_without_shipping) as backfilled_gmv_without_shipping
+    ,sum(backfilled_gmv_with_shipping) as backfilled_gmv_with_shipping
+    ,sum(backfilled_commission_fee) as backfilled_commission_fee
+    ,sum(backfilled_total_commission) as backfilled_total_commission
+    ,sum(backfilled_products_quantity_orders) as backfilled_products_quantity_orders
+    ---- orders created
+    ,sum(orders_consumer_created) as orders_consumer_created
+    ,sum(orders_created) as orders_created
+    ,sum(gmv_without_shipping_created) as gmv_without_shipping_created
+    ,sum(gmv_with_shipping_created) as gmv_with_shipping_created
+    ,sum(commission_fee_created) as commission_fee_created
+    ---- total_commission_created
+    ---- sellers_sales_created
+    ---- offers_sales_created
+    ,sum(products_sales_created) as products_sales_created
+    ,sum(qty_sales_created) as qty_sales_created
+    ---- refurbished
+    ,sum(refurbished_gmv_with_shipping) as refurbished_gmv_with_shipping
+    ---- vertical categories
+    ,sum(vertical_category_gmv_with_shipping) as vertical_category_gmv_with_shipping
+    ---- forecast data
+    ,sum(fc_month_gmv_with_shipping) as fc_month_gmv_with_shipping
+    ,sum(py_wd_month_gmv_with_shipping) as py_wd_month_gmv_with_shipping
+    ,sum(py_wd_month_country_gmv_with_shipping) as py_wd_month_country_gmv_with_shipping
+    ,sum(pc_fc_month_country_gmv_with_shipping) as pc_fc_month_country_gmv_with_shipping
+    ,sum(pc_fc_gmv_with_shipping) as pc_fc_gmv_with_shipping
+    ,sum(fc_gmv_with_shipping) as fc_gmv_with_shipping
+    ,sum(fc_nmv_with_shipping) as fc_nmv_with_shipping
+    ---- standard orders - order date
+    ,sum(orders_consumer_standard_order_date) as orders_consumer_standard_order_date
+    ,sum(orders_standard_order_date) as orders_standard_order_date
+    ,sum(gmv_without_shipping_standard_order_date) as gmv_without_shipping_standard_order_date
+    ,sum(gmv_with_shipping_standard_order_date) as gmv_with_shipping_standard_order_date
+    ,sum(nmv_without_shipping_standard_order_date) as nmv_without_shipping_standard_order_date
+    ,sum(nmv_with_shipping_standard_order_date) as nmv_with_shipping_standard_order_date
+    ,sum(commission_fee_standard_order_date) as commission_fee_standard_order_date
+    ,sum(total_commission_standard_order_date) as total_commission_standard_order_date
+    ,sum(sellers_orders_standard_order_date) as sellers_orders_standard_order_date
+    ,sum(offers_orders_standard_order_date) as offers_orders_standard_order_date
+    ,sum(products_orders_standard_order_date) as products_orders_standard_order_date
+    ,sum(sold_items_standard_order_date) as sold_items_standard_order_date
+    ---- financing orders - payment date
+    ,sum(orders_consumer_financing_payment_date) as orders_consumer_financing_payment_date
+    ,sum(orders_financing_payment_date) as orders_financing_payment_date
+    ,sum(gmv_without_shipping_financing_payment_date) as gmv_without_shipping_financing_payment_date
+    ,sum(gmv_with_shipping_financing_payment_date) as gmv_with_shipping_financing_payment_date
+    ,sum(nmv_without_shipping_financing_payment_date) as nmv_without_shipping_financing_payment_date
+    ,sum(nmv_with_shipping_financing_payment_date) as nmv_with_shipping_financing_payment_date
+    ,sum(commission_fee_financing_payment_date) as commission_fee_financing_payment_date
+    ,sum(total_commission_financing_payment_date) as total_commission_financing_payment_date
+    ,sum(sellers_orders_financing_payment_date) as sellers_orders_financing_payment_date
+    ,sum(offers_orders_financing_payment_date) as offers_orders_financing_payment_date
+    ,sum(products_orders_financing_payment_date) as products_orders_financing_payment_date
+    ,sum(sold_items_financing_payment_date) as sold_items_financing_payment_date
+    ---- financial view logic (standard orders + financing - refunds)
+    ,sum(orders_consumer_financial_view) as orders_consumer_financial_view
+    ,sum(orders_financial_view) as orders_financial_view
+    ,sum(gmv_without_shipping_financial_view) as gmv_without_shipping_financial_view
+    ,sum(gmv_with_shipping_financial_view) as gmv_with_shipping_financial_view
+    ,sum(nmv_without_shipping_financial_view) as nmv_without_shipping_financial_view
+    ,sum(nmv_with_shipping_financial_view) as nmv_with_shipping_financial_view
+    ,sum(commission_fee_financial_view) as commission_fee_financial_view
+    ,sum(total_commission_financial_view) as total_commission_financial_view
+    ,sum(sold_items_financial_view) as sold_items_financial_view
+  from
+    forecast_with_sales_data ordl
+    left join orders_de og on og.date_reference = ordl.date_reference and og.country = 'DE'
+  where
+    1 = 1
+    and ordl.country = 'DE'
+  group by
+    all
+
+  union all
+  
+  -- Global - repeated values in DE from MediaDE
+
+  select
+    ordl.date_reference
+    ,ordl.fiscal_year_id
+    ,'Global' as salesline
+    ,'Global' as channel
+    ,'Global' as country
+    ,'EUR'    as currency_code
+    ,1        as currency_conversion_rate
+    --,sum(sellers) as sellers
+    ,max(sg.sellers) as sellers
+    ,sum(case when lower(channel) not in ('sede') then active_products end) as active_products
+    ,sum(case when lower(channel) not in ('sede') then active_offers end ) as active_offers
+    ,sum(case when lower(channel) not in ('sede') then buyable_offers end ) as buyable_offers
+    ,sum(case when lower(channel) not in ('sede') then buyable_products end ) as buyable_products
+    ,sum(case when lower(channel) not in ('sede') then buyable_sellers end ) as buyable_sellers
+    ,sum(orders_consumer) as orders_consumer
+    ,sum(orders) as orders
+    ,sum(orders_valid) as orders_valid
+    --,sum(sellers_orders) as sellers_orders
+    ,max(og.sellers_orders) as sellers_orders
+    --,sum(offers_orders) as offers_orders
+    ,max(og.offers_orders) as offers_orders
+    --,sum(products_orders) as products_orders
+    ,max(og.products_orders) as products_orders
+    ,sum(products_quantity_orders) as products_quantity_orders
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_without_shipping, currency_conversion_rate),gmv_without_shipping)) as gmv_without_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_with_shipping, currency_conversion_rate),gmv_with_shipping)) as gmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_without_shipping, currency_conversion_rate),nmv_without_shipping)) as nmv_without_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_with_shipping, currency_conversion_rate),nmv_with_shipping)) as nmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(commission_fee, currency_conversion_rate),commission_fee)) as commission_fee
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(total_commission, currency_conversion_rate),total_commission)) as total_commission
+    ,sum(orders_consumer_refunded) as orders_consumer_refunded
+    ,sum(orders_refunded) as orders_refunded
+    ,sum(sold_items_refunded) as sold_items_refunded
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(commission_fee_refunded, currency_conversion_rate),commission_fee_refunded)) as commission_fee_refunded
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(total_commission_refunded, currency_conversion_rate),total_commission_refunded)) as total_commission_refunded
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_without_shipping_refunded, currency_conversion_rate),gmv_without_shipping_refunded)) as gmv_without_shipping_refunded
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_with_shipping_refunded, currency_conversion_rate),gmv_with_shipping_refunded)) as gmv_with_shipping_refunded
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_without_shipping_refunded, currency_conversion_rate),nmv_without_shipping_refunded)) as nmv_without_shipping_refunded
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_with_shipping_refunded, currency_conversion_rate),nmv_with_shipping_refunded)) as nmv_with_shipping_refunded
+    ---- tracking data
+    ,sum(total_sessions) as total_sessions
+    ,sum(total_sessions_awareness_mp) as total_sessions_awareness_mp
+    ,sum(total_sessions_awareness_retail) as total_sessions_awareness_retail
+    ,sum(total_sessions_consideration_mp) as total_sessions_consideration_mp
+    ,sum(total_sessions_consideration_retail) as total_sessions_consideration_retail
+    ,sum(total_sessions_pdp_mp) as total_sessions_pdp_mp
+    ,sum(total_sessions_pdp_retail) as total_sessions_pdp_retail
+    ,sum(total_sessions_checkout_mp) as total_sessions_checkout_mp
+    ,sum(total_sessions_checkout_retail) as total_sessions_checkout_retail
+    ,sum(total_sessions_transaction_mp) as total_sessions_transaction_mp
+    ,sum(total_sessions_transaction_retail) as total_sessions_transaction_retail
+    ---- retail data
+    ,sum(retail_orders) as retail_orders
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(retail_net_order_value, currency_conversion_rate), retail_net_order_value)) as retail_net_order_value
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(retail_gross_order_value, currency_conversion_rate), retail_gross_order_value)) as retail_gross_order_value
+    ---- backfill data
+    ,sum(backfilled_orders) as backfilled_orders
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(backfilled_gmv_without_shipping, currency_conversion_rate),backfilled_gmv_without_shipping)) as backfilled_gmv_without_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(backfilled_gmv_with_shipping, currency_conversion_rate),backfilled_gmv_with_shipping)) as backfilled_gmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(backfilled_commission_fee, currency_conversion_rate),backfilled_commission_fee)) as backfilled_commission_fee
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(backfilled_total_commission, currency_conversion_rate),backfilled_total_commission)) as backfilled_total_commission
+    ,sum(backfilled_products_quantity_orders) as backfilled_products_quantity_orders
+    ---- orders created
+    ,sum(orders_consumer_created) as orders_consumer_created
+    ,sum(orders_created) as orders_created
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_without_shipping_created, currency_conversion_rate),gmv_without_shipping_created)) as gmv_without_shipping_created
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_with_shipping_created, currency_conversion_rate),gmv_with_shipping_created)) as gmv_with_shipping_created
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(commission_fee_created, currency_conversion_rate),commission_fee_created)) as commission_fee_created
+    ---- total_commission_created
+    ---- sellers_sales_created
+    ---- offers_sales_created
+    ,sum(products_sales_created) as products_sales_created
+    ,sum(qty_sales_created) as qty_sales_created
+    ---- refurbished
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(refurbished_gmv_with_shipping, currency_conversion_rate),refurbished_gmv_with_shipping)) as refurbished_gmv_with_shipping
+    ---- vertical categories
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(vertical_category_gmv_with_shipping, currency_conversion_rate),vertical_category_gmv_with_shipping)) as vertical_category_gmv_with_shipping
+    ---- forecast data
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(fc_month_gmv_with_shipping, currency_conversion_rate),fc_month_gmv_with_shipping)) as fc_month_gmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(py_wd_month_gmv_with_shipping, currency_conversion_rate),py_wd_month_gmv_with_shipping)) as py_wd_month_gmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(py_wd_month_country_gmv_with_shipping, currency_conversion_rate),py_wd_month_country_gmv_with_shipping)) as py_wd_month_country_gmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(pc_fc_month_country_gmv_with_shipping, currency_conversion_rate),pc_fc_month_country_gmv_with_shipping)) as pc_fc_month_country_gmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(pc_fc_gmv_with_shipping, currency_conversion_rate),pc_fc_gmv_with_shipping)) as pc_fc_gmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(fc_gmv_with_shipping, currency_conversion_rate),fc_gmv_with_shipping)) as fc_gmv_with_shipping
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(fc_nmv_with_shipping, currency_conversion_rate),fc_nmv_with_shipping)) as fc_nmv_with_shipping
+    ---- standard orders - order date
+    ,sum(orders_consumer_standard_order_date) as orders_consumer_standard_order_date
+    ,sum(orders_standard_order_date) as orders_standard_order_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_without_shipping_standard_order_date, currency_conversion_rate),gmv_without_shipping_standard_order_date)) as gmv_without_shipping_standard_order_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_with_shipping_standard_order_date, currency_conversion_rate),gmv_with_shipping_standard_order_date)) as gmv_with_shipping_standard_order_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_without_shipping_standard_order_date, currency_conversion_rate),nmv_without_shipping_standard_order_date)) as nmv_without_shipping_standard_order_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_with_shipping_standard_order_date, currency_conversion_rate),nmv_with_shipping_standard_order_date)) as nmv_with_shipping_standard_order_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(commission_fee_standard_order_date, currency_conversion_rate),commission_fee_standard_order_date)) as commission_fee_standard_order_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(total_commission_standard_order_date, currency_conversion_rate),total_commission_standard_order_date)) as total_commission_standard_order_date
+    ,sum(sellers_orders_standard_order_date) as sellers_orders_standard_order_date
+    ,sum(offers_orders_standard_order_date) as offers_orders_standard_order_date
+    ,sum(products_orders_standard_order_date) as products_orders_standard_order_date
+    ,sum(sold_items_standard_order_date) as sold_items_standard_order_date
+    ---- financing orders - payment date
+    ,sum(orders_consumer_financing_payment_date) as orders_consumer_financing_payment_date
+    ,sum(orders_financing_payment_date) as orders_financing_payment_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_without_shipping_financing_payment_date, currency_conversion_rate),gmv_without_shipping_financing_payment_date)) as gmv_without_shipping_financing_payment_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_with_shipping_financing_payment_date, currency_conversion_rate),gmv_with_shipping_financing_payment_date)) as gmv_with_shipping_financing_payment_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_without_shipping_financing_payment_date, currency_conversion_rate),nmv_without_shipping_financing_payment_date)) as nmv_without_shipping_financing_payment_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_with_shipping_financing_payment_date, currency_conversion_rate),nmv_with_shipping_financing_payment_date)) as nmv_with_shipping_financing_payment_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(commission_fee_financing_payment_date, currency_conversion_rate),commission_fee_financing_payment_date)) as commission_fee_financing_payment_date
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(total_commission_financing_payment_date, currency_conversion_rate),total_commission_financing_payment_date)) as total_commission_financing_payment_date
+    ,sum(sellers_orders_financing_payment_date) as sellers_orders_financing_payment_date
+    ,sum(offers_orders_financing_payment_date) as offers_orders_financing_payment_date
+    ,sum(products_orders_financing_payment_date) as products_orders_financing_payment_date
+    ,sum(sold_items_financing_payment_date) as sold_items_financing_payment_date
+    ---- financial view logic (standard orders + financing - refunds)
+    ,sum(orders_consumer_financial_view) as orders_consumer_financial_view
+    ,sum(orders_financial_view) as orders_financial_view
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_without_shipping_financial_view, currency_conversion_rate),gmv_without_shipping_financial_view)) as gmv_without_shipping_financial_view
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(gmv_with_shipping_financial_view, currency_conversion_rate),gmv_with_shipping_financial_view)) as gmv_with_shipping_financial_view
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_without_shipping_financial_view, currency_conversion_rate),nmv_without_shipping_financial_view)) as nmv_without_shipping_financial_view
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(nmv_with_shipping_financial_view, currency_conversion_rate),nmv_with_shipping_financial_view)) as nmv_with_shipping_financial_view
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(commission_fee_financial_view, currency_conversion_rate),commission_fee_financial_view)) as commission_fee_financial_view
+    ,sum(if(ordl.currency_code != 'EUR',SAFE_DIVIDE(total_commission_financial_view, currency_conversion_rate),total_commission_financial_view)) as total_commission_financial_view
+    ,sum(sold_items_financial_view) as sold_items_financial_view
+  from
+    forecast_with_sales_data ordl
+    left join sellers_global sg on sg.date_reference = ordl.date_reference and sg.salesline = 'Global'
+    left join orders_global og on og.date_reference = ordl.date_reference and og.salesline = 'Global'
+  where
+    1 = 1
+  group by
+    all
+)
+
+,sales_data_with_py as(
+  select
+    cy.date_reference
+    ,cy.fiscal_year_id
+    ,cy.salesline
+    ,cy.channel
+    ,cy.country
+    ,cy.currency_code
+    ,cy.sellers
+    ,cy.active_products
+    ,cy.active_offers
+    ,cy.buyable_offers
+    ,cy.buyable_products
+    ,cy.buyable_sellers
+    ,cy.orders_consumer
+    ,cy.orders
+    ,cy.orders_valid
+    ,cy.sellers_orders
+    ,cy.products_orders
+    ,cy.products_quantity_orders
+    ,cy.gmv_without_shipping
+    ,cy.gmv_with_shipping
+    ,cy.commission_fee
+    ,cy.total_commission
+    ,cy.nmv_without_shipping
+    ,cy.nmv_with_shipping
+    -- refunds
+    ,cy.orders_consumer_refunded
+    ,cy.orders_refunded
+    ,cy.sold_items_refunded
+    ,cy.commission_fee_refunded
+    ,cy.gmv_without_shipping_refunded
+    ,cy.gmv_with_shipping_refunded
+    ,cy.nmv_without_shipping_refunded
+    ,cy.nmv_with_shipping_refunded
+    -- tracking data
+    ,cy.total_sessions
+    ,cy.total_sessions_awareness_mp
+    ,cy.total_sessions_awareness_retail
+    ,cy.total_sessions_consideration_mp
+    ,cy.total_sessions_consideration_retail
+    ,cy.total_sessions_pdp_mp
+    ,cy.total_sessions_pdp_retail
+    ,cy.total_sessions_checkout_mp
+    ,cy.total_sessions_checkout_retail
+    ,cy.total_sessions_transaction_mp
+    ,cy.total_sessions_transaction_retail
+    -- retail data
+    ,cy.retail_orders
+    ,cy.retail_net_order_value
+    ,cy.retail_gross_order_value
+    -- info.retail_order_gross_value_excl_shipping
+    -- backfill data
+    ,cy.backfilled_orders
+    ,cy.backfilled_gmv_without_shipping
+    ,cy.backfilled_gmv_with_shipping
+    ,cy.backfilled_commission_fee
+    ,cy.backfilled_total_commission
+    ,cy.backfilled_products_quantity_orders
+    -- orders created
+    ,cy.orders_consumer_created
+    ,cy.orders_created
+    ,cy.gmv_without_shipping_created
+    ,cy.gmv_with_shipping_created
+    ,cy.commission_fee_created
+    -- ,cy.total_commission_created
+    -- ,cy.sellers_sales_created
+    -- ,cy.offers_sales_created
+    ,cy.products_sales_created
+    ,cy.qty_sales_created
+    -- refurbished
+    ,cy.refurbished_gmv_with_shipping
+    -- vertical categories
+    ,cy.vertical_category_gmv_with_shipping
+    -- forecast data
+    ,cy.fc_month_gmv_with_shipping
+    ,cy.py_wd_month_gmv_with_shipping
+    ,cy.py_wd_month_country_gmv_with_shipping
+    ,cy.pc_fc_month_country_gmv_with_shipping
+    ,cy.pc_fc_gmv_with_shipping
+    ,cy.fc_gmv_with_shipping
+    ,cy.fc_nmv_with_shipping
+    ---- standard orders - order date
+    ,cy.orders_consumer_standard_order_date
+    ,cy.orders_standard_order_date
+    ,cy.gmv_without_shipping_standard_order_date
+    ,cy.gmv_with_shipping_standard_order_date
+    ,cy.nmv_without_shipping_standard_order_date
+    ,cy.nmv_with_shipping_standard_order_date
+    ,cy.commission_fee_standard_order_date
+    ,cy.total_commission_standard_order_date
+    ,cy.sellers_orders_standard_order_date
+    ,cy.offers_orders_standard_order_date
+    ,cy.products_orders_standard_order_date
+    ,cy.sold_items_standard_order_date
+    ---- financing orders - payment date
+    ,cy.orders_consumer_financing_payment_date
+    ,cy.orders_financing_payment_date
+    ,cy.gmv_without_shipping_financing_payment_date
+    ,cy.gmv_with_shipping_financing_payment_date
+    ,cy.nmv_without_shipping_financing_payment_date
+    ,cy.nmv_with_shipping_financing_payment_date
+    ,cy.commission_fee_financing_payment_date
+    ,cy.total_commission_financing_payment_date
+    ,cy.sellers_orders_financing_payment_date
+    ,cy.offers_orders_financing_payment_date
+    ,cy.products_orders_financing_payment_date
+    ,cy.sold_items_financing_payment_date
+    -- financial view
+    ,cy.orders_consumer_financial_view
+    ,cy.orders_financial_view
+    ,cy.gmv_without_shipping_financial_view
+    ,cy.gmv_with_shipping_financial_view
+    ,cy.nmv_without_shipping_financial_view
+    ,cy.nmv_with_shipping_financial_view
+    ,cy.commission_fee_financial_view
+    ,cy.total_commission_financial_view
+    ,cy.sold_items_financial_view
+    -- 364 days logic
+    -- previous year week day date data
+    ,pywd.date_reference     as py_wd_date_reference
+    ,case when pywd.sellers is not null then pywd.sellers else pywd.sellers_orders end as py_wd_sellers
+    ,case when pywd.active_offers is not null then pywd.active_offers else pywd.offers_orders end as py_wd_active_offers
+    ,case when pywd.active_products is not null then pywd.active_products else pywd.products_orders end as py_wd_active_products
+    ,case when pywd.buyable_offers is not null then pywd.buyable_offers else pywd.offers_orders end as py_wd_buyable_offers
+    ,case when pywd.buyable_products is not null then pywd.buyable_products else pywd.products_orders end as py_wd_buyable_products
+    ,case when pywd.buyable_sellers is not null then pywd.buyable_sellers else pywd.sellers_orders end as py_wd_buyable_sellers
+    ,pywd.sellers_orders    as py_wd_sellers_orders
+    ,pywd.orders_consumer   as py_wd_orders_consumer
+    ,pywd.orders            as py_wd_orders
+    ,pywd.orders_valid      as py_wd_orders_valid
+    ,pywd.products_orders   as py_wd_products_orders
+    ,pywd.products_quantity_orders as py_wd_products_quantity_orders
+    ,pywd.gmv_without_shipping  as py_wd_gmv_without_shipping
+    ,pywd.gmv_with_shipping     as py_wd_gmv_with_shipping
+    ,pywd.commission_fee        as py_wd_commission_fee
+    ,pywd.total_commission      as py_wd_total_commission
+    ,pywd.nmv_without_shipping  as py_wd_nmv_without_shipping
+    ,pywd.nmv_with_shipping     as py_wd_nmv_with_shipping
+    -- refunds
+    ,pywd.orders_consumer_refunded      as py_wd_orders_consumer_refunded
+    ,pywd.orders_refunded               as py_wd_orders_refunded
+    ,pywd.sold_items_refunded           as py_wd_sold_items_refunded
+    ,pywd.commission_fee_refunded       as py_wd_commission_fee_refunded
+    ,pywd.gmv_without_shipping_refunded as py_wd_gmv_without_shipping_refunded
+    ,pywd.gmv_with_shipping_refunded    as py_wd_gmv_with_shipping_refunded
+    ,pywd.nmv_without_shipping_refunded as py_wd_nmv_without_shipping_refunded
+    ,pywd.nmv_with_shipping_refunded    as py_wd_nmv_with_shipping_refunded
+    -- tracking py week date
+    ,pywd.total_sessions as py_wd_total_sessions
+    ,pywd.total_sessions_awareness_mp as py_wd_total_sessions_awareness_mp
+    ,pywd.total_sessions_awareness_retail as py_wd_total_sessions_awareness_retail
+    ,pywd.total_sessions_consideration_mp as py_wd_total_sessions_consideration_mp
+    ,pywd.total_sessions_consideration_retail as py_wd_total_sessions_consideration_retail
+    ,pywd.total_sessions_pdp_mp as py_wd_total_sessions_pdp_mp
+    ,pywd.total_sessions_pdp_retail as py_wd_total_sessions_pdp_retail
+    ,pywd.total_sessions_checkout_mp as py_wd_total_sessions_checkout_mp
+    ,pywd.total_sessions_checkout_retail as py_wd_total_sessions_checkout_retail
+    ,pywd.total_sessions_transaction_mp as py_wd_total_sessions_transaction_mp
+    ,pywd.total_sessions_transaction_retail as py_wd_total_sessions_transaction_retail
+    -- retail py
+    ,pywd.retail_orders as py_wd_retail_orders
+    ,pywd.retail_net_order_value  as py_wd_retail_net_order_value
+    ,pywd.retail_gross_order_value  as py_wd_retail_gross_order_value
+    --pywd.retail_order_gross_value_excl_shipping  as py_wd_retail_order_gross_value_excl_shipping
+    -- backfill data
+    ,pywd.backfilled_orders as py_wd_backfilled_orders
+    ,pywd.backfilled_gmv_without_shipping as py_wd_backfilled_gmv_without_shipping
+    ,pywd.backfilled_gmv_with_shipping as py_wd_backfilled_gmv_with_shipping
+    ,pywd.backfilled_commission_fee as py_wd_backfilled_commission_fee
+    ,pywd.backfilled_total_commission as py_wd_backfilled_total_commission
+    ,pywd.backfilled_products_quantity_orders as py_wd_backfilled_products_quantity_orders
+    -- orders created
+    ,pywd.orders_consumer_created       as py_wd_orders_consumer_created
+    ,pywd.orders_created                as py_wd_orders_created
+    ,pywd.gmv_without_shipping_created  as py_wd_gmv_without_shipping_created
+    ,pywd.gmv_with_shipping_created     as py_wd_gmv_with_shipping_created
+    ,pywd.commission_fee_created        as py_wd_commission_fee_created
+    -- ,cy.total_commission_created     as py_wd_total_commission_created
+    -- ,cy.sellers_sales_created        as py_wd_sellers_sales_created
+    -- ,cy.offers_sales_created         as py_wd_offers_sales_created
+    ,pywd.products_sales_created        as py_wd_products_sales_created
+    ,pywd.qty_sales_created             as py_wd_qty_sales_created
+    -- refurbished
+    ,pywd.refurbished_gmv_with_shipping         as py_wd_refurbished_gmv_with_shipping
+    -- vertical categories
+    ,pywd.vertical_category_gmv_with_shipping   as py_wd_vertical_category_gmv_with_shipping
+    -- forecast
+    ,pywd.fc_gmv_with_shipping as py_wd_fc_gmv_with_shipping
+    ,pywd.fc_nmv_with_shipping as py_wd_fc_nmv_with_shipping
+    ---- standard orders - order date
+    ,pywd.orders_consumer_standard_order_date          as py_wd_orders_consumer_standard_order_date
+    ,pywd.orders_standard_order_date                   as py_wd_orders_standard_order_date
+    ,pywd.gmv_without_shipping_standard_order_date     as py_wd_gmv_without_shipping_standard_order_date
+    ,pywd.gmv_with_shipping_standard_order_date        as py_wd_gmv_with_shipping_standard_order_date
+    ,pywd.nmv_without_shipping_standard_order_date     as py_wd_nmv_without_shipping_standard_order_date
+    ,pywd.nmv_with_shipping_standard_order_date        as py_wd_nmv_with_shipping_standard_order_date
+    ,pywd.commission_fee_standard_order_date           as py_wd_commission_fee_standard_order_date
+    ,pywd.total_commission_standard_order_date         as py_wd_total_commission_standard_order_date
+    ,pywd.sellers_orders_standard_order_date           as py_wd_sellers_orders_standard_order_date
+    ,pywd.offers_orders_standard_order_date            as py_wd_offers_orders_standard_order_date
+    ,pywd.products_orders_standard_order_date          as py_wd_products_orders_standard_order_date
+    ,pywd.sold_items_standard_order_date               as py_wd_sold_items_standard_order_date
+    ---- financing orders - payment date
+    ,pywd.orders_consumer_financing_payment_date       as py_wd_orders_consumer_financing_payment_date
+    ,pywd.orders_financing_payment_date                as py_wd_orders_financing_payment_date
+    ,pywd.gmv_without_shipping_financing_payment_date  as py_wd_gmv_without_shipping_financing_payment_date
+    ,pywd.gmv_with_shipping_financing_payment_date     as py_wd_gmv_with_shipping_financing_payment_date
+    ,pywd.nmv_without_shipping_financing_payment_date  as py_wd_nmv_without_shipping_financing_payment_date
+    ,pywd.nmv_with_shipping_financing_payment_date     as py_wd_nmv_with_shipping_financing_payment_date
+    ,pywd.commission_fee_financing_payment_date        as py_wd_commission_fee_financing_payment_date
+    ,pywd.total_commission_financing_payment_date      as py_wd_total_commission_financing_payment_date
+    ,pywd.sellers_orders_financing_payment_date        as py_wd_sellers_orders_financing_payment_date
+    ,pywd.offers_orders_financing_payment_date         as py_wd_offers_orders_financing_payment_date
+    ,pywd.products_orders_financing_payment_date       as py_wd_products_orders_financing_payment_date
+    ,pywd.sold_items_financing_payment_date            as py_wd_sold_items_financing_payment_date
+    ---- financial view logic (standard orders + financing - refunds)
+    ,pywd.orders_consumer_financial_view                as py_wd_orders_consumer_financial_view     
+    ,pywd.orders_financial_view                         as py_wd_orders_financial_view              
+    ,pywd.gmv_without_shipping_financial_view           as py_wd_gmv_without_shipping_financial_view
+    ,pywd.gmv_with_shipping_financial_view              as py_wd_gmv_with_shipping_financial_view   
+    ,pywd.nmv_without_shipping_financial_view           as py_wd_nmv_without_shipping_financial_view
+    ,pywd.nmv_with_shipping_financial_view              as py_wd_nmv_with_shipping_financial_view   
+    ,pywd.commission_fee_financial_view                 as py_wd_commission_fee_financial_view      
+    ,pywd.total_commission_financial_view               as py_wd_total_commission_financial_view    
+    ,pywd.sold_items_financial_view                     as py_wd_sold_items_financial_view          
+    ------------------------------------------------------------------------------------------------------------
+    -- 365 days logic
+    -- previous year date data
+    ,pyd.date_reference     as py_dd_date_reference
+    ,pyd.sellers_orders     as py_dd_sellers
+    ,pyd.offers_orders      as py_dd_active_offers
+    ,pyd.products_orders    as py_dd_active_products
+    ,pyd.products_orders    as py_dd_buyable_offers
+    ,pyd.products_orders    as py_dd_buyable_products
+    ,pyd.sellers_orders     as py_dd_buyable_sellers
+    ,pyd.sellers_orders     as py_dd_sellers_orders
+    ,pyd.orders_consumer    as py_dd_orders_consumer
+    ,pyd.orders             as py_dd_orders
+    ,pyd.orders_valid       as py_dd_orders_valid
+    ,pyd.products_orders    as py_dd_products_orders
+    ,pyd.products_quantity_orders as py_dd_products_quantity_orders
+    ,pyd.gmv_without_shipping  as py_dd_gmv_without_shipping
+    ,pyd.gmv_with_shipping     as py_dd_gmv_with_shipping
+    ,pyd.commission_fee        as py_dd_commission_fee
+    ,pyd.total_commission      as py_dd_total_commission
+    ,pyd.nmv_without_shipping  as py_dd_nmv_without_shipping
+    ,pyd.nmv_with_shipping     as py_dd_nmv_with_shipping
+    -- refunds
+    ,pyd.orders_consumer_refunded      as py_dd_orders_consumer_refunded
+    ,pyd.orders_refunded               as py_dd_orders_refunded
+    ,pyd.sold_items_refunded           as py_dd_sold_items_refunded
+    ,pyd.commission_fee_refunded       as py_dd_commission_fee_refunded
+    ,pyd.gmv_without_shipping_refunded as py_dd_gmv_without_shipping_refunded
+    ,pyd.gmv_with_shipping_refunded    as py_dd_gmv_with_shipping_refunded
+    ,pyd.nmv_without_shipping_refunded as py_dd_nmv_without_shipping_refunded
+    ,pyd.nmv_with_shipping_refunded    as py_dd_nmv_with_shipping_refunded
+    -- tracking py week date
+    ,pyd.total_sessions as py_dd_total_sessions
+    ,pyd.total_sessions_awareness_mp as py_dd_total_sessions_awareness_mp
+    ,pyd.total_sessions_awareness_retail as py_dd_total_sessions_awareness_retail
+    ,pyd.total_sessions_consideration_mp as py_dd_total_sessions_consideration_mp
+    ,pyd.total_sessions_consideration_retail as py_dd_total_sessions_consideration_retail
+    ,pyd.total_sessions_pdp_mp as py_dd_total_sessions_pdp_mp
+    ,pyd.total_sessions_pdp_retail as py_dd_total_sessions_pdp_retail
+    ,pyd.total_sessions_checkout_mp as py_dd_total_sessions_checkout_mp
+    ,pyd.total_sessions_checkout_retail as py_dd_total_sessions_checkout_retail
+    ,pyd.total_sessions_transaction_mp as py_dd_total_sessions_transaction_mp
+    ,pyd.total_sessions_transaction_retail as py_dd_total_sessions_transaction_retail
+    -- retail py
+    ,pyd.retail_orders as py_dd_retail_orders
+    ,pyd.retail_net_order_value as py_dd_retail_net_order_value
+    ,pyd.retail_gross_order_value as py_dd_retail_gross_order_value
+    --pyd.retail_order_gross_value_excl_shipping  as py_dd_retail_order_gross_value_excl_shipping
+    -- backfill data
+    ,pyd.backfilled_orders                as py_dd_backfilled_orders
+    ,pyd.backfilled_gmv_without_shipping  as py_dd_backfilled_gmv_without_shipping
+    ,pyd.backfilled_gmv_with_shipping     as py_dd_backfilled_gmv_with_shipping
+    ,pyd.backfilled_commission_fee        as py_dd_backfilled_commission_fee
+    ,pyd.backfilled_total_commission      as py_dd_backfilled_total_commission
+    ,pyd.backfilled_products_quantity_orders as py_dd_backfilled_products_quantity_orders
+    -- orders created
+    ,pyd.orders_consumer_created       as py_dd_orders_consumer_created
+    ,pyd.orders_created                as py_dd_orders_created
+    ,pyd.gmv_without_shipping_created  as py_dd_gmv_without_shipping_created
+    ,pyd.gmv_with_shipping_created     as py_dd_gmv_with_shipping_created
+    ,pyd.commission_fee_created        as py_dd_commission_fee_created
+    -- ,pyd.total_commission_created     as py_dd_total_commission_created
+    -- ,pyd.sellers_sales_created        as py_dd_sellers_sales_created
+    -- ,pyd.offers_sales_created         as py_dd_offers_sales_created
+    ,pyd.products_sales_created        as py_dd_products_sales_created
+    ,pyd.qty_sales_created             as py_dd_qty_sales_created
+    -- refurbished
+    ,pyd.refurbished_gmv_with_shipping         as py_dd_refurbished_gmv_with_shipping
+    -- vertical categories
+    ,pyd.vertical_category_gmv_with_shipping   as py_dd_vertical_category_gmv_with_shipping
+    -- forecast
+    ,pyd.fc_gmv_with_shipping as py_dd_fc_gmv_with_shipping
+    ,pyd.fc_nmv_with_shipping as py_dd_fc_nmv_with_shipping
+    ---- standard orders - order date
+    ,pyd.orders_consumer_standard_order_date          as py_dd_orders_consumer_standard_order_date
+    ,pyd.orders_standard_order_date                   as py_dd_orders_standard_order_date
+    ,pyd.gmv_without_shipping_standard_order_date     as py_dd_gmv_without_shipping_standard_order_date
+    ,pyd.gmv_with_shipping_standard_order_date        as py_dd_gmv_with_shipping_standard_order_date
+    ,pyd.nmv_without_shipping_standard_order_date     as py_dd_nmv_without_shipping_standard_order_date
+    ,pyd.nmv_with_shipping_standard_order_date        as py_dd_nmv_with_shipping_standard_order_date
+    ,pyd.commission_fee_standard_order_date           as py_dd_commission_fee_standard_order_date
+    ,pyd.total_commission_standard_order_date         as py_dd_total_commission_standard_order_date
+    ,pyd.sellers_orders_standard_order_date           as py_dd_sellers_orders_standard_order_date
+    ,pyd.offers_orders_standard_order_date            as py_dd_offers_orders_standard_order_date
+    ,pyd.products_orders_standard_order_date          as py_dd_products_orders_standard_order_date
+    ,pyd.sold_items_standard_order_date               as py_dd_sold_items_standard_order_date
+    ---- financing orders - payment date
+    ,pyd.orders_consumer_financing_payment_date        as py_dd_orders_consumer_financing_payment_date
+    ,pyd.orders_financing_payment_date                 as py_dd_orders_financing_payment_date
+    ,pyd.gmv_without_shipping_financing_payment_date   as py_dd_gmv_without_shipping_financing_payment_date
+    ,pyd.gmv_with_shipping_financing_payment_date      as py_dd_gmv_with_shipping_financing_payment_date
+    ,pyd.nmv_without_shipping_financing_payment_date   as py_dd_nmv_without_shipping_financing_payment_date
+    ,pyd.nmv_with_shipping_financing_payment_date      as py_dd_nmv_with_shipping_financing_payment_date
+    ,pyd.commission_fee_financing_payment_date         as py_dd_commission_fee_financing_payment_date
+    ,pyd.total_commission_financing_payment_date       as py_dd_total_commission_financing_payment_date
+    ,pyd.sellers_orders_financing_payment_date         as py_dd_sellers_orders_financing_payment_date
+    ,pyd.offers_orders_financing_payment_date          as py_dd_offers_orders_financing_payment_date
+    ,pyd.products_orders_financing_payment_date        as py_dd_products_orders_financing_payment_date
+    ,pyd.sold_items_financing_payment_date             as py_dd_sold_items_financing_payment_date
+    ---- financial view logic (standard orders + financing - refunds)
+    ,pyd.orders_consumer_financial_view                as py_dd_orders_consumer_financial_view     
+    ,pyd.orders_financial_view                         as py_dd_orders_financial_view              
+    ,pyd.gmv_without_shipping_financial_view           as py_dd_gmv_without_shipping_financial_view
+    ,pyd.gmv_with_shipping_financial_view              as py_dd_gmv_with_shipping_financial_view   
+    ,pyd.nmv_without_shipping_financial_view           as py_dd_nmv_without_shipping_financial_view
+    ,pyd.nmv_with_shipping_financial_view              as py_dd_nmv_with_shipping_financial_view   
+    ,pyd.commission_fee_financial_view                 as py_dd_commission_fee_financial_view      
+    ,pyd.total_commission_financial_view               as py_dd_total_commission_financial_view    
+    ,pyd.sold_items_financial_view                     as py_dd_sold_items_financial_view          
+    ------------------------------------------------------------------------------------------------------------    
+    -- previous week day date data
+    ,pw.date_reference                  as pw_wd_date_reference
+    ,pw.sellers                         as pw_wd_sellers
+    ,pw.active_offers                   as pw_wd_active_offers
+    ,pw.active_products                 as pw_wd_active_products
+    ,pw.buyable_offers                  as pw_wd_buyable_offers
+    ,pw.buyable_products                as pw_wd_buyable_products
+    ,pw.buyable_sellers                 as pw_wd_buyable_sellers
+    ,pw.sellers_orders                  as pw_wd_sellers_orders
+    ,pw.orders_consumer                 as pw_wd_orders_consumer
+    ,pw.orders                          as pw_wd_orders
+    ,pw.orders_valid                    as pw_wd_orders_valid
+    ,pw.products_orders                 as pw_wd_products_orders
+    ,pw.products_quantity_orders        as pw_wd_products_quantity_orders
+    ,pw.gmv_without_shipping            as pw_wd_gmv_without_shipping
+    ,pw.gmv_with_shipping               as pw_wd_gmv_with_shipping
+    ,pw.commission_fee                  as pw_wd_commission_fee
+    ,pw.total_commission                as pw_wd_total_commission
+    ,pw.nmv_without_shipping            as pw_wd_nmv_without_shipping
+    ,pw.nmv_with_shipping               as pw_wd_nmv_with_shipping
+    -- refunds
+    ,pw.orders_consumer_refunded        as pw_wd_orders_consumer_refunded
+    ,pw.orders_refunded                 as pw_wd_orders_refunded
+    ,pw.sold_items_refunded             as pw_wd_sold_items_refunded
+    ,pw.commission_fee_refunded         as pw_wd_commission_fee_refunded
+    ,pw.gmv_without_shipping_refunded   as pw_wd_gmv_without_shipping_refunded
+    ,pw.gmv_with_shipping_refunded      as pw_wd_gmv_with_shipping_refunded
+    ,pw.nmv_without_shipping_refunded   as pw_wd_nmv_without_shipping_refunded
+    ,pw.nmv_with_shipping_refunded      as pw_wd_nmv_with_shipping_refunded
+    -- tracking previous week 
+    ,pw.total_sessions                  as pw_wd_total_sessions
+    ,pw.total_sessions_awareness_mp     as pw_wd_total_sessions_awareness_mp
+    ,pw.total_sessions_awareness_retail as pw_wd_total_sessions_awareness_retail
+    ,pw.total_sessions_consideration_mp as pw_wd_total_sessions_consideration_mp
+    ,pw.total_sessions_consideration_retail as pw_wd_total_sessions_consideration_retail
+    ,pw.total_sessions_pdp_mp           as pw_wd_total_sessions_pdp_mp
+    ,pw.total_sessions_pdp_retail       as pw_wd_total_sessions_pdp_retail
+    ,pw.total_sessions_checkout_mp      as pw_wd_total_sessions_checkout_mp
+    ,pw.total_sessions_checkout_retail  as pw_wd_total_sessions_checkout_retail
+    ,pw.total_sessions_transaction_mp   as pw_wd_total_sessions_transaction_mp
+    ,pw.total_sessions_transaction_retail as pw_wd_total_sessions_transaction_retail
+    -- retail previous week
+    ,pw.retail_orders                   as pw_wd_retail_orders
+    ,pw.retail_net_order_value          as pw_wd_retail_net_order_value
+    ,pw.retail_gross_order_value        as pw_wd_retail_gross_order_value
+    -- backfill data
+    ,pw.backfilled_orders               as pw_wd_backfilled_orders
+    ,pw.backfilled_gmv_without_shipping as pw_wd_backfilled_gmv_without_shipping
+    ,pw.backfilled_gmv_with_shipping    as pw_wd_backfilled_gmv_with_shipping
+    ,pw.backfilled_commission_fee       as pw_wd_backfilled_commission_fee
+    ,pw.backfilled_total_commission     as pw_wd_backfilled_total_commission
+    ,pw.backfilled_products_quantity_orders as pw_wd_backfilled_products_quantity_orders
+    -- forecast
+    ,pw.fc_gmv_with_shipping            as pw_wd_fc_gmv_with_shipping
+    ,pw.fc_nmv_with_shipping            as pw_wd_fc_nmv_with_shipping
+    ------------------------------------------------------------------------------------------------------------       
+  from
+    forecast_with_sales_data_union cy
+    left join forecast_with_sales_data_union as pyd on pyd.salesline = cy.salesline and pyd.date_reference  = (cy.date_reference - 365) and cy.date_reference < current_date()
+    left join forecast_with_sales_data_union as pywd on pywd.salesline = cy.salesline and pywd.date_reference  = (cy.date_reference - 364) and cy.date_reference < current_date()
+    left join forecast_with_sales_data_union as pw on pw.salesline = cy.salesline and pw.date_reference  = (cy.date_reference- 7) and cy.date_reference < current_date()
+  where
+    1 = 1
+)
+
+select
+  ordl.*
+  ,current_timestamp() as insert_timestamp
+from
+  sales_data_with_py ordl
+where
+  1 = 1
+  ${when(incremental(), `and date_reference >= date_sub(date_trunc(current_date('Europe/Berlin'), month),interval 6 month)`)}
+

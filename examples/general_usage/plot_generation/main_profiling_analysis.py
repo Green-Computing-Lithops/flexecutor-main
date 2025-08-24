@@ -19,8 +19,8 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-GENERATE_PLOTS = True
-# GENERATE_PLOTS = False
+# GENERATE_PLOTS = True
+GENERATE_PLOTS = False
 
 def run_script(script_name, description):
     """Run a Python script and return success status."""
