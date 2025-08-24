@@ -1,0 +1,37 @@
+# Ignorar el entorno virtual
+.venv/
+venv/
+**/venv/
+*/.venv/
+
+# Ignorar directorios de Git
+.git/
+.gitignore
+
+# Ignorar cachés de Python y herramientas
+*.pyc
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.cache/
+
+# Ignorar directorios de compilación y distribución
+build/
+dist/
+*.egg-info/
+htmlcov/
+site/
+
+# Ignorar archivos de configuración de IDEs (opcional, pero buena práctica)
+.vscode/
+.idea/
+
+# Ignorar archivos específicos de SO (opcional)
+.DS_Store
+Thumbs.db
+
+# Si tienes otros archivos/carpetas grandes o sensibles que no son necesarios para la imagen Docker
+# añádelos aquí. Por ejemplo:
+# notebooks/  (si no los necesitas dentro de la imagen)
+# data/ (si son datos de prueba grandes)
+# *.log

@@ -1,0 +1,63 @@
+# ARM64 Python 3.10 for AWS Lambda
+FROM public.ecr.aws/lambda/python:3.10-arm64
+
+# Install system dependencies for radio interferometry
+RUN yum update -y && yum install -y \
+    gcc-c++ \
+    boost-devel \
+    hdf5-devel \
+    fftw3-devel \
+    cfitsio-devel \
+    openblas-devel \
+    lapack-devel \
+    git \
+    wget \
+    unzip \
+    make \
+    cmake3 \
+    flex \
+    bison \
+    ninja-build \
+    pkg-config \
+    swig \
+    openssl-devel \
+    && yum clean all
+
+# Create symlink for cmake
+RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
+
+# Set environment variables
+ENV OPENBLAS_NUM_THREADS=1
+ENV PATH=$PATH:/usr/local/lib
+
+# Install Python packages
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir \
+    numpy==1.22.4 \
+    scipy \
+    matplotlib \
+    psutil \
+    cloudpickle \
+    tblib \
+    wrapt \
+    requests \
+    PyYAML \
+    boto3 \
+    python-casacore
+
+# Copy requirements and install additional dependencies
+COPY requirements.txt ${LAMBDA_TASK_ROOT}/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install FlexExecutor and Lithops
+COPY lithops_fork/ ${LAMBDA_TASK_ROOT}/lithops_fork/
+RUN cd ${LAMBDA_TASK_ROOT}/lithops_fork && pip install -e .
+
+COPY flexecutor/ ${LAMBDA_TASK_ROOT}/flexecutor/
+RUN cd ${LAMBDA_TASK_ROOT} && pip install -e .
+
+# Copy function code
+COPY examples/radio_interferometry/ ${LAMBDA_TASK_ROOT}/examples/radio_interferometry/
+
+# Set the CMD to your handler
+CMD [ "examples.radio_interferometry.functions.lambda_handler" ]
