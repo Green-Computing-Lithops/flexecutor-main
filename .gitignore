@@ -116,6 +116,12 @@ celerybeat-schedule.*
 .venv
 .env.example
 
+# Configuration files with credentials
+config_aws.yaml
+config_local.yaml
+config_processed.yaml
+config.yaml
+
 
 # virtualenv
 venv/
