@@ -1,13 +1,3 @@
-"""
-AWS S3 Cleanup Utility
-
-This module provides comprehensive S3 cleanup functionality for FlexExecutor workflows.
-It provides a global cleanup function that deletes all temporary files and directories
-for any workflow type.
-
-Author: FlexExecutor Team
-Date: August 2025
-"""
 
 import os
 import subprocess
@@ -15,15 +5,7 @@ from typing import List, Optional, Tuple
 
 
 class S3Cleaner:
-    """
-    A comprehensive S3 cleanup utility for FlexExecutor workflows.
-    
-    This class provides a global cleanup method that removes all temporary files
-    and directories generated during workflow execution, helping to manage storage
-    costs and maintain clean S3 buckets.
-    """
-    
-    # Comprehensive list of all temporary directories used across all workflows
+
     ALL_TEMP_DIRECTORIES = [
         # Core Lithops directories
         "lithops.jobs/",
@@ -91,24 +73,13 @@ class S3Cleaner:
     ]
     
     def __init__(self, bucket_name: str = "lithops-us-east-1-45dk", timeout: int = 300):
-        """
-        Initialize the S3 cleaner.
-        
-        Args:
-            bucket_name: The S3 bucket name to clean
-            timeout: Timeout in seconds for each cleanup operation
-        """
+
         self.bucket_name = bucket_name
         self.timeout = timeout
         self.env = os.environ.copy()  # Inherit AWS credentials from environment
     
     def test_s3_access(self) -> bool:
-        """
-        Test if we have proper S3 access with current credentials.
-        
-        Returns:
-            bool: True if S3 access is working, False otherwise
-        """
+
         try:
             cmd = ["aws", "s3", "ls", f"s3://{self.bucket_name}/"]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, env=self.env)
@@ -117,13 +88,7 @@ class S3Cleaner:
             return False
     
     def global_cleanup(self) -> Tuple[bool, int]:
-        """
-        Perform a comprehensive cleanup of all temporary files and directories.
-        This is the main cleanup function that should be used for all workflows.
-        
-        Returns:
-            Tuple[bool, int]: (success_status, total_files_deleted)
-        """
+
         print(f"\n{'='*60}")
         print(f"GLOBAL AWS S3 CLEANUP - ALL TEMPORARY FILES")
         print(f"{'='*60}")
@@ -217,82 +182,24 @@ class S3Cleaner:
     def cleanup_directories(self, 
                           directories: Optional[List[str]] = None,
                           workflow_type: str = "general") -> Tuple[bool, int]:
-        """
-        Clean up specified directories in the S3 bucket.
-        This method is kept for backward compatibility but redirects to global_cleanup.
-        
-        Args:
-            directories: List of directory paths to clean (ignored, uses global cleanup)
-            workflow_type: Type of workflow for logging purposes (ignored)
-            
-        Returns:
-            Tuple[bool, int]: (success_status, total_files_deleted)
-        """
         print(f"[i] Redirecting to global cleanup (directories parameter ignored)")
         return self.global_cleanup()
 
 
-# Main convenience function - this should be used by all workflows
 def cleanup_aws_s3_temp_files(bucket_name: str = "lithops-us-east-1-45dk") -> bool:
-    """
-    Global cleanup function for all AWS S3 temporary files.
-    This function should be used by all workflows instead of specific cleanup functions.
-    
-    Args:
-        bucket_name: The S3 bucket name to clean
-        
-    Returns:
-        bool: True if cleanup was successful, False otherwise
-    """
     cleaner = S3Cleaner(bucket_name)
     success, _ = cleaner.global_cleanup()
     return success
 
 
-# Legacy functions for backward compatibility - all redirect to global cleanup
-def cleanup_ml_temp_files(bucket_name: str = "lithops-us-east-1-45dk") -> bool:
-    """
-    Legacy function - redirects to global cleanup.
-    
-    Args:
-        bucket_name: The S3 bucket name to clean
-        
-    Returns:
-        bool: True if cleanup was successful, False otherwise
-    """
-    print("[i] cleanup_ml_temp_files is deprecated. Using global cleanup instead.")
-    return cleanup_aws_s3_temp_files(bucket_name)
 
-
-def cleanup_video_temp_files(bucket_name: str = "lithops-us-east-1-45dk") -> bool:
-    """
-    Legacy function - redirects to global cleanup.
-    
-    Args:
-        bucket_name: The S3 bucket name to clean
-        
-    Returns:
-        bool: True if cleanup was successful, False otherwise
-    """
-    print("[i] cleanup_video_temp_files is deprecated. Using global cleanup instead.")
-    return cleanup_aws_s3_temp_files(bucket_name)
 
 
 def cleanup_all_workflows(bucket_name: str = "lithops-us-east-1-45dk") -> bool:
-    """
-    Legacy function - redirects to global cleanup.
-    
-    Args:
-        bucket_name: The S3 bucket name to clean
-        
-    Returns:
-        bool: True if cleanup was successful, False otherwise
-    """
     print("[i] cleanup_all_workflows is deprecated. Using global cleanup instead.")
     return cleanup_aws_s3_temp_files(bucket_name)
 
 
-# Main execution for testing
 if __name__ == "__main__":
     print("Testing AWS S3 Global Cleanup...")
     success = cleanup_aws_s3_temp_files()
