@@ -19,8 +19,15 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-GENERATE_PLOTS = True
-# GENERATE_PLOTS = False
+# Import the expanded execution summary function
+try:
+    from minimum_execution_summary_generator import generate_expanded_execution_summary
+except ImportError:
+    print("⚠️  Warning: Could not import expanded execution summary generator")
+    generate_expanded_execution_summary = None
+
+# GENERATE_PLOTS = True
+GENERATE_PLOTS = False
 
 def run_script(script_name, description):
     """Run a Python script and return success status."""
@@ -739,6 +746,18 @@ def main():
     # Stage 5: Minimum Execution Summary
     print("\n📊 STAGE 5: MINIMUM EXECUTION SUMMARY")
     summary_success = generate_min_execution_summary()
+    
+    # Stage 6: Expanded Execution Summary with Costs
+    print("\n📊 STAGE 6: EXPANDED EXECUTION SUMMARY WITH COSTS")
+    expanded_summary_success = False
+    if generate_expanded_execution_summary:
+        try:
+            expanded_summary_success = generate_expanded_execution_summary()
+        except Exception as e:
+            print(f"❌ Expanded execution summary failed: {e}")
+            expanded_summary_success = False
+    else:
+        print("⚠️  Expanded execution summary generator not available")
     
     # Summary
     end_time = datetime.now()
