@@ -19,6 +19,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+# GENERATE_PLOTS = True
 GENERATE_PLOTS = False
 
 def run_script(script_name, description):
@@ -102,7 +103,7 @@ def extract_analysis_data(json_file_path):
             # Enhanced profiling analysis format
             extracted_data = []
             for entry in data['profiling_data']:
-                memory_str = entry.get('memory', 'Unknown')
+                memory_str = entry.get('memory', 'NA')
                 if isinstance(memory_str, str) and memory_str.endswith('Mb'):
                     memory = int(memory_str[:-2])
                 else:
@@ -111,11 +112,11 @@ def extract_analysis_data(json_file_path):
                 config = entry.get('configuration', '')
                 if config and config.startswith('(') and config.endswith(')'):
                     config_parts = config[1:-1].split(', ')
-                    workers = int(config_parts[2]) if len(config_parts) >= 3 else 'Unknown'
+                    workers = int(config_parts[2]) if len(config_parts) >= 3 else 'NA'
                 else:
-                    workers = 'Unknown'
+                    workers = 'NA'
                 
-                total_executions = 'Unknown'
+                total_executions = 'NA'
                 if 'profiling_metrics' in entry:
                     metrics = entry['profiling_metrics']
                     for metric_key in ['read', 'compute', 'write']:
@@ -124,7 +125,7 @@ def extract_analysis_data(json_file_path):
                             break
                 
                 extracted_data.append({
-                    'title': entry.get('title', 'Unknown'),
+                    'title': entry.get('title', 'NA'),
                     'memory': memory,
                     'workers': workers,
                     'total_executions': total_executions
@@ -136,14 +137,14 @@ def extract_analysis_data(json_file_path):
             extracted_data = []
             for result in data['analysis_results']:
                 extracted_data.append({
-                    'memory': result.get('memory', 'Unknown'),
-                    'workers': result.get('workers', 'Unknown'),
-                    'total_executions': result.get('total_executions', 'Unknown')
+                    'memory': result.get('memory', 'NA'),
+                    'workers': result.get('workers', 'NA'),
+                    'total_executions': result.get('total_executions', 'NA')
                 })
             return extracted_data
         
         else:
-            return [{'error': 'Unknown JSON structure'}]
+            return [{'error': 'NA JSON structure'}]
             
     except Exception as e:
         return [{'error': f'Error reading file: {str(e)}'}]
@@ -179,6 +180,42 @@ def cleanup_analysis_results():
     print(f"✅ Cleaned analysis_results folder: removed {removed_count} JSON files")
     return True
 
+def cleanup_plot_directories():
+    """Clean up plot output directories by removing all PNG files."""
+    print(f"\n🧹 Cleaning Plot Output Directories")
+    
+    plot_dirs = ["combined_plots_output", "min_max_plots_output"]
+    total_removed = 0
+    
+    for plot_dir_name in plot_dirs:
+        plot_dir = Path(plot_dir_name)
+        
+        if not plot_dir.exists():
+            print(f"📁 {plot_dir_name} directory doesn't exist, skipping...")
+            continue
+        
+        # Find all PNG files in the directory
+        png_files = list(plot_dir.glob("*.png"))
+        
+        if not png_files:
+            print(f"✅ {plot_dir_name} directory is already clean (no PNG files found)")
+            continue
+        
+        # Remove all PNG files
+        removed_count = 0
+        for png_file in png_files:
+            try:
+                png_file.unlink()
+                removed_count += 1
+                total_removed += 1
+            except Exception as e:
+                print(f"⚠️  Failed to remove {png_file.name}: {e}")
+        
+        print(f"✅ Cleaned {plot_dir_name} folder: removed {removed_count} PNG files")
+    
+    print(f"✅ Total PNG files removed from plot directories: {total_removed}")
+    return True
+
 def simplify_title(title):
     """Simplify execution titles by removing redundant parts."""
     # Remove redundant "monte_carlo_pi_" prefix
@@ -193,6 +230,131 @@ def simplify_title(title):
         title = title.replace("montecarlo_pi_estimation_monte_carlo_pi_stage", "montecarlo_pi_estimation_stage")
     
     return title
+
+def parse_filename_structure(filename):
+    """
+    Parse filename structure: example_file_title_backend_memory_architecture
+    Returns dict with parsed components or error information.
+    
+    Rules:
+    - Split by '_'
+    - First part: example (video, titanic, pi, ml)
+    - Second part: file_title (stage3, etc.)
+    - Third part: backend (aws, k8s, or NA if not these values)
+    - Fourth part: memory (512Mb, 1024Mb, etc.)
+    - Fifth part: architecture (arm, x86)
+    - If any field from backend onwards is undefined, should be shown as error in table
+    """
+    parts = filename.split('_')
+    
+    if len(parts) < 2:
+        return {'error': 'Invalid filename structure - too few parts'}
+    
+    result = {
+        'example': parts[0] if len(parts) > 0 else 'NA',
+        'file_title': parts[1] if len(parts) > 1 else 'NA',
+        'backend': 'NA',
+        'memory': 'NA', 
+        'architecture': 'NA',
+        'error': None
+    }
+    
+    # Check if we have the full structure (at least 5 parts)
+    if len(parts) >= 5:
+        # Full structure: example_file_title_backend_memory_architecture
+        potential_backend = parts[2]
+        potential_memory = parts[3]
+        potential_architecture = parts[4]
+        
+        # Validate backend - must be aws or k8s, otherwise NA
+        if potential_backend.lower() in ['aws', 'k8s']:
+            result['backend'] = potential_backend.lower()
+        else:
+            result['backend'] = 'NA'
+            
+        # Memory field - keep as is
+        result['memory'] = potential_memory
+        
+        # Validate architecture - must be arm or x86, otherwise NA
+        if potential_architecture.lower() in ['arm', 'x86']:
+            result['architecture'] = potential_architecture.lower()
+        else:
+            result['architecture'] = 'NA'
+            
+    elif len(parts) >= 3:
+        # Partial structure - try to identify what we have
+        remaining_parts = parts[2:]
+        
+        # Look for known patterns in remaining parts
+        for part in remaining_parts:
+            part_lower = part.lower()
+            
+            # Check for backend
+            if part_lower in ['aws', 'k8s'] and result['backend'] == 'NA':
+                result['backend'] = part_lower
+            # Check for memory (contains 'mb' or is numeric)
+            elif ('mb' in part_lower or part.isdigit()) and result['memory'] == 'NA':
+                result['memory'] = part
+            # Check for architecture
+            elif part_lower in ['arm', 'x86'] and result['architecture'] == 'NA':
+                result['architecture'] = part_lower
+        
+        # If we have 3+ parts but missing critical fields, it's an error
+        # unless it's a processing file (special case)
+        if 'processing' not in filename.lower():
+            if result['backend'] == 'NA' or result['memory'] == 'NA' or result['architecture'] == 'NA':
+                result['error'] = 'Missing required fields (backend, memory, or architecture)'
+    
+    # Special handling for processing files - they can have NA values without error
+    if 'processing' in filename.lower():
+        # Processing files are allowed to have NA values
+        result['error'] = None
+    
+    return result
+
+def extract_architecture_from_title(title):
+    """Extract architecture from title or filename using structured parsing."""
+    parsed = parse_filename_structure(title)
+    
+    if parsed['error']:
+        return "ERROR"
+    
+    # Return the parsed architecture, converting to standard format
+    arch = parsed['architecture'].upper() if parsed['architecture'] != 'NA' else 'NA'
+    if arch == 'ARM':
+        return 'ARM'
+    elif arch == 'X86':
+        return 'x86'
+    else:
+        return 'NA'
+
+def extract_memory_from_title(title):
+    """Extract memory from title or filename using structured parsing."""
+    parsed = parse_filename_structure(title)
+    
+    if parsed['error']:
+        return 'ERROR'
+    
+    memory = parsed['memory']
+    if memory == 'NA':
+        return 'NA'
+    
+    # Extract numeric value from memory string like "512Mb"
+    import re
+    memory_match = re.search(r'(\d+)', memory)
+    if memory_match:
+        return int(memory_match.group(1))
+    
+    return memory
+
+def extract_example_from_title(title):
+    """Extract example name from title or filename using structured parsing."""
+    parsed = parse_filename_structure(title)
+    
+    if parsed['error']:
+        return 'ERROR'
+    
+    return parsed['example']
 
 def generate_analysis_tables():
     """Generate consolidated summary table from analysis results."""
@@ -220,48 +382,69 @@ def generate_analysis_tables():
         data = extract_analysis_data(json_file)
         
         if not data or (len(data) == 1 and 'error' in data[0]):
-            table_data.append([file_name, "Error", "Error", "Error"])
+            table_data.append([file_name, "Error", "Error", "Error", "Error"])
             continue
         
         # For enhanced_profiling_analysis.json, use the individual titles
         if 'title' in data[0]:
             for item in data:
-                title = item.get('title', 'Unknown')
+                title = item.get('title', 'NA')
                 # Apply title simplification
                 simplified_title = simplify_title(title)
-                memory = item.get('memory', 'Unknown')
-                workers = item.get('workers', 'Unknown')
-                total_executions = item.get('total_executions', 'Unknown')
-                table_data.append([simplified_title, str(memory), str(workers), str(total_executions)])
+                architecture = extract_architecture_from_title(simplified_title)
+                memory = item.get('memory', 'NA')
+                workers = item.get('workers', 'NA')
+                total_executions = item.get('total_executions', 'NA')
+                
+                # Use parsed memory if available
+                parsed_memory = extract_memory_from_title(simplified_title)
+                if parsed_memory != 'NA' and parsed_memory != 'ERROR':
+                    memory = parsed_memory
+                
+                table_data.append([simplified_title, architecture, str(memory), str(workers), str(total_executions)])
         else:
             # For regular analysis files, use filename as title and show each configuration
             for item in data:
-                memory = item.get('memory', 'Unknown')
-                workers = item.get('workers', 'Unknown')
-                total_executions = item.get('total_executions', 'Unknown')
+                memory = item.get('memory', 'NA')
+                workers = item.get('workers', 'NA')
+                total_executions = item.get('total_executions', 'NA')
                 # Apply title simplification to filename too
                 simplified_file_name = simplify_title(file_name)
-                table_data.append([simplified_file_name, str(memory), str(workers), str(total_executions)])
+                architecture = extract_architecture_from_title(simplified_file_name)
+                
+                # Use parsed memory if available
+                parsed_memory = extract_memory_from_title(simplified_file_name)
+                if parsed_memory != 'NA' and parsed_memory != 'ERROR':
+                    memory = parsed_memory
+                elif memory == 0 and ('Mb' in file_name or 'mb' in file_name.lower()):
+                    # Extract memory from filename like "titanic_stage_aws_2048Mb_arm"
+                    import re
+                    memory_match = re.search(r'(\d+)[Mm]b', file_name)
+                    if memory_match:
+                        memory = int(memory_match.group(1))
+                
+                table_data.append([simplified_file_name, architecture, str(memory), str(workers), str(total_executions)])
     
     # Calculate column widths for proper formatting
     if table_data:
         col_widths = [
             max(len("Execution Title"), max(len(row[0]) for row in table_data)),
-            max(len("Memory"), max(len(row[1]) for row in table_data)),
-            max(len("Workers"), max(len(row[2]) for row in table_data)),
-            max(len("Total Executions"), max(len(row[3]) for row in table_data))
+            max(len("Arch"), max(len(row[1]) for row in table_data)),
+            max(len("Memory"), max(len(row[2]) for row in table_data)),
+            max(len("Workers"), max(len(row[3]) for row in table_data)),
+            max(len("Total Ex"), max(len(row[4]) for row in table_data))
         ]
         
         # Print formatted table header
-        header = f"| {'Execution Title':<{col_widths[0]}} | {'Memory':<{col_widths[1]}} | {'Workers':<{col_widths[2]}} | {'Total Executions':<{col_widths[3]}} |"
-        separator = f"|{'-' * (col_widths[0] + 2)}|{'-' * (col_widths[1] + 2)}|{'-' * (col_widths[2] + 2)}|{'-' * (col_widths[3] + 2)}|"
+        header = f"| {'Execution Title':<{col_widths[0]}} | {'Arch':<{col_widths[1]}} | {'Memory':<{col_widths[2]}} | {'Workers':<{col_widths[3]}} | {'Total Ex':<{col_widths[4]}} |"
+        separator = f"|{'-' * (col_widths[0] + 2)}|{'-' * (col_widths[1] + 2)}|{'-' * (col_widths[2] + 2)}|{'-' * (col_widths[3] + 2)}|{'-' * (col_widths[4] + 2)}|"
         
         print(header)
         print(separator)
         
         # Print formatted table rows
         for row in table_data:
-            formatted_row = f"| {row[0]:<{col_widths[0]}} | {row[1]:<{col_widths[1]}} | {row[2]:<{col_widths[2]}} | {row[3]:<{col_widths[3]}} |"
+            formatted_row = f"| {row[0]:<{col_widths[0]}} | {row[1]:<{col_widths[1]}} | {row[2]:<{col_widths[2]}} | {row[3]:<{col_widths[3]}} | {row[4]:<{col_widths[4]}} |"
             print(formatted_row)
     
     print(f"\n📊 Total configurations analyzed: {len(table_data)}")
@@ -281,7 +464,7 @@ def generate_min_execution_summary():
         print("❌ No JSON files found in analysis_results")
         return False
     
-    # Data structure to store min executions: {arch_memory: {example: {min_executions, min_workers, filename}}}
+    # Data structure to store min executions: {arch_memory: {example: min_executions}}
     summary_data = {}
     detailed_info = {}
     
@@ -296,50 +479,51 @@ def generate_min_execution_summary():
         # For enhanced_profiling_analysis.json, use the individual titles
         if 'title' in data[0]:
             for item in data:
-                title = item.get('title', 'Unknown')
+                title = item.get('title', 'NA')
                 simplified_title = simplify_title(title)
-                memory = item.get('memory', 'Unknown')
-                total_executions = item.get('total_executions', 'Unknown')
-                workers = item.get('workers', 'Unknown')
+                memory = item.get('memory', 'NA')
+                total_executions = item.get('total_executions', 'NA')
+                workers = item.get('workers', 'NA')
                 
                 # Skip if we don't have valid data
-                if memory == 'Unknown' or total_executions == 'Unknown':
+                if memory == 'NA' or total_executions == 'NA':
                     continue
                 
-                # Extract example name and determine architecture
-                example = None
-                architecture = "unknown"
+                # Use new parsing logic
+                example = extract_example_from_title(simplified_title)
+                architecture = extract_architecture_from_title(simplified_title)
+                parsed_memory = extract_memory_from_title(simplified_title)
                 
-                if 'titanic' in simplified_title.lower():
-                    example = 'titanic'
-                elif 'pi' in simplified_title.lower():
-                    example = 'pi'
-                elif 'ml' in simplified_title.lower():
-                    example = 'ml'
-                elif 'video' in simplified_title.lower():
-                    example = 'video'
+                # Use parsed memory if available, otherwise use item memory
+                if parsed_memory != 'NA' and parsed_memory != 'ERROR':
+                    memory = parsed_memory
                 
-                # Determine architecture from title
-                if 'x86' in simplified_title.lower():
-                    architecture = "x86"  # Explicit x86 in title
-                elif 'aws' in simplified_title.lower() and 'arm' in simplified_title.lower():
-                    architecture = "ARM"
-                elif 'local' in simplified_title.lower() or 'processing' in simplified_title.lower():
-                    architecture = "x86"  # Assuming local/processing is x86
-                elif 'aws' in simplified_title.lower():
-                    architecture = "ARM"  # Default AWS to ARM if not specified
+                # Skip if parsing failed
+                if example == 'ERROR' or architecture == 'ERROR':
+                    continue
+                
+                # Skip unknown examples or architectures
+                if example not in ['titanic', 'pi', 'ml', 'video'] or architecture == 'unknown':
+                    continue
+                
+                # Create key for architecture and memory
+                arch_memory_key = f"{architecture} {memory}"
+                detail_key = f"{arch_memory_key}_{example}"
+                
+                if arch_memory_key not in summary_data:
+                    summary_data[arch_memory_key] = {}
+                
+                if example not in summary_data[arch_memory_key]:
+                    summary_data[arch_memory_key][example] = total_executions
+                    detailed_info[detail_key] = {
+                        'min_executions': total_executions,
+                        'min_workers': workers,
+                        'filename': file_name,
+                        'title': simplified_title
+                    }
                 else:
-                    architecture = "default"  # Catch-all for unclear architecture
-                
-                if example and architecture != "unknown":
-                    # Create key for architecture and memory
-                    arch_memory_key = f"{architecture} {memory}"
-                    detail_key = f"{arch_memory_key}_{example}"
-                    
-                    if arch_memory_key not in summary_data:
-                        summary_data[arch_memory_key] = {}
-                    
-                    if example not in summary_data[arch_memory_key]:
+                    # Keep minimum execution count
+                    if total_executions < summary_data[arch_memory_key][example]:
                         summary_data[arch_memory_key][example] = total_executions
                         detailed_info[detail_key] = {
                             'min_executions': total_executions,
@@ -347,80 +531,67 @@ def generate_min_execution_summary():
                             'filename': file_name,
                             'title': simplified_title
                         }
-                    else:
-                        # Keep minimum execution count
-                        if total_executions < summary_data[arch_memory_key][example]:
-                            summary_data[arch_memory_key][example] = total_executions
-                            detailed_info[detail_key] = {
-                                'min_executions': total_executions,
-                                'min_workers': workers,
-                                'filename': file_name,
-                                'title': simplified_title
-                            }
-                        elif total_executions == summary_data[arch_memory_key][example] and workers < detailed_info[detail_key]['min_workers']:
-                            detailed_info[detail_key]['min_workers'] = workers
+                    elif total_executions == summary_data[arch_memory_key][example] and workers < detailed_info[detail_key]['min_workers']:
+                        detailed_info[detail_key]['min_workers'] = workers
         else:
             # For regular analysis files, use filename to determine example and process each configuration
             for item in data:
-                memory = item.get('memory', 'Unknown')
-                total_executions = item.get('total_executions', 'Unknown')
-                workers = item.get('workers', 'Unknown')
+                memory = item.get('memory', 'NA')
+                total_executions = item.get('total_executions', 'NA')
+                workers = item.get('workers', 'NA')
                 
                 # Skip if we don't have valid data
-                if memory == 'Unknown' or total_executions == 'Unknown':
+                if memory == 'NA' or total_executions == 'NA':
                     continue
                 
-                # Extract example name from filename
-                example = None
-                architecture = "unknown"
+                # Use new parsing logic
+                example = extract_example_from_title(file_name)
+                architecture = extract_architecture_from_title(file_name)
+                parsed_memory = extract_memory_from_title(file_name)
                 
-                if 'titanic' in file_name.lower():
-                    example = 'titanic'
-                elif 'pi' in file_name.lower():
-                    example = 'pi'
-                elif 'ml' in file_name.lower():
-                    example = 'ml'
-                elif 'video' in file_name.lower():
-                    example = 'video'
-                
-                # Extract memory from filename if analysis data shows 0
+                # Use parsed memory if available, otherwise use item memory
                 actual_memory = memory
-                if memory == 0 and ('Mb' in file_name or 'mb' in file_name.lower()):
+                if parsed_memory != 'NA' and parsed_memory != 'ERROR':
+                    actual_memory = parsed_memory
+                elif memory == 0 and ('Mb' in file_name or 'mb' in file_name.lower()):
                     # Extract memory from filename like "titanic_stage_aws_2048Mb_arm"
                     import re
                     memory_match = re.search(r'(\d+)[Mm]b', file_name)
                     if memory_match:
                         actual_memory = int(memory_match.group(1))
                 
-                # Determine architecture from filename
-                if 'x86' in file_name.lower():
-                    architecture = "x86"  # Explicit x86 in filename
-                elif 'aws' in file_name.lower() and 'arm' in file_name.lower():
-                    architecture = "ARM"
-                elif 'processing' in file_name.lower():
-                    architecture = "x86"  # processing indicates x86
-                elif 'aws' in file_name.lower():
-                    architecture = "ARM"  # Default AWS to ARM if not specified
-                elif actual_memory == 0 or actual_memory == 'default':
-                    architecture = "x86"  # Default/0 memory usually indicates x86
-                else:
-                    architecture = "default"  # Catch-all for unclear architecture
+                # Skip if parsing failed
+                if example == 'ERROR' or architecture == 'ERROR':
+                    continue
                 
-                if example and architecture != "unknown":
-                    # Handle memory value conversion
-                    if actual_memory == 0 or actual_memory == 'default':
-                        memory_key = "default"
-                    else:
-                        memory_key = str(actual_memory)
-                    
-                    # Create key for architecture and memory
-                    arch_memory_key = f"{architecture} {memory_key}"
-                    detail_key = f"{arch_memory_key}_{example}"
-                    
-                    if arch_memory_key not in summary_data:
-                        summary_data[arch_memory_key] = {}
-                    
-                    if example not in summary_data[arch_memory_key]:
+                # Skip unknown examples or architectures
+                if example not in ['titanic', 'pi', 'ml', 'video'] or architecture == 'unknown':
+                    continue
+                
+                # Handle memory value conversion
+                if actual_memory == 0 or actual_memory == 'default':
+                    memory_key = "default"
+                else:
+                    memory_key = str(actual_memory)
+                
+                # Create key for architecture and memory
+                arch_memory_key = f"{architecture} {memory_key}"
+                detail_key = f"{arch_memory_key}_{example}"
+                
+                if arch_memory_key not in summary_data:
+                    summary_data[arch_memory_key] = {}
+                
+                if example not in summary_data[arch_memory_key]:
+                    summary_data[arch_memory_key][example] = total_executions
+                    detailed_info[detail_key] = {
+                        'min_executions': total_executions,
+                        'min_workers': workers,
+                        'filename': file_name,
+                        'title': file_name
+                    }
+                else:
+                    # Keep minimum execution count
+                    if total_executions < summary_data[arch_memory_key][example]:
                         summary_data[arch_memory_key][example] = total_executions
                         detailed_info[detail_key] = {
                             'min_executions': total_executions,
@@ -428,18 +599,8 @@ def generate_min_execution_summary():
                             'filename': file_name,
                             'title': file_name
                         }
-                    else:
-                        # Keep minimum execution count
-                        if total_executions < summary_data[arch_memory_key][example]:
-                            summary_data[arch_memory_key][example] = total_executions
-                            detailed_info[detail_key] = {
-                                'min_executions': total_executions,
-                                'min_workers': workers,
-                                'filename': file_name,
-                                'title': file_name
-                            }
-                        elif total_executions == summary_data[arch_memory_key][example] and workers < detailed_info[detail_key]['min_workers']:
-                            detailed_info[detail_key]['min_workers'] = workers
+                    elif total_executions == summary_data[arch_memory_key][example] and workers < detailed_info[detail_key]['min_workers']:
+                        detailed_info[detail_key]['min_workers'] = workers
     
     # Generate the table
     print("\n# Minimum Execution Summary")
@@ -449,7 +610,25 @@ def generate_min_execution_summary():
     examples = ['titanic', 'pi', 'ml', 'video']
     
     # Sort architecture/memory combinations
-    arch_memory_keys = sorted(summary_data.keys(), key=lambda x: (x.split()[0], int(x.split()[1]) if x.split()[1].isdigit() else 0))
+    # Custom sorting to put NA at the end and handle numeric memory values
+    def sort_key(key):
+        parts = key.split()
+        arch = parts[0]
+        memory = parts[1]
+        
+        # Sort order: ARM first, then x86, then NA
+        arch_order = {'ARM': 0, 'x86': 1, 'NA': 2}
+        arch_priority = arch_order.get(arch, 3)
+        
+        # Handle memory sorting
+        if memory.isdigit():
+            memory_value = int(memory)
+        else:
+            memory_value = 9999  # Put non-numeric at end
+            
+        return (arch_priority, memory_value)
+    
+    arch_memory_keys = sorted(summary_data.keys(), key=sort_key)
     
     if not arch_memory_keys:
         print("❌ No valid data found for summary table")
@@ -515,8 +694,9 @@ def main():
     # Stage 0: Cleanup
     print("\n🧹 STAGE 0: CLEANUP")
     cleanup_success = cleanup_analysis_results()
+    plot_cleanup_success = cleanup_plot_directories()
     
-    if not cleanup_success:
+    if not cleanup_success or not plot_cleanup_success:
         print("\n❌ Workflow stopped - cleanup failed")
         return False
     

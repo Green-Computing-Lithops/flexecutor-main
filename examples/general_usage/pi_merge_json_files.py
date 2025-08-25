@@ -16,9 +16,14 @@ def merge_json_files(stage_num):
     project_root = script_dir.parent.parent  # Go up to flexecutor-main root
     
     # File paths - corrected to use proper relative paths and file names
-    main_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi/monte_carlo_pi_stage.json"
-    merge_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_aws_1024Mb_arm/stage.json"
-    output_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_aws_1024Mb_arm/monte_carlo_pi_stage_merged.json"
+    # main_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi/monte_carlo_pi_stage.json"
+    # merge_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_aws_1024Mb_arm/stage.json"
+    # output_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_aws_1024Mb_arm/monte_carlo_pi_stage_merged.json"
+
+    # File paths --> F include the 
+    main_file = project_root / f"examples/video/profiling/video/stage{stage_num}.json"
+    merge_file = project_root / f"examples/video/profiling/video_aws_1024Mb_x86/stage{stage_num}.json"
+    output_file = project_root / f"examples/video/profiling/video_aws_1024Mb_x86/stage{stage_num}.json"
 
     # Check if both files exist
     if not main_file.exists():
@@ -71,8 +76,12 @@ def main():
     
     # Since we're only merging one pair of files, we don't need the loop
     success_count = 0
-    if merge_json_files(0):  # stage_num parameter is not used in current logic
+    if merge_json_files(4):  # stage_num parameter is not used in current logic
         success_count += 1
+
+    for stage_num in range(4):
+        if merge_json_files(stage_num):
+            success_count += 1        
     
     print(f"\nMerging complete! Successfully merged {success_count} stage files.")
 

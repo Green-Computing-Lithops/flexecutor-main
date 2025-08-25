@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
-    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../ml/profiling/ml_aws_2048Mb_x86/stage2.json",
+    "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../ml/profiling/ml_aws_2048Mb_x86/stage2.json",
     "title": "ml_stage2_aws_2048Mb_x86",
     "example": "ml",
     "stage": "stage2",

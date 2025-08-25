@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
-    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../titanic/profiling/titanic_aws_512Mb_x86/stage.json",
+    "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../titanic/profiling/titanic_aws_512Mb_x86/stage.json",
     "title": "titanic_stage_aws_512Mb_x86",
     "example": "titanic",
     "stage": "stage",
