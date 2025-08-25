@@ -16,14 +16,14 @@ def merge_json_files(stage_num):
     project_root = script_dir.parent.parent  # Go up to flexecutor-main root
     
     # File paths - corrected to use proper relative paths and file names
-    # main_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi/monte_carlo_pi_stage.json"
-    # merge_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_aws_1024Mb_arm/stage.json"
-    # output_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_aws_1024Mb_arm/monte_carlo_pi_stage_merged.json"
+    main_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_2048MB_x86/monte_carlo_pi_stage.json"
+    merge_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_aws_2048MB_x86/stage.json"
+    output_file = project_root / "examples/montecarlo_pi_estimation/profiling/pi_aws_2048MB_x86/stage_merged.json"
 
     # File paths --> F include the 
-    main_file = project_root / f"examples/video/profiling/video/stage{stage_num}.json"
-    merge_file = project_root / f"examples/video/profiling/video_aws_1024Mb_x86/stage{stage_num}.json"
-    output_file = project_root / f"examples/video/profiling/video_aws_1024Mb_x86/stage{stage_num}.json"
+    # main_file = project_root / f"examples/video/profiling/video/stage{stage_num}.json"
+    # merge_file = project_root / f"examples/video/profiling/video_aws_1024Mb_x86/stage{stage_num}.json"
+    # output_file = project_root / f"examples/video/profiling/video_aws_1024Mb_x86/stage{stage_num}.json"
 
     # Check if both files exist
     if not main_file.exists():

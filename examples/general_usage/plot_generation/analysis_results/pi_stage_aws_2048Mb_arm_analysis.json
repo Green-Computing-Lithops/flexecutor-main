@@ -1,7 +1,7 @@
 {
   "metadata": {
     "description": "Enhanced profiling analysis results with processor-specific TDP calculations",
-    "source_file": "/home/minirobbin/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../montecarlo_pi_estimation/profiling/pi_aws_2048Mb_arm/stage.json",
+    "source_file": "/Users/arriazui/Desktop/GreenComputing/flexecutor-main/examples/general_usage/plot_generation/../../montecarlo_pi_estimation/profiling/pi_aws_2048Mb_arm/stage.json",
     "title": "pi_stage_aws_2048Mb_arm",
     "example": "pi",
     "stage": "stage",

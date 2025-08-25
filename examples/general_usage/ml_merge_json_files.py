@@ -12,9 +12,9 @@ def merge_json_files(stage_num):
     """Merge a stage file with its corresponding merge/ file"""
     
     # File paths
-    main_file = f"ml/stage{stage_num}.json"
-    merge_file = f"ml_aws_512Mb_arm/stage{stage_num}.json"
-    output_file = f"ml_aws_512Mb_arm/stage{stage_num}_merged.json"
+    main_file = f"examples/ml/profiling/ml_aws_2048Mb_x86/merge/stage{stage_num}.json"
+    merge_file = f"examples/ml/profiling/ml_aws_2048Mb_x86/stage{stage_num}_2048MB.json"
+    output_file = f"examples/ml/profiling/ml_aws_2048Mb_x86/stage{stage_num}.json"
 
     # merge_file = f"ml_aws_512Mb_arm/stage{stage_num}_merged.json"
     # output_file = f"ml_aws_512Mb_arm/stage{stage_num}.json"
@@ -67,10 +67,6 @@ def merge_json_files(stage_num):
 def main():
     """Main function to merge all stage files"""
     print("Starting JSON file merging process...")
-    
-    # Change to the script directory
-    script_dir = Path(__file__).parent
-    os.chdir(script_dir)
     
     # Merge all stage files (0-3)
     success_count = 0

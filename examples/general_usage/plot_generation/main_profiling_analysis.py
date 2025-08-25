@@ -19,8 +19,8 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-# GENERATE_PLOTS = True
-GENERATE_PLOTS = False
+GENERATE_PLOTS = True
+# GENERATE_PLOTS = False
 
 def run_script(script_name, description):
     """Run a Python script and return success status."""
@@ -149,71 +149,70 @@ def extract_analysis_data(json_file_path):
     except Exception as e:
         return [{'error': f'Error reading file: {str(e)}'}]
 
-def cleanup_analysis_results():
-    """Clean up analysis_results folder by removing all JSON files."""
-    print(f"\n🧹 Cleaning Analysis Results Folder")
-    
-    analysis_dir = Path("analysis_results")
-    
-    if not analysis_dir.exists():
-        print(f"📁 Analysis directory doesn't exist, creating it...")
-        analysis_dir.mkdir(parents=True, exist_ok=True)
-        print(f"✅ Created analysis_results directory")
-        return True
-    
-    # Find all JSON files in the directory
-    json_files = list(analysis_dir.glob("*.json"))
-    
-    if not json_files:
-        print(f"✅ Analysis directory is already clean (no JSON files found)")
-        return True
-    
-    # Remove all JSON files
-    removed_count = 0
-    for json_file in json_files:
-        try:
-            json_file.unlink()
-            removed_count += 1
-        except Exception as e:
-            print(f"⚠️  Failed to remove {json_file.name}: {e}")
-    
-    print(f"✅ Cleaned analysis_results folder: removed {removed_count} JSON files")
-    return True
+def cleanup_all_output_directories():
 
-def cleanup_plot_directories():
-    """Clean up plot output directories by removing all PNG files."""
-    print(f"\n🧹 Cleaning Plot Output Directories")
+    # Define all target directories that need complete cleanup
+    target_directories = [
+        "analysis_results",
+        "architecture_analysis_output", 
+        "combined_plots_output",
+        "min_max_plots_output"
+    ]
     
-    plot_dirs = ["combined_plots_output", "min_max_plots_output"]
-    total_removed = 0
+    total_removed_files = 0
+    total_removed_dirs = 0
     
-    for plot_dir_name in plot_dirs:
-        plot_dir = Path(plot_dir_name)
+    for dir_name in target_directories:
+        dir_path = Path(dir_name)
         
-        if not plot_dir.exists():
-            print(f"📁 {plot_dir_name} directory doesn't exist, skipping...")
+        print(f"\n📁 Processing directory: {dir_name}")
+        
+        if not dir_path.exists():
+            print(f"   📂 Directory doesn't exist, creating it...")
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"   ✅ Created {dir_name} directory")
             continue
         
-        # Find all PNG files in the directory
-        png_files = list(plot_dir.glob("*.png"))
+        # Count existing contents before cleanup
+        all_files = list(dir_path.rglob("*"))
+        files_count = len([f for f in all_files if f.is_file()])
+        dirs_count = len([f for f in all_files if f.is_dir()])
         
-        if not png_files:
-            print(f"✅ {plot_dir_name} directory is already clean (no PNG files found)")
+        if files_count == 0 and dirs_count == 0:
+            print(f"   ✅ Directory is already empty")
             continue
         
-        # Remove all PNG files
-        removed_count = 0
-        for png_file in png_files:
-            try:
-                png_file.unlink()
-                removed_count += 1
-                total_removed += 1
-            except Exception as e:
-                print(f"⚠️  Failed to remove {png_file.name}: {e}")
+        print(f"   📊 Found {files_count} files and {dirs_count} subdirectories")
         
-        print(f"✅ Cleaned {plot_dir_name} folder: removed {removed_count} PNG files")
+        # Remove all contents completely
+        removed_files = 0
+        removed_dirs = 0
+        
+        try:
+            # Remove all files and subdirectories
+            for item in dir_path.iterdir():
+                if item.is_file():
+                    item.unlink()
+                    removed_files += 1
+                elif item.is_dir():
+                    shutil.rmtree(item)
+                    removed_dirs += 1
+            
+            total_removed_files += removed_files
+            total_removed_dirs += removed_dirs
+            
+            print(f"   ✅ Cleaned {dir_name}: removed {removed_files} files and {removed_dirs} subdirectories")
+            
+        except Exception as e:
+            print(f"   ⚠️  Error cleaning {dir_name}: {e}")
+            return False
     
-    print(f"✅ Total PNG files removed from plot directories: {total_removed}")
+    print(f"\n🎯 CLEANUP SUMMARY:")
+    print(f"   📁 Directories processed: {len(target_directories)}")
+    print(f"   🗑️  Total files removed: {total_removed_files}")
+    print(f"   📂 Total subdirectories removed: {total_removed_dirs}")
+    print(f"   ✅ All output directories are now completely clean")
+    
     return True
 
 def simplify_title(title):
@@ -360,9 +359,12 @@ def generate_analysis_tables():
     """Generate consolidated summary table from analysis results."""
     print(f"\n📋 Generating Analysis Tables")
     
-    analysis_dir = Path("analysis_results")
+    # Use the correct path relative to the script location
+    script_dir = Path(__file__).parent
+    analysis_dir = script_dir / "analysis_results"
+    
     if not analysis_dir.exists():
-        print(f"❌ Analysis directory not found")
+        print(f"❌ Analysis directory not found at {analysis_dir}")
         return False
     
     json_files = sorted(list(analysis_dir.glob("*.json")))
@@ -454,9 +456,12 @@ def generate_min_execution_summary():
     """Generate minimum execution summary table by example and architecture/memory."""
     print(f"\n📊 Generating Minimum Execution Summary Table")
     
-    analysis_dir = Path("analysis_results")
+    # Use the correct path relative to the script location
+    script_dir = Path(__file__).parent
+    analysis_dir = script_dir / "analysis_results"
+    
     if not analysis_dir.exists():
-        print(f"❌ Analysis directory not found")
+        print(f"❌ Analysis directory not found at {analysis_dir}")
         return False
     
     json_files = sorted(list(analysis_dir.glob("*.json")))
@@ -693,10 +698,9 @@ def main():
     
     # Stage 0: Cleanup
     print("\n🧹 STAGE 0: CLEANUP")
-    cleanup_success = cleanup_analysis_results()
-    plot_cleanup_success = cleanup_plot_directories()
+    cleanup_success = cleanup_all_output_directories()
     
-    if not cleanup_success or not plot_cleanup_success:
+    if not cleanup_success:
         print("\n❌ Workflow stopped - cleanup failed")
         return False
     
