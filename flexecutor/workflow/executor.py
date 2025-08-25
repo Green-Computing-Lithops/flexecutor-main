@@ -230,8 +230,20 @@ class DAGExecutor:
         # self.optimize(ConfigBounds(*[(1, 6), (512, 4096), (1, 3)]))
         if num_workers is not None:
             for stage in self._dag.stages:
-                # Preserve existing memory configuration if already set, otherwise use default
+                # Preserve existing memory configuration if already set, otherwise use runtime memory from executor
                 existing_memory = stage.resource_config.memory if stage.resource_config else 1024
+                
+                # If executor has runtime_memory configured, use that instead
+                if hasattr(self._executor, 'config') and self._executor.config:
+                    runtime_memory = self._executor.config.get('lithops', {}).get('runtime_memory')
+                    if not runtime_memory:
+                        # Try to get from backend-specific config
+                        backend = self._executor.config.get('lithops', {}).get('backend', 'aws_lambda')
+                        runtime_memory = self._executor.config.get(backend, {}).get('runtime_memory')
+                    
+                    if runtime_memory:
+                        existing_memory = runtime_memory
+                
                 stage.resource_config = StageConfig(
                     cpu=1, memory=existing_memory, workers=num_workers
                 )

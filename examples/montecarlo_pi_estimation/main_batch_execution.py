@@ -103,7 +103,7 @@ def run_monte_carlo_pi_estimation_with_workers(worker_count):
 
     @flexorchestrator(bucket="lithops-us-east-1-45dk")
     def monte_carlo_pi_workflow():
-        dag = DAG(stage_file_multiple)
+        dag = DAG('pi')
 
         print(f"🎯 Running Pi Estimation with {worker_count} workers")
 
@@ -124,7 +124,11 @@ def run_monte_carlo_pi_estimation_with_workers(worker_count):
         stage.resource_config = StageConfig(cpu=4, memory=memory_runtime, workers=worker_count) # better 1
 
         dag.add_stage(stage)
-        executor = DAGExecutor(dag, executor=FunctionExecutor(runtime_memory =memory_runtime))
+        executor = DAGExecutor(dag, executor=FunctionExecutor(
+            config_file_path="/home/minirobbin/Desktop/GreenComputing/flexecutor-main/config_aws.yaml",
+            log_level="INFO", 
+            runtime_memory=memory_runtime
+        ))
 
         print(f"🚀 Starting Pi estimation with {worker_count} workers...")
         print(f"   Total points: 100,000,000 (distributed as ~{100_000_000//worker_count:,} per worker)")

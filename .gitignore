@@ -156,3 +156,4 @@ dmypy.json
 
 # avoid only for the runtime creation ---> remove from the folder 
 # lithops_fork
+test-bucket/titanic/old/titanic_60Mb.csv

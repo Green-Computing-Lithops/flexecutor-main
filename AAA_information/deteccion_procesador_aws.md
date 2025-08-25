@@ -1,20 +1,20 @@
 Datawithinigo: could you try to view if you can extract the information of perf or  ebpf in a simple script in aws ?  use this info # The main description of the project is here : 
-/Users/arriazui/Desktop/GreenComputing/flexecutor-main/information/cline_task_AWS_summarized.md
+REDACTED_SECRET_ACCESS_KEYlexecutor-main/information/cline_task_AWS_summarized.md
 
 - Always use the venv310 activated 
 
 To actualize the credentials look at : 
-- /Users/arriazui/Desktop/GreenComputing/flexecutor-main/aws_credentials.md 
+- REDACTED_SECRET_ACCESS_KEYlexecutor-main/aws_credentials.md 
 
 # Docker is not allowed, use Podman instead of docker
 to build the runtime use always the lithops process, with something like this :
 export DOCKER_ENGINE=podman && lithops runtime build -b aws_lambda -f examples/titanic/Dockerfile.arm64 titanic_aws_lambda_arm_greencomp
 
 
-by default use : export LITHOPS_CONFIG_FILE=/Users/arriazui/Desktop/GreenComputing/flexecutor-main/config_aws.yaml
+by default use : export LITHOPS_CONFIG_FILE=REDACTED_SECRET_ACCESS_KEYlexecutor-main/config_aws.yaml
 
 The last version of lithops, actualized and always use and install should be : 
-/Users/arriazui/Desktop/GreenComputing/lithops_fork 
+REDACTED_SECRET_ACCESS_KEYithops_fork 
 
 
 GitHub Copilot: I'll help you explore if we can extract perf or eBPF information in a simple script for AWS. Let me first examine the project description and current setup to understand the context better. Now let me check the AWS credentials file to understand the current setup: Now I'll explore the current workspace to understand what's available for perf or eBPF analysis. Let me look at the project description first: Now let me examine the current lithops setup and see if we can extract perf or eBPF information in AWS. Let me first check the current configuration and explore what energy monitoring capabilities are already available: Let me also check the current examples to understand the energy monitoring capabilities: Great! I can see there are eBPF and perf energy monitoring capabilities. Let me examine the eBPF implementation: Now let me check the perf-based energy monitor: Now let me check how these energy monitors are integrated into the AWS execution: Let me check the energy manager to understand how these are coordinated: Now let me create a simple script to test perf and eBPF capabilities in AWS. Let me first activate the environment and check the current setup: Now let me create a simple script to test perf and eBPF energy monitoring capabilities in AWS Lambda: 
