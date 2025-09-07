@@ -53,8 +53,6 @@ class StageFuture:
             # r.TDP = exec_time * (cpu_percent / 100.0) # old TDP calculation, avoid cold start time
             r.TDP = r.worker_time_execution * (cpu_percent / 100.0)  # optimize TDP calculation
 
-            # r.RAPL_wrong = s.get("worker_func_energy_consumption", 0)  # Use the actual energy consumption key. worker_func_uss_55
-            r.RAPL_wrong = s.get("RAPL_wrong", s.get("worker_func_uss_55", 1))
             # Extract energy measurement method used
             r.measurement_energy = s.get("worker_func_energy_method_used", "n/a")
             

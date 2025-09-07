@@ -15,19 +15,26 @@ import os
 import sys
 import json
 import subprocess
-import shutil
 from datetime import datetime
 from pathlib import Path
+from cleanup_directories import cleanup_all_output_directories
 
 # Import the expanded execution summary function
 try:
-    from minimum_execution_summary_generator import generate_expanded_execution_summary
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("minimum_execution_summary_generator", "013_minimum_execution_summary_generator.py")
+    minimum_execution_summary_generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(minimum_execution_summary_generator)
+    generate_expanded_execution_summary = minimum_execution_summary_generator.generate_expanded_execution_summary
 except ImportError:
+    print("⚠️  Warning: Could not import expanded execution summary generator")
+    generate_expanded_execution_summary = None
+except Exception:
     print("⚠️  Warning: Could not import expanded execution summary generator")
     generate_expanded_execution_summary = None
 
 # GENERATE_PLOTS = True
-GENERATE_PLOTS = False
+GENERATE_PLOTS = True
 
 def run_script(script_name, description):
     """Run a Python script and return success status."""
@@ -55,50 +62,6 @@ def run_script(script_name, description):
         print(f"❌ Error: {e}")
         return False
 
-def run_plot_generation():
-    """Generate visualization plots from analysis results."""
-    print(f"\n🎨 Generating plots")
-    
-    analysis_folder = "analysis_results"
-    if not os.path.exists(analysis_folder):
-        print(f"❌ Analysis folder '{analysis_folder}' not found")
-        return False
-    
-    success_count = 0
-    
-    # Combined plots
-    try:
-        result = subprocess.run([
-            sys.executable, "generate_combined_plots.py", 
-            analysis_folder, "--output", "combined_plots_output"
-        ], capture_output=True, text=True, 
-           cwd=os.path.dirname(os.path.abspath(__file__)))
-        
-        if result.returncode == 0:
-            print("✅ Combined plots generated")
-            success_count += 1
-        else:
-            print("❌ Combined plots failed")
-    except Exception as e:
-        print(f"❌ Combined plots error: {e}")
-    
-    # Min/Max plots
-    try:
-        result = subprocess.run([
-            sys.executable, "generate_plot_min_max.py", 
-            analysis_folder, "--output", "min_max_plots_output"
-        ], capture_output=True, text=True, 
-           cwd=os.path.dirname(os.path.abspath(__file__)))
-        
-        if result.returncode == 0:
-            print("✅ Min/Max plots generated")
-            success_count += 1
-        else:
-            print("❌ Min/Max plots failed")
-    except Exception as e:
-        print(f"❌ Min/Max plots error: {e}")
-    
-    return success_count > 0
 
 def extract_analysis_data(json_file_path):
     """Extract memory, workers, and total_executions from JSON analysis file."""
@@ -139,10 +102,10 @@ def extract_analysis_data(json_file_path):
                 })
             return extracted_data
         
-        elif 'analysis_results' in data:
+        elif '001_analysis_results' in data:
             # Regular analysis format
             extracted_data = []
-            for result in data['analysis_results']:
+            for result in data['001_analysis_results']:
                 extracted_data.append({
                     'memory': result.get('memory', 'NA'),
                     'workers': result.get('workers', 'NA'),
@@ -155,72 +118,6 @@ def extract_analysis_data(json_file_path):
             
     except Exception as e:
         return [{'error': f'Error reading file: {str(e)}'}]
-
-def cleanup_all_output_directories():
-
-    # Define all target directories that need complete cleanup
-    target_directories = [
-        "analysis_results",
-        "architecture_analysis_output", 
-        "combined_plots_output",
-        "min_max_plots_output"
-    ]
-    
-    total_removed_files = 0
-    total_removed_dirs = 0
-    
-    for dir_name in target_directories:
-        dir_path = Path(dir_name)
-        
-        print(f"\n📁 Processing directory: {dir_name}")
-        
-        if not dir_path.exists():
-            print(f"   📂 Directory doesn't exist, creating it...")
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"   ✅ Created {dir_name} directory")
-            continue
-        
-        # Count existing contents before cleanup
-        all_files = list(dir_path.rglob("*"))
-        files_count = len([f for f in all_files if f.is_file()])
-        dirs_count = len([f for f in all_files if f.is_dir()])
-        
-        if files_count == 0 and dirs_count == 0:
-            print(f"   ✅ Directory is already empty")
-            continue
-        
-        print(f"   📊 Found {files_count} files and {dirs_count} subdirectories")
-        
-        # Remove all contents completely
-        removed_files = 0
-        removed_dirs = 0
-        
-        try:
-            # Remove all files and subdirectories
-            for item in dir_path.iterdir():
-                if item.is_file():
-                    item.unlink()
-                    removed_files += 1
-                elif item.is_dir():
-                    shutil.rmtree(item)
-                    removed_dirs += 1
-            
-            total_removed_files += removed_files
-            total_removed_dirs += removed_dirs
-            
-            print(f"   ✅ Cleaned {dir_name}: removed {removed_files} files and {removed_dirs} subdirectories")
-            
-        except Exception as e:
-            print(f"   ⚠️  Error cleaning {dir_name}: {e}")
-            return False
-    
-    print(f"\n🎯 CLEANUP SUMMARY:")
-    print(f"   📁 Directories processed: {len(target_directories)}")
-    print(f"   🗑️  Total files removed: {total_removed_files}")
-    print(f"   📂 Total subdirectories removed: {total_removed_dirs}")
-    print(f"   ✅ All output directories are now completely clean")
-    
-    return True
 
 def simplify_title(title):
     """Simplify execution titles by removing redundant parts."""
@@ -368,7 +265,7 @@ def generate_analysis_tables():
     
     # Use the correct path relative to the script location
     script_dir = Path(__file__).parent
-    analysis_dir = script_dir / "analysis_results"
+    analysis_dir = script_dir / "001_analysis_results"
     
     if not analysis_dir.exists():
         print(f"❌ Analysis directory not found at {analysis_dir}")
@@ -376,7 +273,7 @@ def generate_analysis_tables():
     
     json_files = sorted(list(analysis_dir.glob("*.json")))
     if not json_files:
-        print("❌ No JSON files found in analysis_results")
+        print("❌ No JSON files found in 001_analyze_all_profiling_enhanced")
         return False
     
     print("\n# Analysis Results Summary")
@@ -465,7 +362,7 @@ def generate_min_execution_summary():
     
     # Use the correct path relative to the script location
     script_dir = Path(__file__).parent
-    analysis_dir = script_dir / "analysis_results"
+    analysis_dir = script_dir / "001_analysis_results"
     
     if not analysis_dir.exists():
         print(f"❌ Analysis directory not found at {analysis_dir}")
@@ -473,7 +370,7 @@ def generate_min_execution_summary():
     
     json_files = sorted(list(analysis_dir.glob("*.json")))
     if not json_files:
-        print("❌ No JSON files found in analysis_results")
+        print("❌ No JSON files found in 001_analyze_all_profiling_enhanced")
         return False
     
     # Data structure to store min executions: {arch_memory: {example: min_executions}}
@@ -710,70 +607,82 @@ def main():
     if not cleanup_success:
         print("\n❌ Workflow stopped - cleanup failed")
         return False
-    
-    # Stage 1: Data Collection
-    print("\n📊 STAGE 1: DATA COLLECTION")
-    collection_success = run_script(
-        "collect_profiling_data_enhanced.py",
-        "Collecting profiling data"
-    )
-    
-    if not collection_success:
-        print("\n❌ Workflow stopped - data collection failed")
-        return False
-    
-    # Stage 2: Data Analysis  
-    print("\n🔬 STAGE 2: DATA ANALYSIS")
+
+
     analysis_success = run_script(
-        "analyze_all_profiling_enhanced.py", 
+        "001_analyze_all_profiling_enhanced.py", 
         "Analyzing profiling data"
     )
+    collection_success = run_script(
+        "002_collect_profiling_data_enhanced.py",
+        "Collecting profiling data"
+    )
+
+    comprehensive_success = run_script(
+        "003_comprehensive_analysis.py",
+        "Running comprehensive statistical analysis"
+    )
     
-    if not analysis_success:
-        print("\n❌ Data analysis failed")
-        return False
+
+    cost_energy_success = run_script(
+        "004_cost_time_energy_scatter_plots.py",
+        "Generating cost, time, energy scatter plots"
+    )
     
-    # Stage 3: Plot Generation (optional)
-    plot_success = False
-    if GENERATE_PLOTS:
-        print("\n🎨 STAGE 3: PLOT GENERATION")
-        plot_success = run_plot_generation()
+
+    cpu_candlestick_success = run_script(
+        "005_cpu_candlestick_analysis.py",
+        "Running CPU candlestick analysis"
+    )
     
-    # Stage 4: Table Generation
-    print("\n📋 STAGE 4: TABLE GENERATION")
-    table_success = generate_analysis_tables()
+
+    extract_tables_success = run_script(
+        "006_extract_analysis_tables.py",
+        "Extracting analysis tables"
+    )
     
-    # Stage 5: Minimum Execution Summary
-    print("\n📊 STAGE 5: MINIMUM EXECUTION SUMMARY")
-    summary_success = generate_min_execution_summary()
+    generate_combined_plots = run_script(
+        "007_generate_combined_plots.py",
+        "Generating hypothesis 5 memory analysis"
+    )
+
+    hypothesis_memory_success = run_script(
+        "008_generate_hypothesis_5_memory.py",
+        "Generating hypothesis 5 memory analysis"
+    )
     
-    # Stage 6: Expanded Execution Summary with Costs
-    print("\n📊 STAGE 6: EXPANDED EXECUTION SUMMARY WITH COSTS")
-    expanded_summary_success = False
-    if generate_expanded_execution_summary:
-        try:
-            expanded_summary_success = generate_expanded_execution_summary()
-        except Exception as e:
-            print(f"❌ Expanded execution summary failed: {e}")
-            expanded_summary_success = False
-    else:
-        print("⚠️  Expanded execution summary generator not available")
+    simple_analysis_success = run_script(
+        "009_simple_analysis.py",
+        "Running simple analysis"
+    )
+
+    generate_plot_min_max = run_script(
+        "010_generate_plot_min_max.py",
+        "Running simple 010_generate_plot_min_max analysis"
+    )
     
-    # Summary
-    end_time = datetime.now()
-    duration = end_time - start_time
+    grouped_memory_success = run_script(
+        "011_grouped_memory_2048.py",
+        "Running grouped memory 2048 analysis"
+    )
     
-    print(f"\n{'='*60}")
-    print(f" WORKFLOW COMPLETED")
-    print(f"{'='*60}")
-    print(f"⏱️  Duration: {duration}")
-    print(f"📁 Results saved to:")
-    print(f"   • analysis_results/ - Analysis data")
-    if plot_success:
-        print(f"   • combined_plots_output/ - Combined plots")
-        print(f"   • min_max_plots_output/ - Min/Max plots")
-    if summary_success:
-        print(f"   • Minimum execution summary table generated")
+    minimum_execution_summary_generator = run_script(
+        "013_minimum_execution_summary_generator.py",
+        "Generating 013_minimum_execution_summary_generator"
+    )
+    
+    multistage_csv_success = run_script(
+        "014_multistage_stacked_graphs_csv.py",
+        "Generating multistage stacked graphs CSV"
+    )
+    
+
+    architecture_analysis_success = run_script(
+        "015_x86_vs_arm_architecture_analysis.py",
+        "Running x86 vs ARM architecture analysis"
+    )
+
+ 
     
     return True
 

@@ -117,10 +117,10 @@ celerybeat-schedule.*
 .env.example
 
 # Configuration files with credentials
-config_aws.yaml
-config_local.yaml
-config_processed.yaml
-config.yaml
+# config_aws.yaml
+# config_local.yaml
+# config_processed.yaml
+# config.yaml
 
 
 # virtualenv
@@ -162,12 +162,11 @@ dmypy.json
 
 # avoid only for the runtime creation ---> remove from the folder 
 # lithops_fork
-aws_credentials.md
+# aws_credentials.md
 AAA_information/Creation_runtimes_summary.md
 test-bucket/titanic/old/titanic_60Mb.csv
-aws_credentials.md
-**/credentials*
-**/*credential*
+# **/credentials*
+# **/*credential*
 *.pem
 *.key
 
