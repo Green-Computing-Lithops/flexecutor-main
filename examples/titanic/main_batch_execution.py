@@ -10,11 +10,11 @@ from examples.general_usage.aws_s3_cleanup import S3Cleaner
 
 # pip install git+https://github.com/CLOUDLAB-URV/dataplug
 from dataplug.formats.generic.csv import CSV
-from dataplug.formats.generic.csv import partition_num_chunks as chunking_dynamic_csv
+from examples.titanic.chunking_dynamic_csv_fixed import chunking_dynamic_csv_fixed as chunking_dynamic_csv
 
-from examples.titanic.functions import train_model
+from examples.titanic.functions_fixed import train_model
 from flexecutor.storage.chunker import Chunker
-from flexecutor.storage.chunking_strategies import chunking_static_csv
+from flexecutor.storage.chunking_strategies_fixed import chunking_static_csv
 from flexecutor.storage.storage import FlexData
 from flexecutor.utils.enums import ChunkerTypeEnum
 from flexecutor.utils.utils import flexorchestrator

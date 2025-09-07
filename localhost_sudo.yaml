@@ -1,0 +1,7 @@
+lithops:
+    backend: localhost
+    storage: localhost
+
+localhost:
+    runtime: python3
+    worker_processes: 2

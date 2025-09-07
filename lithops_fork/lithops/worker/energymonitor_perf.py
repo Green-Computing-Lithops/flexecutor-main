@@ -44,13 +44,54 @@ class EnergyMonitor:
         # Print directly to terminal for debugging
         print(f"\n==== ENERGY MONITOR INITIALIZED FOR PROCESS {process_id} ====")
         
+    def _find_working_perf_binary(self):
+        """Find a working perf binary for the current system."""
+        import os
+        import subprocess
+        
+        # List of possible perf binary locations
+        perf_paths = [
+            '/usr/bin/perf',
+            '/usr/lib/linux-tools/6.8.0-79-generic/perf',
+            '/usr/lib/linux-tools/6.8.0-78-generic/perf',
+            '/usr/lib/linux-tools/6.8.0-52-generic/perf',
+        ]
+        
+        # Also try to find perf tools for current kernel
+        kernel_version = os.uname().release
+        kernel_perf_path = f'/usr/lib/linux-tools/{kernel_version}/perf'
+        if kernel_perf_path not in perf_paths:
+            perf_paths.insert(1, kernel_perf_path)
+        
+        for perf_path in perf_paths:
+            if os.path.exists(perf_path):
+                try:
+                    # Test if this perf binary works
+                    result = subprocess.run([perf_path, '--version'], 
+                                          capture_output=True, timeout=5)
+                    if result.returncode == 0:
+                        print(f"✅ Found working perf binary: {perf_path}")
+                        return perf_path
+                except Exception as e:
+                    print(f"❌ Error testing perf binary {perf_path}: {e}")
+                    continue
+                    
+        print("❌ No working perf binary found")
+        return None
+        
     def _test_energy_event(self, event_string):
         """Test if a specific energy event string works with perf."""
         print(f"\n==== TESTING ENERGY EVENT: {event_string} ====")
         try:
-            # Test with a quick command
-            cmd = f"sudo perf stat -e {event_string} -a sleep 0.1 2>&1"
-            print(f"Testing command: {cmd}")
+            # Find the correct perf binary
+            perf_binary = self._find_working_perf_binary()
+            if not perf_binary:
+                print("❌ No working perf binary found")
+                return False
+                
+            # Try without sudo first (since perf_event_paranoid = -1)
+            cmd = f"{perf_binary} stat -e {event_string} -a sleep 0.1 2>&1"
+            print(f"Testing command (without sudo): {cmd}")
             
             result = subprocess.run(
                 cmd,
@@ -67,10 +108,32 @@ class EnergyMonitor:
             
             # Check if the command succeeded and contains energy data
             if result.returncode == 0 and "Joules" in output and "event syntax error" not in output:
-                print(f"✅ SUCCESS: Event {event_string} works!")
+                print(f"✅ SUCCESS: Event {event_string} works without sudo!")
+                return True
+            
+            # If without sudo failed, try with sudo as fallback
+            print("❌ Failed without sudo, trying with sudo...")
+            cmd_sudo = f"sudo {perf_binary} stat -e {event_string} -a sleep 0.1 2>&1"
+            print(f"Testing command (with sudo): {cmd_sudo}")
+            
+            result_sudo = subprocess.run(
+                cmd_sudo,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                check=False,
+                timeout=5
+            )
+            
+            output_sudo = result_sudo.stdout
+            print(f"Sudo test result (return code {result_sudo.returncode}): {output_sudo[:200]}...")
+            
+            if result_sudo.returncode == 0 and "Joules" in output_sudo and "event syntax error" not in output_sudo:
+                print(f"✅ SUCCESS: Event {event_string} works with sudo!")
                 return True
             else:
-                print(f"❌ FAILED: Event {event_string} doesn't work")
+                print(f"❌ FAILED: Event {event_string} doesn't work even with sudo")
                 return False
                 
         except Exception as e:
@@ -83,8 +146,8 @@ class EnergyMonitor:
         
         # List of event combinations to try, in order of preference
         event_combinations = [
-            "power/energy-pkg/",  # Try pkg only first
-            "power/energy-pkg/,power/energy-cores/",  # Try both
+            "power/energy-pkg/,power/energy-cores/",  # Try both first (this is what we want)
+            "power/energy-pkg/",  # Try pkg only as fallback
             "power/energy-cores/",  # Try cores only
             "energy-pkg",  # Alternative format
             "energy-cores",  # Alternative format
@@ -115,26 +178,73 @@ class EnergyMonitor:
             # Create a unique output file for this run
             self.perf_output_file = f"/tmp/perf_energy_{self.process_id}_{int(time.time())}.txt"
             
+            # Find the correct perf binary
+            perf_binary = self._find_working_perf_binary()
+            if not perf_binary:
+                print("❌ No working perf binary found")
+                return False
+            
             # Start perf in the background to monitor the entire function execution
             print("Starting perf stat to monitor energy consumption...")
             
-            # Use a direct approach with sudo
+            # Try without sudo first (since perf_event_paranoid = -1)
             cmd = [
-                "sudo", "perf", "stat",
+                perf_binary, "stat",
                 "-e", self.energy_events_used,
                 "-a",  # Monitor all CPUs
                 "-o", self.perf_output_file  # Output to a file
             ]
             
-            print(f"Running command: {' '.join(cmd)}")
+            print(f"Running command (without sudo): {' '.join(cmd)}")
             
             # Start perf in the background
-            self.perf_process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
+            try:
+                self.perf_process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                
+                # Give it a moment to start and check if it's working
+                time.sleep(0.1)
+                if self.perf_process.poll() is not None:
+                    # Process already exited, try with sudo
+                    print("❌ Perf without sudo failed, trying with sudo...")
+                    cmd_sudo = [
+                        "sudo", perf_binary, "stat",
+                        "-e", self.energy_events_used,
+                        "-a",  # Monitor all CPUs
+                        "-o", self.perf_output_file  # Output to a file
+                    ]
+                    
+                    print(f"Running command (with sudo): {' '.join(cmd_sudo)}")
+                    self.perf_process = subprocess.Popen(
+                        cmd_sudo,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True
+                    )
+                else:
+                    print("✅ Perf started successfully without sudo!")
+                    
+            except Exception as e:
+                print(f"❌ Error starting perf without sudo: {e}")
+                print("Trying with sudo as fallback...")
+                cmd_sudo = [
+                    "sudo", perf_binary, "stat",
+                    "-e", self.energy_events_used,
+                    "-a",  # Monitor all CPUs
+                    "-o", self.perf_output_file  # Output to a file
+                ]
+                
+                print(f"Running command (with sudo): {' '.join(cmd_sudo)}")
+                self.perf_process = subprocess.Popen(
+                    cmd_sudo,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
             
             self.start_time = time.time()
             print(f"✅ Energy monitoring started at: {self.start_time}")

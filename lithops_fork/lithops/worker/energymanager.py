@@ -290,6 +290,20 @@ class EnergyManager:
                         energy_fields['worker_func_psutil_cpu_percent_avg_final'] = system_data.get('cpu_percent_avg_final', 0.0)
                         energy_fields['worker_func_psutil_cpu_percent_max_initial'] = system_data.get('cpu_percent_max_initial', 0.0)
                         energy_fields['worker_func_psutil_cpu_percent_max_final'] = system_data.get('cpu_percent_max_final', 0.0)
+                        
+                        # Per-CPU arrays
+                        energy_fields['worker_func_psutil_per_cpu_initial'] = system_data.get('per_cpu_initial', [])
+                        energy_fields['worker_func_psutil_per_cpu_final'] = system_data.get('per_cpu_final', [])
+                        
+                        # Calculate per-CPU average if both arrays are available
+                        per_cpu_initial = system_data.get('per_cpu_initial', [])
+                        per_cpu_final = system_data.get('per_cpu_final', [])
+                        if per_cpu_initial and per_cpu_final and len(per_cpu_initial) == len(per_cpu_final):
+                            per_cpu_average = [(initial + final) / 2 for initial, final in zip(per_cpu_initial, per_cpu_final)]
+                            energy_fields['worker_func_psutil_per_cpu_average'] = per_cpu_average
+                        else:
+                            energy_fields['worker_func_psutil_per_cpu_average'] = []
+                        
                         energy_fields['worker_func_psutil_memory_percent'] = system_data.get('memory_percent', 0.0)
                         energy_fields['worker_func_psutil_memory_used_mb'] = system_data.get('memory_used_mb', 0.0)
                         energy_fields['worker_func_psutil_disk_io_read_mb'] = system_data.get('disk_io_read_mb', 0.0)

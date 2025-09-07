@@ -62,17 +62,24 @@ class StageFuture:
             r.perf_energy_pkg = s.get("worker_func_perf_energy_pkg", 0.0)
             r.perf_energy_cores = s.get("worker_func_perf_energy_cores", 0.0)
             r.perf_energy_total = s.get("worker_func_perf_energy_total", 0.0)
+            r.perf_source = s.get("worker_func_perf_source", "unavailable")
+            r.perf_available = s.get("worker_func_perf_available", False)
             
             # Extract RAPL energy metrics
             r.rapl_energy_pkg = s.get("worker_func_rapl_energy_pkg", 0.0)
             r.rapl_energy_cores = s.get("worker_func_rapl_energy_cores", 0.0)
             r.rapl_energy_total = s.get("worker_func_rapl_energy_total", 0.0)
+            r.rapl_source = s.get("worker_func_rapl_source", "unavailable")
+            r.rapl_available = s.get("worker_func_rapl_available", False)
             
             # Extract eBPF energy metrics
             r.ebpf_energy_pkg = s.get("worker_func_ebpf_energy_pkg", 0.0)
             r.ebpf_energy_cores = s.get("worker_func_ebpf_energy_cores", 0.0)
             r.ebpf_energy_total = s.get("worker_func_ebpf_energy_total", 0.0)
             r.ebpf_cpu_cycles = s.get("worker_func_ebpf_cpu_cycles", 0.0)
+            r.ebpf_energy_from_cycles = s.get("worker_func_ebpf_energy_from_cycles", 0.0)
+            r.ebpf_source = s.get("worker_func_ebpf_source", "unavailable")
+            r.ebpf_available = s.get("worker_func_ebpf_available", False)
             
             # Extract PSUtil (base) system monitoring metrics
             r.psutil_cpu_percent = s.get("worker_func_psutil_cpu_percent", 0.0)

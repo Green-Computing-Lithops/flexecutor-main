@@ -54,21 +54,31 @@ class FunctionTimes:
 
     # Energy metrics from different methods
     
-    # perf_energy_pkg: Optional[float] = Nonen
+    # PERF energy metrics
+    perf_energy_pkg: Optional[float] = None
     perf_energy_cores: Optional[float] = None
-    # perf_energy_total: Optional[float] = None
+    perf_energy_total: Optional[float] = None
+    perf_source: Optional[str] = None
+    perf_available: Optional[bool] = None
     
-    # rapl_energy_pkg: Optional[float] = None
+    # RAPL energy metrics
+    rapl_energy_pkg: Optional[float] = None
     rapl_energy_cores: Optional[float] = None
-    # rapl_energy_total: Optional[float] = None
+    rapl_energy_total: Optional[float] = None
+    rapl_source: Optional[str] = None
+    rapl_available: Optional[bool] = None
     
-    # ebpf_energy_pkg: Optional[float] = None
+    # eBPF energy metrics
+    ebpf_energy_pkg: Optional[float] = None
     ebpf_energy_cores: Optional[float] = None
-    # ebpf_energy_total: Optional[float] = None
-    # ebpf_cpu_cycles: Optional[float] = None
+    ebpf_energy_total: Optional[float] = None
+    ebpf_cpu_cycles: Optional[float] = None
+    ebpf_energy_from_cycles: Optional[float] = None
+    ebpf_source: Optional[str] = None
+    ebpf_available: Optional[bool] = None
     
     psutil_cpu_percent: Optional[float] = None
-    # psutil_memory_percent: Optional[float] = None
+    psutil_memory_percent: Optional[float] = None
     
     # CPU information
     cpu_name: Optional[str] = None
@@ -96,21 +106,32 @@ class FunctionTimes:
             ##~~ENERGY~~##
             , "RAPL_wrong" 
             , "TDP"
-            # , "perf_energy_pkg"
+            
+            # PERF energy metrics
+            , "perf_energy_pkg"
             , "perf_energy_cores"
-            # , "perf_energy_total"
+            , "perf_energy_total"
+            , "perf_source"
+            , "perf_available"
             
-            # , "rapl_energy_pkg"
+            # RAPL energy metrics
+            , "rapl_energy_pkg"
             , "rapl_energy_cores"
-            # , "rapl_energy_total"
+            , "rapl_energy_total"
+            , "rapl_source"
+            , "rapl_available"
             
+            # eBPF energy metrics
             , "ebpf_energy_pkg"
             , "ebpf_energy_cores"
-            # , "ebpf_energy_total"
-            # , "ebpf_cpu_cycles"
+            , "ebpf_energy_total"
+            , "ebpf_cpu_cycles"
+            , "ebpf_energy_from_cycles"
+            , "ebpf_source"
+            , "ebpf_available"
             
             , "psutil_cpu_percent"
-            # , "psutil_memory_percent"
+            , "psutil_memory_percent"
             
             , "cpu_name"
             # , "cpu_brand"

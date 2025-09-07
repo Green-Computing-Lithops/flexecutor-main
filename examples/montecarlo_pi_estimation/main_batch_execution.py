@@ -101,7 +101,7 @@ def run_monte_carlo_pi_estimation_with_workers(worker_count):
     print(f"STARTING PI ESTIMATION WITH {worker_count} WORKERS")
     print(f"{'='*60}")
 
-    @flexorchestrator(bucket="lithops-us-east-1-45dk")
+    @flexorchestrator(bucket="test-bucket")
     def monte_carlo_pi_workflow():
         dag = DAG('pi')
 
@@ -125,9 +125,10 @@ def run_monte_carlo_pi_estimation_with_workers(worker_count):
 
         dag.add_stage(stage)
         executor = DAGExecutor(dag, executor=FunctionExecutor(
-            config_file_path="/home/minirobbin/Desktop/GreenComputing/flexecutor-main/config_aws.yaml",
+            config_file_path="/home/minirobbin/Desktop/flexecutor-main/localhost.yaml",
             log_level="INFO", 
-            runtime_memory=memory_runtime
+            runtime_memory=memory_runtime,
+            runtime="/home/minirobbin/Desktop/flexecutor-main/venv310/bin/python"
         ))
 
         print(f"🚀 Starting Pi estimation with {worker_count} workers...")
@@ -170,132 +171,29 @@ if __name__ == "__main__":
     memory_runtime = 2048
     stage_file_multiple = "pi_2048MB_x86"
 
-    worker_configurations = [
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,     
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4
-    ]
+    worker_configurations = [28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
+                             28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4
 
-    print("="*80)
-    print("BATCH EXECUTION WITH MULTIPLE WORKER CONFIGURATIONS - MONTE CARLO PI ESTIMATION")
-    print("="*80)
-    print(f"Worker configurations to test: {worker_configurations}")
+                             ]
     
-    results = {}
     
-    for worker_count in worker_configurations:
-        try:
-            # Run the workflow with current worker configuration
-            success = run_monte_carlo_pi_estimation_with_workers(worker_count)
-            results[worker_count] = bool(success)
-            
-            if success:
-                print(f"[✓] Worker configuration {worker_count}: SUCCESS")
-            else:
-                print(f"[✗] Worker configuration {worker_count}: FAILED")
-                
-        except Exception as e:
-            print(f"[✗] Worker configuration {worker_count}: FAILED with exception: {e}")
-            results[worker_count] = False
-    
-    # Print final summary
-    print("\n" + "="*80)
-    print("BATCH EXECUTION SUMMARY - MONTE CARLO PI ESTIMATION")
-    print("="*80)
-    
-    for worker_count, success in results.items():
-        status = "SUCCESS" if success else "FAILED"
-        print(f"Workers {worker_count:2d}: {status}")
-    
-    successful_runs = sum(1 for success in results.values() if success)
-    total_runs = len(results)
-    
-    print(f"\nTotal successful runs: {successful_runs}/{total_runs}")
-    
-    if successful_runs == total_runs:
-        print("✓ All worker configurations completed successfully!")
-    else:
-        print("✗ Some worker configurations failed.")
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    memory_runtime = 1024
-    stage_file_multiple = "pi_1024MB_x86"
-
-    worker_configurations = [
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,     
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4
-    ]
-
-    print("="*80)
-    print("BATCH EXECUTION WITH MULTIPLE WORKER CONFIGURATIONS - MONTE CARLO PI ESTIMATION")
-    print("="*80)
-    print(f"Worker configurations to test: {worker_configurations}")
-    
-    results = {}
-    
-    for worker_count in worker_configurations:
-        try:
-            # Run the workflow with current worker configuration
-            success = run_monte_carlo_pi_estimation_with_workers(worker_count)
-            results[worker_count] = bool(success)
-            
-            if success:
-                print(f"[✓] Worker configuration {worker_count}: SUCCESS")
-            else:
-                print(f"[✗] Worker configuration {worker_count}: FAILED")
-                
-        except Exception as e:
-            print(f"[✗] Worker configuration {worker_count}: FAILED with exception: {e}")
-            results[worker_count] = False
-    
-    # Print final summary
-    print("\n" + "="*80)
-    print("BATCH EXECUTION SUMMARY - MONTE CARLO PI ESTIMATION")
-    print("="*80)
-    
-    for worker_count, success in results.items():
-        status = "SUCCESS" if success else "FAILED"
-        print(f"Workers {worker_count:2d}: {status}")
-    
-    successful_runs = sum(1 for success in results.values() if success)
-    total_runs = len(results)
-    
-    print(f"\nTotal successful runs: {successful_runs}/{total_runs}")
-    
-    if successful_runs == total_runs:
-        print("✓ All worker configurations completed successfully!")
-    else:
-        print("✗ Some worker configurations failed.")
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    memory_runtime = 512
-    stage_file_multiple = "pi_512MB_x86"
-
-    worker_configurations = [
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,     
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4,
-        28, 24, 20, 16, 12, 10, 9, 8, 7, 6, 5, 4
-    ]
+      # Reduced for testing
 
     print("="*80)
     print("BATCH EXECUTION WITH MULTIPLE WORKER CONFIGURATIONS - MONTE CARLO PI ESTIMATION")
