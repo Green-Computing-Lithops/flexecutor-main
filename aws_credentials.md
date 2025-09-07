@@ -21,27 +21,27 @@ us-east-1
 
 Option 1: Set AWS environment variables
 Run the following commands in your terminal to set the AWS environment variables. Learn more 
-export AWS_ACCESS_KEY_ID="***REMOVED***"
-export AWS_SECRET_ACCESS_KEY="***REMOVED***"
-export AWS_SESSION_TOKEN="***REMOVED***"
+export AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY_ID"
+export AWS_SECRET_ACCESS_KEY="YOUR_SECRET_ACCESS_KEY"
+export AWS_SESSION_TOKEN="YOUR_SESSION_TOKEN"
 
 Option 2: Add a profile to your AWS credentials file
 Copy and paste the following text in your AWS credentials file (~/.aws/credentials). Learn more 
 [851725525148_cloudlab-permission-set]
-aws_access_key_id=***REMOVED***
-aws_secret_access_key=***REMOVED***
-aws_session_token=***REMOVED***
+aws_access_key_id=YOUR_ACCESS_KEY_ID
+aws_secret_access_key=YOUR_SECRET_ACCESS_KEY
+aws_session_token=YOUR_SESSION_TOKEN
 
 Option 3: Use individual values in your AWS service client
 Copy and paste these values into your code. Learn more 
 AWS access key ID
 
-***REMOVED***
+YOUR_ACCESS_KEY_ID
 
 AWS secret access key
 
-***REMOVED***
+YOUR_SECRET_ACCESS_KEY
 
 AWS session token
 
-***REMOVED***
+YOUR_SESSION_TOKEN

@@ -117,10 +117,11 @@ celerybeat-schedule.*
 .env.example
 
 # Configuration files with credentials
-# config_aws.yaml
-# config_local.yaml
-# config_processed.yaml
-# config.yaml
+config_aws.yaml
+config_local.yaml
+config_processed.yaml
+config.yaml
+aws_credentials.md
 
 
 # virtualenv
@@ -165,10 +166,15 @@ dmypy.json
 # aws_credentials.md
 AAA_information/Creation_runtimes_summary.md
 test-bucket/titanic/old/titanic_60Mb.csv
-# **/credentials*
-# **/*credential*
+# Security and credentials
 *.pem
 *.key
+**/credentials*
+**/*credential*
+**/*secret*
+**/*token*
+.aws/
+aws_credentials.md
 
 
 

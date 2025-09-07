@@ -1,4 +1,4 @@
-# FlexExecutor Configuration for AWS Deployment
+# FlexExecutor Configuration Template for AWS Deployment
 # This configuration uses AWS Lambda backend with S3 storage
 # Copy this file to config_aws.yaml and replace placeholder values with your actual credentials
 
@@ -31,7 +31,7 @@ aws:
 
 # AWS Lambda configuration : ARM64 vs x86_64 architecture
 aws_lambda:
-    execution_role: arn:aws:iam::851725525148:role/lambdaLithopsExecutionRole
+    execution_role: arn:aws:iam::YOUR_ACCOUNT_ID:role/lambdaLithopsExecutionRole
     runtime_timeout: 300
     # runtime_memory: 1024
     # runtime_memory: 512
@@ -74,7 +74,7 @@ aws_lambda:
         MEASUREMENT_FUNCTIONS: "prime_function,sleep_function"
 
 aws_s3:
-    storage_bucket: lithops-us-east-1-45dk
+    storage_bucket: YOUR_S3_BUCKET_NAME
     region: us-east-1
     aws_access_key_id: YOUR_ACCESS_KEY_ID
     aws_secret_access_key: YOUR_SECRET_ACCESS_KEY
@@ -82,6 +82,6 @@ aws_s3:
     
     # Energy metrics storage configuration
     energy_metrics:
-        bucket: lithops-us-east-1-45dk
+        bucket: YOUR_S3_BUCKET_NAME
         prefix: "energy-metrics/flexecutor/"
         retention_days: 30
