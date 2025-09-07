@@ -1,65 +1,16 @@
-"""
-Simple Lithops example using the map_reduce method.
 
-In this example the map_reduce() method will launch one
-map function for each entry in 'iterdata', and then it will
-wait locally for the reduce result.
-
-ENHANCED VERSION with comprehensive CPU information from EnergyManager worker.
-
-RUN WITH SUDO:
-
-sudo env "PATH=$PATH" /home/bigrobbin/if __name_if __name__ == "__main__":
-    
-    # Print CPU and system information
-    print_cpu_info()
-    
-    # Print working methods summary
-    print_working_methods_summary()
- 
-
-    # creates an instance of Lithops' FunctionExecutor --> localhost & manage 
-    fexec = lithops.FunctionExecutor()"__main__":
-    
-    # Print CPU and system information
-    print_cpu_info()
-    
-    # Print working methods summary
-    print_working_methods_summary()
- 
-
-    # creates an instance of Lithops' FunctionExecutor --> localhost & manage 
-    fexec = lithops.FunctionExecutor()op/TFG/lithops/venv/bin/python3 inigo_test/map_reduce.py
-
-sudo env "PATH=$PATH" /home/bigrobbin/Desktop/TFG/venv/bin/python3 lithops_fork/inigo_test/general_test_map_reduce.py
-
-previous
-cd inigo_test/
-
-"""
 import pprint
 import lithops
 import platform
 from standarized_measurement_functions import sleep_function, prime_function
 
-# iterdata = [1, 2, 3, 4, 5]
-
 iterdata = [2]
 
-
-# def my_reduce_function(results):
-#     total = 0
-#     for map_result in results:
-#         total = total + map_result
-#     return total
-
 def print_cpu_info():
-    """Print basic CPU information without using psutil or cpuinfo."""
     print("=" * 80)
     print("🖥️  SYSTEM & CPU INFORMATION")
     print("=" * 80)
     
-    # Basic system info
     print(f"\n🔧 SYSTEM INFO:")
     print(f"   Platform: {platform.platform()}")
     print(f"   Architecture: {platform.architecture()[0]}")
@@ -581,55 +532,36 @@ def print_stats(future):
     # print(f"Current CPU usage (psutil): {psutil.cpu_percent(interval=1):.1f}%")
 
 if __name__ == "__main__":
- 
-
-    # creates an instance of Lithops’ FunctionExecutor --> localhost & manage 
-    fexec = lithops.FunctionExecutor() 
-
-    #  executor distributes the my_map_function across the items in iterdata
-    # The my_reduce_function is set to combine the results of the map phase.
-    # fexec.map_reduce(sleep_function, iterdata, my_reduce_function)
-    # print(fexec.get_result())
- 
-
     print("Async call SLEEP function")
     fexec = lithops.FunctionExecutor()
     sleep_future = fexec.call_async(sleep_function, iterdata[0])
-    result = fexec.get_result(fs=[sleep_future]) # leng --> return list of parameters 
-    # pprint.pprint(sleep_future.stats)
+    result = fexec.get_result(fs=[sleep_future])
 
-
-    # Print only the three specific metrics
     print("\n\nSLEEP function metrics:")
     print_stats(sleep_future)
     
-    # Add comprehensive energy analysis
     print_comprehensive_energy_analysis(sleep_future, "sleep_function")
 
     print("\n\nAsync call COSTLY function")
     fexec = lithops.FunctionExecutor()
     prime_future = fexec.call_async(prime_function, iterdata[0])
-    max_prime_method1 = prime_future.result()                     # needed to wait 
-    max_prime_method2 = fexec.get_result(fs=[prime_future])       # needed to wait 
+    max_prime_method1 = prime_future.result()
+    max_prime_method2 = fexec.get_result(fs=[prime_future])
     print(f"Method 1 - future.result(): {max_prime_method1}")
     print(f"Method 2 - fexec.get_result(): {max_prime_method2}")
-    # Compare results - handle different return formats
+    
     if isinstance(max_prime_method2, (list, tuple)) and len(max_prime_method2) > 0:
         print(f"Both methods return the same max prime number: {max_prime_method1 == max_prime_method2[0]}")
     else:
         print(f"Both methods return the same max prime number: {max_prime_method1 == max_prime_method2}")
 
-    # Print metrics for the costly function 
     print("\n\nCOSTLY function metrics:")
     print_stats(prime_future)
     
-    # Add comprehensive energy analysis for costly function
     print_comprehensive_energy_analysis(prime_future, "prime_function")
     
-    # Add workload comparison
     print_workload_comparison(sleep_future, prime_future)
     
-    # Legacy output for compatibility
     print("\n" + "=" * 80)
     print("📊 LEGACY OUTPUT (for compatibility)")
     print("=" * 80)
@@ -641,4 +573,3 @@ if __name__ == "__main__":
     print("Perf Energy pkg:", sleep_future.stats.get('worker_func_perf_energy_pkg', 0.0))
     print("Perf Energy cores:", sleep_future.stats.get('worker_func_perf_energy_cores', 0.0))
     print("Perf CPU Percentage:", sleep_future.stats.get('worker_func_perf_cpu_percent', 'N/A'))
-

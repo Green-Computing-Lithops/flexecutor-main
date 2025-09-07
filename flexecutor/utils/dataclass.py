@@ -45,7 +45,6 @@ class FunctionTimes:
 
 ##~~ENERGY~~##
     # old: 
-    RAPL_wrong: Optional[float] = None 
     TDP: Optional[float] = None ##~~ENERGY~~##
     measurement_energy: Optional[str] = None
     
@@ -104,7 +103,7 @@ class FunctionTimes:
             , "measurement_energy"
 
             ##~~ENERGY~~##
-            , "RAPL_wrong" 
+
             , "TDP"
             
             # PERF energy metrics

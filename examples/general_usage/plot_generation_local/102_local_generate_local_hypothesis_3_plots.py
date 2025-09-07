@@ -1,0 +1,430 @@
+#!/usr/bin/env python3
+"""
+Local Profiling Hypothesis 3 Plot Generator
+
+This script generates hypothesis 3 plots for local profiling data (video and pi),
+showing the 4 energy calculation methods: RAPL, eBPF, TDP, and perf.
+
+Usage:
+    python generate_local_hypothesis_3_plots.py
+
+Output:
+    Individual hypothesis 3 PNG files for each local profiling analysis (video and pi)
+"""
+
+import json
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import sys
+from matplotlib.patches import Rectangle
+
+# Set professional style
+plt.style.use('seaborn-v0_8-whitegrid')
+
+# Professional color palette for energy methods
+ENERGY_COLORS = {
+    'rapl': '#1f77b4',      # Professional blue for RAPL
+    'ebpf': '#ff7f0e',      # Professional orange for eBPF
+    'tdp': '#2ca02c',       # Professional green for TDP
+    'perf': '#d62728',      # Professional red for perf
+    'primary': '#1f77b4',   # Professional blue
+    'secondary': '#ff7f0e', # Professional orange
+    'accent1': '#2ca02c',   # Professional green
+    'accent2': '#d62728',   # Professional red
+    'accent3': '#9467bd',   # Professional purple
+    'accent4': '#8c564b',   # Professional brown
+    'neutral': '#7f7f7f',   # Professional gray
+    'light': '#bcbd22'      # Professional lime
+}
+
+def load_analysis_data(json_path):
+    """Load and parse the analysis_results.json file."""
+    with open(json_path, 'r') as f:
+        data = json.load(f)
+    
+    # Handle different data structures
+    if isinstance(data, dict) and 'analysis_results' in data:
+        # New format with metadata and analysis_results array
+        return data['analysis_results']
+    elif isinstance(data, list):
+        # Old format - direct array
+        return data
+    else:
+        # Fallback - assume it's the data we need
+        return data
+
+def setup_plot_style():
+    """Set up professional plotting style."""
+    plt.rcParams.update({
+        'font.size': 12,
+        'font.family': 'sans-serif',
+        'font.sans-serif': ['DejaVu Sans', 'Arial', 'Helvetica'],
+        'axes.titlesize': 16,
+        'axes.labelsize': 14,
+        'xtick.labelsize': 12,
+        'ytick.labelsize': 12,
+        'legend.fontsize': 12,
+        'figure.titlesize': 20
+    })
+
+def extract_energy_plot_data(data):
+    """Extract and organize energy data for plotting."""
+    # Handle the case where data is a single analysis result (not a list of results)
+    if isinstance(data, dict) and 'metrics' in data:
+        # Single analysis file - create a single data point
+        plot_data = {
+            'workers': [data['workers']],
+            # RAPL energy data
+            'total_rapl': [data['metrics']['rapl_energy_cores']['total']],
+            'avg_rapl': [data['metrics']['rapl_energy_cores']['mean']],
+            # eBPF energy data (package and cores)
+            'total_ebpf_pkg': [data['metrics']['ebpf_energy_pkg']['total']],
+            'avg_ebpf_pkg': [data['metrics']['ebpf_energy_pkg']['mean']],
+            'total_ebpf_cores': [data['metrics']['ebpf_energy_cores']['total']],
+            'avg_ebpf_cores': [data['metrics']['ebpf_energy_cores']['mean']],
+            # TDP energy data
+            'total_tdp': [data['metrics']['TDP']['total']],
+            'avg_tdp': [data['metrics']['TDP']['mean']],
+            # perf energy data
+            'total_perf': [data['metrics']['perf_energy_cores']['total']],
+            'avg_perf': [data['metrics']['perf_energy_cores']['mean']],
+            # Additional context
+            'avg_compute': [data['metrics']['compute']['mean']],
+            'cpu_architecture': [data['metadata']['cpu_architecture']],
+            'local_processing': [True]  # Always True for local processing
+        }
+    elif isinstance(data, list) and len(data) > 0:
+        # Multiple analysis results - extract from each
+        if isinstance(data[0], dict) and 'metrics' in data[0]:
+            # New format with metrics structure
+            plot_data = {
+                'workers': [d['workers'] for d in data],
+                # RAPL energy data
+                'total_rapl': [d['metrics']['rapl_energy_cores']['total'] for d in data],
+                'avg_rapl': [d['metrics']['rapl_energy_cores']['mean'] for d in data],
+                # eBPF energy data (package and cores)
+                'total_ebpf_pkg': [d['metrics']['ebpf_energy_pkg']['total'] for d in data],
+                'avg_ebpf_pkg': [d['metrics']['ebpf_energy_pkg']['mean'] for d in data],
+                'total_ebpf_cores': [d['metrics']['ebpf_energy_cores']['total'] for d in data],
+                'avg_ebpf_cores': [d['metrics']['ebpf_energy_cores']['mean'] for d in data],
+                # TDP energy data
+                'total_tdp': [d['metrics']['TDP']['total'] for d in data],
+                'avg_tdp': [d['metrics']['TDP']['mean'] for d in data],
+                # perf energy data
+                'total_perf': [d['metrics']['perf_energy_cores']['total'] for d in data],
+                'avg_perf': [d['metrics']['perf_energy_cores']['mean'] for d in data],
+                # Additional context
+                'avg_compute': [d['metrics']['compute']['mean'] for d in data],
+                'cpu_architecture': [d['metadata']['cpu_architecture'] for d in data],
+                'local_processing': [True for d in data]  # Always True for local processing
+            }
+        else:
+            # Old format - direct access to fields
+            plot_data = {
+                'workers': [d['workers'] for d in data],
+                # RAPL energy data
+                'total_rapl': [d['total_rapl_energy_cores'] for d in data],
+                'avg_rapl': [d['avg_rapl_energy_cores'] for d in data],
+                # eBPF energy data (package and cores)
+                'total_ebpf_pkg': [d['total_ebpf_energy_pkg'] for d in data],
+                'avg_ebpf_pkg': [d['avg_ebpf_energy_pkg'] for d in data],
+                'total_ebpf_cores': [d['total_ebpf_energy_cores'] for d in data],
+                'avg_ebpf_cores': [d['avg_ebpf_energy_cores'] for d in data],
+                # TDP energy data
+                'total_tdp': [d['total_tdp'] for d in data],
+                'avg_tdp': [d['avg_tdp'] for d in data],
+                # perf energy data
+                'total_perf': [d['total_perf_energy_cores'] for d in data],
+                'avg_perf': [d['avg_perf_energy_cores'] for d in data],
+                # Additional context
+                'avg_compute': [d['avg_compute'] for d in data],
+                'cpu_architecture': [d['cpu_architecture'] for d in data],
+                'local_processing': [d.get('local_processing', True) for d in data]
+            }
+    else:
+        # Fallback - empty data
+        plot_data = {
+            'workers': [],
+            'total_rapl': [],
+            'avg_rapl': [],
+            'total_ebpf_pkg': [],
+            'avg_ebpf_pkg': [],
+            'total_ebpf_cores': [],
+            'avg_ebpf_cores': [],
+            'total_tdp': [],
+            'avg_tdp': [],
+            'total_perf': [],
+            'avg_perf': [],
+            'avg_compute': [],
+            'cpu_architecture': [],
+            'local_processing': []
+        }
+    
+    return plot_data
+
+
+def create_combined_hypothesis_3_plots(combined_data, output_path, group_key, worker_counts, example_type="unknown"):
+    """Create hypothesis 3 plot combining all worker configurations for a specific example and memory setting."""
+    # Set up professional styling
+    setup_plot_style()
+    
+    # Create figure with single plot (1x1)
+    fig, ax = plt.subplots(1, 1, figsize=(14, 10))
+    
+    # Extract data from each worker configuration
+    all_workers = []
+    all_total_rapl = []
+    all_total_tdp = []
+    all_total_perf = []
+    all_total_ebpf_cores = []
+    cpu_architecture = None
+    
+    for i, data in enumerate(combined_data):
+        plot_data = extract_energy_plot_data(data)
+        
+        # Since each data point represents one worker configuration, we take the first (and only) value
+        if plot_data['workers']:
+            all_workers.append(plot_data['workers'][0])
+            all_total_rapl.append(plot_data['total_rapl'][0])
+            all_total_tdp.append(plot_data['total_tdp'][0])
+            all_total_perf.append(plot_data['total_perf'][0])
+            all_total_ebpf_cores.append(plot_data['total_ebpf_cores'][0])
+            
+            if cpu_architecture is None and plot_data['cpu_architecture']:
+                cpu_architecture = plot_data['cpu_architecture'][0]
+    
+    # Sort all data by worker count
+    sorted_data = sorted(zip(all_workers, all_total_rapl, all_total_tdp, all_total_perf, all_total_ebpf_cores))
+    if sorted_data:
+        all_workers, all_total_rapl, all_total_tdp, all_total_perf, all_total_ebpf_cores = zip(*sorted_data)
+        all_workers = list(all_workers)
+        all_total_rapl = list(all_total_rapl)
+        all_total_tdp = list(all_total_tdp)
+        all_total_perf = list(all_total_perf)
+        all_total_ebpf_cores = list(all_total_ebpf_cores)
+    
+    # Plot the 4 energy measurement methods
+    # RAPL Energy (total)
+    ax.plot(all_workers, all_total_rapl, 
+           color=ENERGY_COLORS['rapl'], linewidth=3, linestyle='-',
+           marker='o', markersize=10, markeredgecolor='black', markeredgewidth=1.5,
+           label='RAPL Energy (Cores)', alpha=0.9)
+    
+    # TDP Energy (total)
+    ax.plot(all_workers, all_total_tdp, 
+           color=ENERGY_COLORS['tdp'], linewidth=3, linestyle='--',
+           marker='s', markersize=10, markeredgecolor='black', markeredgewidth=1.5,
+           label='TDP Energy', alpha=0.9)
+    
+    # perf Energy (total)
+    ax.plot(all_workers, all_total_perf, 
+           color=ENERGY_COLORS['perf'], linewidth=3, linestyle='-.',
+           marker='^', markersize=10, markeredgecolor='black', markeredgewidth=1.5,
+           label='perf Energy (Cores)', alpha=0.9)
+    
+    # eBPF Energy (cores) - Note: eBPF might be 0 for local processing
+    # Check if eBPF data is available (non-zero)
+    ebpf_has_data = any(val > 0 for val in all_total_ebpf_cores)
+    if ebpf_has_data:
+        ax.plot(all_workers, all_total_ebpf_cores, 
+               color=ENERGY_COLORS['ebpf'], linewidth=3, linestyle=':',
+               marker='D', markersize=10, markeredgecolor='black', markeredgewidth=1.5,
+               label='eBPF Energy (Cores)', alpha=0.9)
+    else:
+        # Add a note that eBPF data is not available for local processing
+        ax.text(0.02, 0.98, 'Note: eBPF energy data not available for local processing', 
+               transform=ax.transAxes, fontsize=10, style='italic',
+               bbox=dict(boxstyle="round,pad=0.3", facecolor='lightyellow', alpha=0.7),
+               verticalalignment='top')
+    
+    ax.set_xlabel('Number of Workers', fontweight='bold')
+    ax.set_ylabel('Total Energy Consumption (Joules)', fontweight='bold')
+    
+    # Create a more descriptive title based on the group key and example type
+    title_parts = group_key.split('_')
+    if len(title_parts) >= 3:
+        example_type_upper = title_parts[0].upper()
+        stage = title_parts[1].replace('stage', 'Stage ')
+        memory = f"{title_parts[2]}MB"
+        
+        if example_type.lower() == "video":
+            title = f'VIDEO {stage} - {memory} Memory: Energy Methods Comparison'
+        elif example_type.lower() == "pi":
+            title = f'PI {stage} - {memory} Memory: Energy Methods Comparison'
+        else:
+            title = f'{example_type_upper} {stage} - {memory} Memory: Energy Methods Comparison'
+    else:
+        if example_type.lower() == "video":
+            title = f'{group_key}: Video Processing Energy Methods Comparison'
+        elif example_type.lower() == "pi":
+            title = f'{group_key}: Monte Carlo Pi Energy Methods Comparison'
+        else:
+            title = f'{group_key}: Energy Methods Comparison'
+    
+    ax.set_title(title, fontweight='bold', pad=20)
+    ax.legend(frameon=True, fancybox=True, shadow=True, loc='upper left')
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.set_xticks(all_workers)
+    
+    # Add subtitle with processor and configuration information
+    subtitle_parts = []
+    if cpu_architecture:
+        subtitle_parts.append(f'Local Processing on {cpu_architecture} Architecture')
+    subtitle_parts.append(f'Worker Range: {min(all_workers)}-{max(all_workers)} workers')
+    
+    if subtitle_parts:
+        plt.figtext(0.5, 0.02, ' | '.join(subtitle_parts), 
+                   ha='center', fontsize=11, style='italic')
+    
+    # Add energy method descriptions at the bottom
+    method_descriptions = [
+        "TDP: Thermal Design Power (Processor specification based)",
+        "RAPL: Running Average Power Limit (Hardware counters)",
+        "perf: Performance counters (Hardware performance events)",
+        "eBPF: Extended Berkeley Packet Filter (Kernel-level monitoring)"
+    ]
+    
+    description_text = " | ".join(method_descriptions)
+    plt.figtext(0.5, 0.005, description_text, ha='center', fontsize=9, style='italic', wrap=True)
+
+    # Adjust layout with professional spacing
+    plt.tight_layout(pad=3.0)
+    
+    # Save with high quality for presentations
+    plt.savefig(output_path, dpi=300, bbox_inches='tight', 
+               facecolor='white', edgecolor='none', format='png')
+    plt.close()
+
+def process_local_analysis_folder():
+    """Process all local analysis JSON files and generate hypothesis 3 plots grouped by example and memory."""
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Define paths
+    analysis_folder = os.path.join(script_dir, '100_local_analyze_universal_profiling')
+    hypothesis_3_folder = os.path.join(script_dir, '102_local_generate_local_hypothesis_3_plots')
+    
+    if not os.path.exists(analysis_folder):
+        print(f"❌ Error: Analysis folder '{analysis_folder}' does not exist.")
+        print("Please run the local analysis script first: python analyze_video_local_profiling.py")
+        return
+    
+    # Create hypothesis 3 output folder
+    os.makedirs(hypothesis_3_folder, exist_ok=True)
+    
+    # Find all JSON analysis files
+    analysis_files = []
+    for root, dirs, files in os.walk(analysis_folder):
+        for file in files:
+            if file.endswith('.json') and 'analysis' in file and not file.startswith('universal_') and not file.endswith('_all_configurations_analysis.json'):
+                analysis_files.append(os.path.join(root, file))
+    
+    if not analysis_files:
+        print(f"❌ Error: No analysis JSON files found in '{analysis_folder}'")
+        return
+    
+    print(f"✓ Found {len(analysis_files)} local analysis files to process for hypothesis 3")
+    print("Grouping by example type, stage, and memory configuration...")
+    print("🔋 Comparing 4 energy calculation methods: RAPL, eBPF, TDP, and perf")
+    print()
+    
+    # Group files by example type, stage, and memory
+    grouped_files = {}
+    for json_path in analysis_files:
+        try:
+            # Load data to get configuration info
+            data = load_analysis_data(json_path)
+            filename = os.path.basename(json_path)
+            
+            # Parse filename to extract grouping key
+            if filename.startswith('video_'):
+                # Format: video_stage0_4_512_4_analysis.json
+                parts = filename.replace('_analysis.json', '').split('_')
+                if len(parts) >= 5:
+                    example_type = 'video'
+                    stage = parts[1]  # stage0, stage1, etc.
+                    memory = parts[3]  # 512, 1024, 2048
+                    workers = parts[4]  # 4, 5, 6, etc.
+                    
+                    # Create grouping key: example_stage_memory
+                    group_key = f"{example_type}_{stage}_{memory}"
+                    
+                    if group_key not in grouped_files:
+                        grouped_files[group_key] = []
+                    grouped_files[group_key].append((json_path, int(workers), data, example_type))
+                    
+            elif filename.startswith('pi_'):
+                # Format: pi_stage_1_512_4_analysis.json
+                parts = filename.replace('_analysis.json', '').split('_')
+                if len(parts) >= 5:
+                    example_type = 'pi'
+                    stage = f"{parts[1]}_{parts[2]}"  # stage_1
+                    memory = parts[3]  # 512, 1024, 2048
+                    workers = parts[4]  # 4, 5, 6, etc.
+                    
+                    # Create grouping key: example_stage_memory
+                    group_key = f"{example_type}_{stage}_{memory}"
+                    
+                    if group_key not in grouped_files:
+                        grouped_files[group_key] = []
+                    grouped_files[group_key].append((json_path, int(workers), data, example_type))
+                    
+        except Exception as e:
+            print(f"❌ Error processing {os.path.basename(json_path)} for grouping: {str(e)}")
+            continue
+    
+    print(f"✓ Grouped files into {len(grouped_files)} configurations")
+    print()
+    
+    # Process each group
+    processed_count = 0
+    for group_key, file_data_list in grouped_files.items():
+        try:
+            # Sort by worker count
+            file_data_list.sort(key=lambda x: x[1])
+            
+            # Combine all data points from this group
+            combined_data = []
+            worker_counts = []
+            example_type = file_data_list[0][3]  # Get example type from first item
+            
+            for json_path, workers, data, ex_type in file_data_list:
+                combined_data.append(data)
+                worker_counts.append(workers)
+                
+            print(f"✓ Processing group '{group_key}' ({example_type}) with {len(combined_data)} worker configurations: {worker_counts}")
+            
+            # Generate output filename
+            hypothesis_3_name = f"{group_key}_all_workers_hypothesis_3.png"
+            hypothesis_3_path = os.path.join(hypothesis_3_folder, hypothesis_3_name)
+            
+            # Generate hypothesis 3 plot with combined data
+            create_combined_hypothesis_3_plots(combined_data, hypothesis_3_path, group_key, worker_counts, example_type)
+            print(f"✅ Generated combined hypothesis 3 plot: {hypothesis_3_name}")
+            processed_count += 1
+            
+        except Exception as e:
+            print(f"❌ Error processing group {group_key}: {str(e)}")
+    
+    print(f"\n✅ Local hypothesis 3 processing complete!")
+    print(f"✅ Generated {processed_count} combined plots in '{hypothesis_3_folder}'")
+    print(f"📊 Each plot shows energy measurement methods comparison across all worker configurations")
+    print(f"🔋 Methods compared: RAPL (hardware), TDP (specification), perf (performance), eBPF (kernel)")
+
+def main():
+    """Main function."""
+    print("🚀 Starting local profiling hypothesis 3 plot generation...")
+    print("=" * 80)
+    print("📊 Generating energy measurement methods comparison plots for local processing")
+    print("🔋 Comparing 4 energy calculation methods: RAPL, eBPF, TDP, and perf")
+    print("📈 Processing both video and pi examples")
+    print()
+    
+    process_local_analysis_folder()
+    
+    print("\n" + "=" * 80)
+    print("✅ Local hypothesis 3 plot generation completed successfully!")
+
+if __name__ == "__main__":
+    main()

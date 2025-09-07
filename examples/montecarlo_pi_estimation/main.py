@@ -56,7 +56,6 @@ def save_single_execution_profiling(results, execution_time, num_workers):
                             "cold_start": t.cold_start,
                             "time_consumption": t.time_consumption,
                             "worker_time_execution": t.worker_time_execution,
-                            "RAPL_wrong": t.RAPL_wrong,
                             "TDP": t.TDP,
                             "measurement_energy": t.measurement_energy,
                             "perf_energy_cores": t.perf_energy_cores,

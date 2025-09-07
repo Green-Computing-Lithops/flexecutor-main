@@ -122,6 +122,7 @@ config_aws.yaml
 config_local.yaml
 config_processed.yaml
 config.yaml
+aws_credentials.md
 
 
 # virtualenv
@@ -161,16 +162,20 @@ dmypy.json
 .vscode/
 .flake8
 
-# avoid only for the runtime creation ---> remove from the folder
-lithops_fork/
-aws_credentials.md
+# avoid only for the runtime creation ---> remove from the folder 
+# lithops_fork
+# aws_credentials.md
 AAA_information/Creation_runtimes_summary.md
 test-bucket/titanic/old/titanic_60Mb.csv
-aws_credentials.md
-**/credentials*
-**/*credential*
+# Security and credentials
 *.pem
 *.key
+**/credentials*
+**/*credential*
+**/*secret*
+**/*token*
+.aws/
+aws_credentials.md
 
 
 
