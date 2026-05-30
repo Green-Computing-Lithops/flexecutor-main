@@ -1,0 +1,26 @@
+{
+  "x86_stats": {
+    "avg_compute_time": 34.55707824629837,
+    "avg_energy_consumption": 46030.716515973174,
+    "avg_cost": 13.69596935663481,
+    "avg_cpu_utilization": 2.8667029514797373,
+    "processor_tdp": 220
+  },
+  "arm_stats": {
+    "avg_compute_time": 1.6099967507949522,
+    "avg_energy_consumption": 2635.0203622819995,
+    "avg_cost": 0.534570446043101,
+    "avg_cpu_utilization": 2.5158312606009976,
+    "processor_tdp": 100
+  },
+  "statistical_tests": {
+    "compute_time_pvalue": 1.0734176460428013e-22,
+    "energy_consumption_pvalue": 3.097736525806223e-05,
+    "cost_pvalue": 5.445609349645643e-06
+  },
+  "performance_insights": {
+    "compute_time_difference_percent": -95.34105071233152,
+    "energy_savings_percent": 94.27551738985507,
+    "cost_savings_percent": 96.09687761323636
+  }
+}

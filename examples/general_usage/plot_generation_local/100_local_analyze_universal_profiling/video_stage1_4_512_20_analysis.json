@@ -1,0 +1,172 @@
+{
+  "configuration": "(4, 512, 20)",
+  "example_type": "video",
+  "stage": "stage1",
+  "cpu": 1,
+  "memory": 2048,
+  "workers": 20,
+  "analysis_timestamp": "2025-09-09T01:19:38.855536",
+  "metrics": {
+    "read": {
+      "mean": 0.00044780752875588157,
+      "min": 0.00027823448181152344,
+      "max": 0.0012679100036621094,
+      "std_dev": 0.000126136562931246,
+      "count": 220,
+      "total": 0.09851765632629395
+    },
+    "compute": {
+      "mean": 7.961013100363991e-06,
+      "min": 4.5299530029296875e-06,
+      "max": 1.9311904907226562e-05,
+      "std_dev": 2.3565025230975534e-06,
+      "count": 220,
+      "total": 0.0017514228820800781
+    },
+    "write": {
+      "mean": 0.00015949986197731712,
+      "min": 8.797645568847656e-05,
+      "max": 0.0032205581665039062,
+      "std_dev": 0.00021129751205494344,
+      "count": 220,
+      "total": 0.035089969635009766
+    },
+    "cold_start": {
+      "mean": 3.6981592438437723,
+      "min": 0.2931210994720459,
+      "max": 9.322198629379272,
+      "std_dev": 2.8361927722558535,
+      "count": 220,
+      "total": 813.5950336456299
+    },
+    "time_consumption": {
+      "mean": 3.2396082377272726,
+      "min": 2.29653764,
+      "max": 3.38046312,
+      "std_dev": 0.26375867572685213,
+      "count": 220,
+      "total": 712.7138123
+    },
+    "worker_time_execution": {
+      "mean": 3.239608237960122,
+      "min": 2.2965376377105713,
+      "max": 3.380463123321533,
+      "std_dev": 0.26375867570969447,
+      "count": 220,
+      "total": 712.7138123512268
+    },
+    "TDP": {
+      "mean": 2.1095624239279465,
+      "min": 1.132592176437378,
+      "max": 3.2053330476284025,
+      "std_dev": 0.45049733242430834,
+      "count": 220,
+      "total": 464.1037332641482
+    },
+    "perf_energy_cores": {
+      "mean": 13.598954545454546,
+      "min": 7.38,
+      "max": 27.42,
+      "std_dev": 3.0825787250446606,
+      "count": 220,
+      "total": 2991.77
+    },
+    "rapl_energy_cores": {
+      "mean": 43.33811319545455,
+      "min": 24.124877,
+      "max": 82.865268,
+      "std_dev": 9.240034985854326,
+      "count": 220,
+      "total": 9534.384903
+    },
+    "ebpf_energy_pkg": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "std_dev": 0.0,
+      "count": 220,
+      "total": 0.0
+    },
+    "ebpf_energy_cores": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "std_dev": 0.0,
+      "count": 220,
+      "total": 0.0
+    },
+    "psutil_cpu_percent": {
+      "mean": 75.42,
+      "min": 53.8,
+      "max": 100.0,
+      "std_dev": 14.466868462283841,
+      "count": 220,
+      "total": 16592.4
+    },
+    "cpu_cores_physical": {
+      "mean": 4,
+      "min": 4,
+      "max": 4,
+      "std_dev": 0.0,
+      "count": 220,
+      "total": 880
+    },
+    "cpu_cores_logical": {
+      "mean": 8,
+      "min": 8,
+      "max": 8,
+      "std_dev": 0.0,
+      "count": 220,
+      "total": 1760
+    }
+  },
+  "metadata": {
+    "measurement_energy": "perf, rapl, null, psutil",
+    "cpu_name": "Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz",
+    "cpu_architecture": "x86_64",
+    "aws_cpu": "type:unknown|arch:Unknown|lambda:False|mem:unknown"
+  },
+  "derived_metrics": {
+    "total_execution_time": {
+      "mean": 0.0006152684038335627,
+      "total": 0.1353590488433838
+    },
+    "rapl_energy_efficiency": {
+      "joules_per_second": 5443793.729402738,
+      "description": "RAPL energy consumption per second of computation"
+    },
+    "ebpf_energy_efficiency": {
+      "joules_per_second": 0.0,
+      "description": "eBPF energy consumption per second of computation"
+    },
+    "perf_energy_efficiency": {
+      "joules_per_second": 1708193.966523278,
+      "description": "Perf energy consumption per second of computation"
+    },
+    "cpu_utilization_efficiency": {
+      "percent_per_second": 9473668.62096379,
+      "description": "CPU utilization percentage per second of computation"
+    },
+    "energy_measurement_comparison": {
+      "sources": [
+        [
+          "RAPL",
+          43.33811319545455
+        ],
+        [
+          "eBPF",
+          0.0
+        ],
+        [
+          "Perf",
+          13.598954545454546
+        ]
+      ],
+      "description": "Comparison of energy measurements from different sources"
+    },
+    "processor_info": {
+      "tdp_watts": 25,
+      "description": "Intel Core i7-10510U CPU @ 1.80GHz for local processing"
+    }
+  }
+}

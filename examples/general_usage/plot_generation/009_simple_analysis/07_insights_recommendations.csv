@@ -1,0 +1,8 @@
+category,metric,insight,recommendation
+Architecture,Cost Efficiency,ARM vs x86 cost difference: 7.7%,Prefer x86 architecture for cost optimization
+Architecture,Performance,ARM vs x86 performance difference: 43.1%,Prefer x86 architecture for performance
+Architecture,Energy Efficiency,ARM vs x86 energy difference: -51.8%,Prefer ARM architecture for energy efficiency
+Memory,Performance,Best performing memory configuration: 2048MB with 13.512s average execution time,Use 2048MB memory for optimal performance
+Scalability,Performance,Optimal worker count: 28 workers with 20.982s average execution time,Use 28 workers for optimal performance
+Workload,Performance,Fastest workload type: pi with 17.648s average execution time,Choose pi workload type for fastest execution
+Workload,Cost,Most cost-effective workload type: video with $3.0437 average cost,Choose video workload type for cost optimization
